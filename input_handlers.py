@@ -162,8 +162,6 @@ class MainGameEventHandler(EventHandler):
             raise SystemExit()
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine)
-        elif key == tcod.event.K_g:
-            action = PickupAction(player)
 
         elif key == tcod.event.K_i:
             return InventoryActivateHandler(self.engine)

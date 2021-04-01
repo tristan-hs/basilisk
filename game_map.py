@@ -68,6 +68,13 @@ class GameMap:
 
         return None
 
+    def get_item_at_location(self, x: int, y: int) -> Optional[Item]:
+        for item in self.items:
+            if item.x == x and item.y == y:
+                return item
+
+        return None
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height

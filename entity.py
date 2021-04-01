@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import color
 import math
 import random
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
@@ -49,6 +50,10 @@ class Entity:
     @property
     def gamemap(self) -> GameMap:
         return self.parent.gamemap
+
+    @property
+    def xy(self) -> Tuple[int, int]:
+        return (self.x, self.y)
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -82,8 +87,32 @@ class Entity:
 
     def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
+        print(f"{self.name} moving to {str(self.x)},{str(self.y)}")
+        footprint = self.xy
         self.x += dx
         self.y += dy
+
+        # Snake thyself
+        if self is self.gamemap.engine.player:
+            for item in self.inventory.items:
+                # Don't move if you're still under the snake
+                if not item.blocks_movement:
+                    if self.gamemap.get_blocking_entity_at_location(*item.xy):
+                        print(f"{item.name} can't move yet")
+                        return
+                    else:
+                        # If you just got out, solidify and chill
+                        print(f"{item.name} can move soon")
+                        item.blocks_movement = True
+                        item.render_order = RenderOrder.ACTOR
+                        item.color = color.player
+                        return
+                # You go where the last link was
+                goto = footprint[0] - item.x, footprint[1] - item.y
+                # The next link will go where you were
+                footprint = item.xy
+                item.move(*goto)
+
 
 
 class Actor(Entity):

@@ -3,10 +3,11 @@ from components import consumable
 from components.fighter import Fighter
 from components.inventory import Inventory
 from entity import Actor, Item
+import color
  
 player = Actor(
     char="@",
-    color=(255, 255, 255),
+    color=color.player,
     name="Player",
     ai_cls=ai.HostileEnemy,
     fighter=Fighter(hp=30, defense=2, power=5),

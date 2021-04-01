@@ -47,8 +47,6 @@ class PickupAction(Action):
             if actor_location_x == item.x and actor_location_y == item.y:
                 if len(inventory.items) >= inventory.capacity:
                     raise exceptions.Impossible("Your inventory is full.")
-
-                self.engine.game_map.entities.remove(item)
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
 
@@ -96,6 +94,11 @@ class ActionWithDirection(Action):
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
     @property
+    def target_item(self) -> Optional[Item]:
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_item_at_location(self.entity.x,self.entity.y)
+
+    @property
     def target_actor(self) -> Optional[Actor]:
         """Return the actor at this actions destination."""
         return self.engine.game_map.get_actor_at_location(*self.dest_xy)
@@ -131,11 +134,10 @@ class MeleeAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
-        if self.target_actor:
+        if self.target_actor and self.entity is not self.engine.player:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
 
-        else:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
+        return MovementAction(self.entity, self.dx, self.dy).perform()
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
@@ -152,6 +154,9 @@ class MovementAction(ActionWithDirection):
             raise exceptions.Impossible("That way is blocked.")
 
         self.entity.move(self.dx, self.dy)
+
+        if self.target_item and self.entity is self.engine.player:
+            PickupAction(self.entity).perform()
 
 class WaitAction(Action):
     def perform(self) -> None:
