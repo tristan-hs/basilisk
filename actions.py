@@ -141,22 +141,20 @@ class BumpAction(ActionWithDirection):
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
-        dest_x, dest_y = self.dest_xy
-
-        if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            # Destination is out of bounds.
-            raise exceptions.Impossible("That way is blocked.")
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            # Destination is blocked by a tile.
-            raise exceptions.Impossible("That way is blocked.")
-        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            # Destination is blocked by an entity.
+        if not self.engine.game_map.tile_is_walkable(*self.dest_xy):
             raise exceptions.Impossible("That way is blocked.")
 
         self.entity.move(self.dx, self.dy)
 
-        if self.target_item and self.entity is self.engine.player:
-            PickupAction(self.entity).perform()
+        if self.entity is self.engine.player:
+            if self.target_item:
+                PickupAction(self.entity).perform()
+            
+            for direction in ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)):
+                tile = self.engine.player.x + direction[0], self.engine.player.y + direction[1]
+                if self.engine.game_map.tile_is_walkable(*tile):
+                    return
+            self.engine.player.fighter.die()
 
 class WaitAction(Action):
     def perform(self) -> None:
