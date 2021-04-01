@@ -164,9 +164,13 @@ class MainGameEventHandler(EventHandler):
             return HistoryViewer(self.engine)
 
         elif key == tcod.event.K_i:
-            return InventoryActivateHandler(self.engine)
-        elif key == tcod.event.K_d:
-            return InventoryDropHandler(self.engine)
+            return InventorySelectHandler(self.engine)
+        elif key == tcod.event.K_r:
+            return InventoryReleaseHandler(self.engine)
+        elif key == tcod.event.K_s:
+            return InventorySpitHandler(self.engine)
+        elif key == tcod.event.K_m:
+            return InventoryMetabolizeHandler(self.engine)
 
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
@@ -277,6 +281,7 @@ class InventoryEventHandler(AskUserEventHandler):
     """
 
     TITLE = "<missing title>"
+    tooltip = "(s)pit / (m)etabolize / (r)elease"
 
     def __init__(self, engine: Engine):
         super().__init__(engine)
@@ -301,8 +306,17 @@ class InventoryEventHandler(AskUserEventHandler):
             px, py = self.highlighted_item.xy
             console.tiles_rgb["bg"][px, py] = color.white
             console.tiles_rgb["fg"][px, py] = color.black
+            l1 = self.highlighted_item.char
+            l2 = "unidentified"
+            l3 = self.highlighted_item.name
 
-        height = 5 if self.highlighted_item else 3
+        else:
+            l1 = "(None)"
+            l2 = l3 = self.tooltip = None
+
+        height = 3
+        if self.highlighted_item:
+            height = 5
 
         if self.engine.player.x <= 30:
             x = 40
@@ -311,7 +325,7 @@ class InventoryEventHandler(AskUserEventHandler):
         
         y = 0
 
-        width = len(self.TITLE) + 4
+        width = max(len(i) for i in (self.TITLE, l1,l2,l3, self.tooltip) if i is not None) + 4
 
         console.draw_frame(
             x=x,
@@ -324,12 +338,12 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        if self.highlighted_item:
-            console.print(x+1,y+1, self.highlighted_item.char)
-            console.print(x+1,y+2, "unidentified")
-            console.print(x+1,y+3, self.highlighted_item.name)
-        else:
-            console.print(x + 1, y + 1, "(Empty)")
+        for k, v in enumerate([l1, l2, l3]):
+            if v:
+                console.print(x+1, y+k+1, v)
+
+        if self.tooltip:
+            console.print(x+2, y+height-1, self.tooltip)
 
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
@@ -352,30 +366,68 @@ class InventoryEventHandler(AskUserEventHandler):
         elif event.sym in CONFIRM_KEYS and self.highlighted_item:
             return self.on_item_selected(self.highlighted_item)
 
+        elif event.sym in (tcod.event.K_m, tcod.event.K_s, tcod.event.K_r):
+            return self.on_item_used(self.highlighted_item, event)
+
         return super().ev_keydown(event)
 
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        raise NotImplementedError() 
+        return None
 
-class InventoryActivateHandler(InventoryEventHandler):
+    def on_item_used(self, item: Item, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        return None
+
+    def spit_item(self, item):
+        return item.consumable.get_throw_action(self.engine.player)
+
+    def eat_item(self, item):
+        return item.consumable.get_eat_action(self.engine.player)
+
+    def drop_item(self, item):
+        return actions.DropItem(self.engine.player, item)
+
+class InventorySelectHandler(InventoryEventHandler):
+    TITLE = "Select a segment"
+
+    def on_item_used(self, item: Item, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        if event.sym == tcod.event.K_s:
+            return self.spit_item(item)
+
+        elif event.sym == tcod.event.K_m:
+            return self.eat_item(item)
+
+        elif event.sym == tcod.event.K_r:
+            return self.drop_item(item)
+
+
+class InventorySpitHandler(InventoryEventHandler):
     """Handle using an inventory item."""
 
-    TITLE = "Select an item to use"
+    TITLE = "Select a segment to spit"
+    tooltip = None
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Return the action for the selected item."""
-        return item.consumable.get_action(self.engine.player)
+        return self.spit_item(item)
 
-class InventoryDropHandler(InventoryEventHandler):
+class InventoryReleaseHandler(InventoryEventHandler):
     """Handle dropping an inventory item."""
 
-    TITLE = "Select an item to drop"
+    TITLE = "Select a segment to release"
+    tooltip = None
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Drop this item."""
-        return actions.DropItem(self.engine.player, item)
+        return self.drop_item(item)
+
+class InventoryMetabolizeHandler(InventoryEventHandler):
+    TITLE = "Select a segment to digest"
+    tooltip = None
+
+    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        return self.eat_item(item)
 
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
