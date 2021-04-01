@@ -26,3 +26,4 @@ menu_title = (255, 255, 63)
 menu_text = white
 
 player = (125,50,200)
+droppings = black

@@ -7,6 +7,9 @@ from components.base_component import BaseComponent
 if TYPE_CHECKING:
     from entity import Actor, Item
 
+import color
+from render_order import RenderOrder
+
 
 class Inventory(BaseComponent):
     parent: Actor
@@ -19,6 +22,8 @@ class Inventory(BaseComponent):
         Removes an item from the inventory and restores it to the game map, at the player's current location.
         """
         self.items.remove(item)
-        item.place(self.parent.x, self.parent.y, self.gamemap)
+        item.color = color.droppings
+        item.render_order = RenderOrder.CORPSE
+        item.blocks_movement = False
 
         self.engine.message_log.add_message(f"You dropped the {item.name}.")
