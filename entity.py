@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import copy
 import math
-from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
+import random
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
 
 from render_order import RenderOrder
 
@@ -52,11 +53,15 @@ class Entity:
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
+        clone.preSpawn()
         clone.x = x
         clone.y = y
         clone.parent = gamemap
         gamemap.entities.add(clone)
         return clone
+
+    def preSpawn(self):
+        return
 
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
         """Place this entity at a new location.  Handles moving across GameMaps."""
@@ -118,12 +123,13 @@ class Actor(Entity):
         return bool(self.ai)
 
 class Item(Entity):
+    """Any letter"""
     def __init__(
         self,
         *,
         x: int = 0,
         y: int = 0,
-        char: str = "?",
+        charset: Set[str] = ["?"],
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         consumable: Consumable,
@@ -131,12 +137,15 @@ class Item(Entity):
         super().__init__(
             x=x,
             y=y,
-            char=char,
             color=color,
             name=name,
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
         )
-
+        self.charset = charset
         self.consumable = consumable
         self.consumable.parent = self
+
+    def preSpawn(self):
+        self.char = random.choice(self.charset)
+        self.name = self.char

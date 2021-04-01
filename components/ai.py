@@ -72,6 +72,10 @@ class HostileEnemy(BaseAI):
 
         return WaitAction(self.entity).perform()
 
+class Statue(BaseAI):
+    def perform(self) -> None:
+        return WaitAction(self.entity).perform()
+
 class ConfusedEnemy(BaseAI):
     """
     A confused enemy will stumble around aimlessly for a given number of turns, then revert back to its previous AI.
