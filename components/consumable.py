@@ -39,12 +39,19 @@ class Consumable(BaseComponent):
         raise NotImplementedError()
 
     def consume(self) -> None:
-        """Remove the consumed item from its containing inventory."""
+        """Remove the consumed item from its containing inventory.
+        Only player consumes for now."""
         entity = self.parent
-        inventory = entity.parent
-        if isinstance(inventory, components.inventory.Inventory):
-            inventory.items.remove(entity)
-        inventory.gamemap.entities.remove(entity)
+        gamemap = entity.parent.gamemap
+        inventory = gamemap.engine.player.inventory.items
+        
+        footprint = entity.xy
+        startat = inventory.index(self.parent)
+
+        gamemap.entities.remove(entity)
+        inventory.remove(entity)
+        gamemap.engine.player.snake(footprint,startat)
+
 
 class Projectile(Consumable):
     def __init__(self,damage):

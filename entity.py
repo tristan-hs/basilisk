@@ -95,22 +95,23 @@ class Entity:
 
         # Snake thyself
         if self is self.gamemap.engine.player:
-            for item in self.inventory.items:
-                # Don't move if you're still under the snake
-                if not item.blocks_movement:
-                    if self.gamemap.get_blocking_entity_at_location(*item.xy):
-                        return
-                    else:
-                        # If you just got out, solidify and chill
-                        item.blocks_movement = True
-                        item.render_order = RenderOrder.ACTOR
-                        item.color = color.player
-                        return
-                # You go where the last link was
-                goto = footprint[0] - item.x, footprint[1] - item.y
-                # The next link will go where you were
-                footprint = item.xy
-                item.move(*goto)
+            self.snake(footprint)
+
+    def snake(self, footprint, start_at: int = 0) -> None:
+        for i, item in enumerate(self.inventory.items):
+            if i < start_at:
+                continue
+            if not item.blocks_movement:
+                if self.gamemap.get_blocking_entity_at_location(*item.xy):
+                    return
+                else:
+                    item.blocks_movement = True
+                    item.render_order = RenderOrder.ACTOR
+                    item.color = color.player
+                    return
+            goto = footprint[0] - item.x, footprint[1] - item.y
+            footprint = item.xy
+            item.move(*goto)
 
 
 
