@@ -301,7 +301,9 @@ class InventoryEventHandler(AskUserEventHandler):
         they are.
         """
         super().on_render(console)
+        player = self.engine.player
 
+        # set text values
         if self.highlighted_item:
             px, py = self.highlighted_item.xy
             console.tiles_rgb["bg"][px, py] = color.white
@@ -309,24 +311,34 @@ class InventoryEventHandler(AskUserEventHandler):
             l1 = self.highlighted_item.char
             l2 = "unidentified"
             l3 = self.highlighted_item.name
-
         else:
             l1 = "(None)"
             l2 = l3 = self.tooltip = None
 
+        # set dimensions
         height = 3
         if self.highlighted_item:
             height = 5
-
-        if self.engine.player.x <= 30:
+        if player.x <= 30:
             x = 40
         else:
             x = 0
-        
         y = 0
-
         width = max(len(i) for i in (self.TITLE, l1,l2,l3, self.tooltip) if i is not None) + 4
 
+        # print character drawer
+        if self.highlighted_item:
+            console.draw_frame(
+                x=x+1,
+                y=y+height-1,
+                width=width-2 if width % 2 != 0 else width - 3,
+                height=3,
+                clear=True,
+                fg=(100,100,100),
+                bg=(0,0,0)
+            )
+
+        # print main popup
         console.draw_frame(
             x=x,
             y=y,
@@ -338,12 +350,29 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
+        # print info
         for k, v in enumerate([l1, l2, l3]):
             if v:
                 console.print(x+1, y+k+1, v)
 
+        # print tooltip
         if self.tooltip:
             console.print(x+2, y+height-1, self.tooltip)
+
+        # print character map
+        space = width-6 if width % 2 == 0 else width-5
+        start_at = min(self.cursor - (space/2), len(player.inventory.items)-space-1)
+        end_at = max(start_at,0) + space
+        i = 0
+        for k, v in enumerate(player.inventory.items):
+            if k < start_at:
+                continue
+            if k > end_at:
+                break
+            fg = color.black if v is self.highlighted_item else v.color
+            bg = color.white if v is self.highlighted_item else color.black
+            console.print(x+2+i, y+height, v.char, fg=fg, bg=bg)
+            i += 1
 
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
