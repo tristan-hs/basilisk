@@ -87,7 +87,6 @@ class Entity:
 
     def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
-        print(f"{self.name} moving to {str(self.x)},{str(self.y)}")
         footprint = self.xy
         self.x += dx
         self.y += dy
@@ -98,11 +97,9 @@ class Entity:
                 # Don't move if you're still under the snake
                 if not item.blocks_movement:
                     if self.gamemap.get_blocking_entity_at_location(*item.xy):
-                        print(f"{item.name} can't move yet")
                         return
                     else:
                         # If you just got out, solidify and chill
-                        print(f"{item.name} can move soon")
                         item.blocks_movement = True
                         item.render_order = RenderOrder.ACTOR
                         item.color = color.player
