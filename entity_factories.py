@@ -1,7 +1,6 @@
 from components import ai
 from components import consumable
 from components.fighter import Fighter
-from components.inventory import Inventory
 from entity import Actor, Item
 import color
 from render_order import RenderOrder
@@ -12,7 +11,6 @@ player = Actor(
     name="Player",
     ai_cls=ai.HostileEnemy,
     fighter=Fighter(hp=30, defense=2, power=5),
-    inventory=Inventory(capacity=26),
     render_order=RenderOrder.PLAYER
 )
 
@@ -22,7 +20,6 @@ statue = Actor(
     name="Statue",
     ai_cls=ai.Statue,
     fighter=Fighter(hp=1, defense=0, power=0),
-    inventory=Inventory(capacity=0),
 )
 
 vowel = Item(

@@ -8,6 +8,8 @@ from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
 
 from render_order import RenderOrder
 
+from components.inventory import Inventory
+
 if TYPE_CHECKING:
     from components.ai import BaseAI
     from components.consumable import Consumable
@@ -123,7 +125,6 @@ class Actor(Entity):
         name: str = "<Unnamed>",
         ai_cls: Type[BaseAI],
         fighter: Fighter,
-        inventory: Inventory,
         render_order: RenderOrder = RenderOrder.ACTOR
     ):
         super().__init__(
@@ -141,7 +142,7 @@ class Actor(Entity):
         self.fighter = fighter
         self.fighter.parent = self
 
-        self.inventory = inventory
+        self.inventory = Inventory()
         self.inventory.parent = self
 
     @property

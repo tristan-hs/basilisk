@@ -11,8 +11,7 @@ if TYPE_CHECKING:
 class Inventory(BaseComponent):
     parent: Actor
 
-    def __init__(self, capacity: int):
-        self.capacity = capacity
+    def __init__(self):
         self.items: List[Item] = []
 
     def drop(self, item: Item) -> None:

@@ -278,18 +278,31 @@ class InventoryEventHandler(AskUserEventHandler):
 
     TITLE = "<missing title>"
 
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        player = self.engine.player
+        self.inventory_length = len(player.inventory.items)
+        self.cursor = 0
+
+    @property
+    def highlighted_item(self) -> Optional[Item]:
+        if self.inventory_length > self.cursor:
+            return self.engine.player.inventory.items[self.cursor]
+        return None
+
     def on_render(self, console: tcod.Console) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         Will move to a different position based on where the player is located, so the player can always see where
         they are.
         """
         super().on_render(console)
-        number_of_items_in_inventory = len(self.engine.player.inventory.items)
 
-        height = number_of_items_in_inventory + 2
+        if self.highlighted_item:
+            px, py = self.highlighted_item.xy
+            console.tiles_rgb["bg"][px, py] = color.white
+            console.tiles_rgb["fg"][px, py] = color.black
 
-        if height <= 3:
-            height = 3
+        height = 5 if self.highlighted_item else 3
 
         if self.engine.player.x <= 30:
             x = 40
@@ -311,26 +324,36 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        if number_of_items_in_inventory > 0:
-            for i, item in enumerate(self.engine.player.inventory.items):
-                item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+        if self.highlighted_item:
+            console.print(x+1,y+1, self.highlighted_item.char)
+            console.print(x+1,y+2, "unidentified")
+            console.print(x+1,y+3, self.highlighted_item.name)
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        player = self.engine.player
-        key = event.sym
-        index = key - tcod.event.K_a
 
-        if 0 <= index <= 26:
-            try:
-                selected_item = player.inventory.items[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", color.invalid)
-                return None
-            return self.on_item_selected(selected_item)
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
+        # Scroll through inventory
+        if event.sym in CURSOR_Y_KEYS:
+            adjust = CURSOR_Y_KEYS[event.sym]
+            if adjust < 0 and self.cursor == 0:
+                # Only move from the top to the bottom when you're on the edge.
+                self.cursor = max(self.inventory_length - 1, 0)
+            elif adjust > 0 and self.cursor == self.inventory_length - 1:
+                # Same with bottom to top movement.
+                self.cursor = 0
+            else:
+                # Otherwise move while staying clamped to the bounds of the history log.
+                self.cursor = max(0, min(self.cursor + adjust, self.inventory_length - 1))
+
+            return None
+
+        # Select item
+        elif event.sym in CONFIRM_KEYS and self.highlighted_item:
+            return self.on_item_selected(self.highlighted_item)
+
         return super().ev_keydown(event)
+
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -344,7 +367,6 @@ class InventoryActivateHandler(InventoryEventHandler):
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Return the action for the selected item."""
         return item.consumable.get_action(self.engine.player)
-
 
 class InventoryDropHandler(InventoryEventHandler):
     """Handle dropping an inventory item."""
