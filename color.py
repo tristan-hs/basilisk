@@ -27,3 +27,4 @@ menu_text = white
 
 player = (125,50,200)
 droppings = black
+player_dark = (50,20,80)

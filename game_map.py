@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
+import color
+
 import numpy as np  # type: ignore
 from tcod.console import Console
 
@@ -111,6 +113,10 @@ class GameMap:
             if self.visible[entity.x, entity.y]:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=entity.color
+                )
+            elif entity in self.engine.player.inventory.items:
+                console.print(
+                    x=entity.x, y=entity.y, string=entity.char, fg=color.player_dark
                 )
 
 class GameWorld:
