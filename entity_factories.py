@@ -4,6 +4,7 @@ from components.fighter import Fighter
 from components.inventory import Inventory
 from entity import Actor, Item
 import color
+from render_order import RenderOrder
  
 player = Actor(
     char="@",
@@ -12,6 +13,7 @@ player = Actor(
     ai_cls=ai.HostileEnemy,
     fighter=Fighter(hp=30, defense=2, power=5),
     inventory=Inventory(capacity=26),
+    render_order=RenderOrder.PLAYER
 )
 
 statue = Actor(

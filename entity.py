@@ -127,6 +127,7 @@ class Actor(Entity):
         ai_cls: Type[BaseAI],
         fighter: Fighter,
         inventory: Inventory,
+        render_order: RenderOrder = RenderOrder.ACTOR
     ):
         super().__init__(
             x=x,
@@ -135,7 +136,7 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
-            render_order=RenderOrder.ACTOR,
+            render_order=render_order,
         )
 
         self.ai: Optional[BaseAI] = ai_cls(self)
