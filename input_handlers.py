@@ -541,6 +541,8 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
     @property
     def path_to_target(self):
         x,y = self.engine.mouse_location
+        if not self.engine.game_map.visible[x,y]:
+            return None
         return self.engine.player.ai.get_path_to(x,y,0)
 
     def on_render(self, console: tcod.Console)->None:
