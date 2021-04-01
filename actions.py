@@ -146,15 +146,19 @@ class MovementAction(ActionWithDirection):
 
         self.entity.move(self.dx, self.dy)
 
-        if self.entity is self.engine.player:
-            if self.target_item:
-                PickupAction(self.entity).perform()
-            
-            for direction in ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)):
-                tile = self.engine.player.x + direction[0], self.engine.player.y + direction[1]
-                if self.engine.game_map.tile_is_walkable(*tile):
-                    return
-            self.engine.player.fighter.die()
+        if self.entity is self.engine.player and self.target_item:
+            PickupAction(self.entity).perform()
+        
+        # Make sure player can move, otherwise die    
+        for direction in ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)):
+            tile = self.engine.player.x + direction[0], self.engine.player.y + direction[1]
+            if self.engine.game_map.tile_is_walkable(*tile):
+                return None
+
+        if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
+            return None
+        
+        self.engine.player.fighter.die()
 
 class WaitAction(Action):
     def perform(self) -> None:
