@@ -8,10 +8,12 @@ import components.ai
 import components.inventory
 from components.base_component import BaseComponent
 from exceptions import Impossible
+from game_map import GameMap
 from input_handlers import (
     ActionOrHandler,
     AreaRangedAttackHandler,
     SingleRangedAttackHandler,
+    SingleProjectileAttackHandler,
 )
 
 if TYPE_CHECKING:
@@ -42,6 +44,51 @@ class Consumable(BaseComponent):
         inventory = entity.parent
         if isinstance(inventory, components.inventory.Inventory):
             inventory.items.remove(entity)
+        inventory.gamemap.entities.remove(entity)
+
+class Projectile(Consumable):
+    def __init__(self,damage):
+        self.damage = damage
+
+    def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+        self.engine.message_log.add_message("Select a target.", color.needs_target)
+        return SingleProjectileAttackHandler(
+            self.engine,
+            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy)
+        )
+
+    def activate(self, action: actions.ItemAction) -> None:
+        """ Override this part"""
+        consumer = action.entity
+        target = action.target_actor
+
+        self.engine.message_log.add_message(
+                f"You spit your {self.parent.name} at the {target.name} for {self.damage} damage!"
+            )
+        target.fighter.take_damage(self.damage)
+        self.consume()
+
+
+class HealingConsumable(Consumable):
+    def __init__(self, amount: int):
+        self.amount = amount
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        amount_recovered = consumer.fighter.heal(self.amount)
+
+        if amount_recovered > 0:
+            self.engine.message_log.add_message(
+                f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
+                color.health_recovered,
+            )
+            self.consume()
+        else:
+            raise Impossible(f"Your health is already full.")
+
+
+
+
 
 class ConfusionConsumable(Consumable):
     def __init__(self, number_of_turns: int):
@@ -76,23 +123,6 @@ class ConfusionConsumable(Consumable):
         )
         self.consume()
 
-
-class HealingConsumable(Consumable):
-    def __init__(self, amount: int):
-        self.amount = amount
-
-    def activate(self, action: actions.ItemAction) -> None:
-        consumer = action.entity
-        amount_recovered = consumer.fighter.heal(self.amount)
-
-        if amount_recovered > 0:
-            self.engine.message_log.add_message(
-                f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
-                color.health_recovered,
-            )
-            self.consume()
-        else:
-            raise Impossible(f"Your health is already full.")
 
 class LightningDamageConsumable(Consumable):
     def __init__(self, damage: int, maximum_range: int):

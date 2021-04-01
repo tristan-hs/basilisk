@@ -380,10 +380,10 @@ class InventoryEventHandler(AskUserEventHandler):
         return None
 
     def spit_item(self, item):
-        return item.consumable.get_throw_action(self.engine.player)
+        return item.spitable.get_throw_action(self.engine.player)
 
     def eat_item(self, item):
-        return item.consumable.get_eat_action(self.engine.player)
+        return actions.ItemAction(self.engine.player, item)
 
     def drop_item(self, item):
         return actions.DropItem(self.engine.player, item)
@@ -501,6 +501,37 @@ class SingleRangedAttackHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))
+
+class SingleProjectileAttackHandler(SelectIndexHandler):
+    def __init__(
+        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]]
+    ):
+        super().__init__(engine)
+        self.callback = callback
+
+    @property
+    def path_to_target(self):
+        x,y = self.engine.mouse_location
+        return self.engine.player.ai.get_path_to(x,y,0)
+
+    def on_render(self, console: tcod.Console)->None:
+        # render the line
+        super().on_render(console)
+        
+        if not self.path_to_target:
+            return
+
+        for px,py in self.path_to_target:
+            console.tiles_rgb["bg"][px, py] = color.white
+            console.tiles_rgb["fg"][px, py] = color.black
+
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        # select based on the line
+        if not self.path_to_target:
+            return None
+        for px,py in self.path_to_target:
+            if self.engine.game_map.get_actor_at_location(px,py):
+                return self.callback((px,py))
 
 class AreaRangedAttackHandler(SelectIndexHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""

@@ -71,7 +71,11 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        self.item.consumable.activate(self)
+        self.item.edible.activate(self)
+
+class ThrowItem(ItemAction):
+    def perform(self) -> None:
+        self.item.spitable.activate(self)
 
 
 class ActionWithDirection(Action):

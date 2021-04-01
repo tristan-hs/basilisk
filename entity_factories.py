@@ -26,7 +26,8 @@ vowel = Item(
     charset=('a','e','i','o','u'),
     color=(0,0,255),
     name="Vowel",
-    consumable=consumable.HealingConsumable(amount=10)
+    edible=consumable.HealingConsumable(amount=10),
+    spitable=consumable.Projectile(damage=1)
 )
 
 

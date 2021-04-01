@@ -17,12 +17,13 @@ class BaseAI(Action):
     def perform(self) -> None:
         raise NotImplementedError()
 
-    def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
+    def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10) -> List[Tuple[int, int]]:
         """Compute and return a path to the target position.
 
         If there is no valid path then returns an empty list.
         """
         # Copy the walkable array.
+
         cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
 
         for entity in self.entity.gamemap.entities:
@@ -32,7 +33,7 @@ class BaseAI(Action):
                 # A lower number means more enemies will crowd behind each other in
                 # hallways.  A higher number means enemies will take longer paths in
                 # order to surround the player.
-                cost[entity.x, entity.y] += 10
+                cost[entity.x, entity.y] += path_cost
 
         # Create a graph from the cost array and pass that graph to a new pathfinder.
         graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3)

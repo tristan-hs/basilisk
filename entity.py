@@ -160,7 +160,8 @@ class Item(Entity):
         charset: Set[str] = ["?"],
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        consumable: Consumable,
+        edible: Consumable,
+        spitable: Consumable
     ):
         super().__init__(
             x=x,
@@ -171,8 +172,10 @@ class Item(Entity):
             render_order=RenderOrder.ITEM,
         )
         self.charset = charset
-        self.consumable = consumable
-        self.consumable.parent = self
+        self.edible = edible
+        self.spitable = spitable
+        self.spitable.parent = self
+        self.edible.parent = self
 
     def preSpawn(self):
         self.char = random.choice(self.charset)
