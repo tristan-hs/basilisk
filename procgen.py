@@ -94,10 +94,10 @@ def generate_dungeon(
 
             center_of_last_room = new_room.center
 
-        place_entities(new_room, dungeon, max_monsters_per_room, max_items_per_room)
-
         dungeon.tiles[center_of_last_room] = tile_types.down_stairs
         dungeon.downstairs_location = center_of_last_room
+
+        place_entities(new_room, dungeon, max_monsters_per_room, max_items_per_room)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
@@ -141,6 +141,9 @@ def place_entities(
     for i in range(number_of_items):
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
+
+        if dungeon.tiles[x,y] == tile_types.down_stairs:
+            continue
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             entity_factories.vowel.spawn(dungeon,x,y)
