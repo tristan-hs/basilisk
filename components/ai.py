@@ -77,6 +77,20 @@ class Statue(BaseAI):
     def perform(self) -> None:
         return WaitAction(self.entity).perform()
 
+class Constricted(BaseAI):
+    def __init__(self, entity: Actor, previous_ai: Optional[BaseAI], previous_color: Optional[Tuple[int,int,int]]):
+        super().__init__(entity)
+        self.previous_ai = previous_ai
+        self.previous_color = previous_color
+
+    def perform(self) -> None:
+        if self.entity.is_next_to_player():
+            return WaitAction(self.entity).perform()
+        else:
+            self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.")
+            self.entity.ai = self.previous_ai
+            self.entity.color = self.previous_color
+
 class ConfusedEnemy(BaseAI):
     """
     A confused enemy will stumble around aimlessly for a given number of turns, then revert back to its previous AI.

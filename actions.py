@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
+from render_functions import DIRECTIONS
+
 import color
 import exceptions
 
@@ -148,8 +150,14 @@ class MovementAction(ActionWithDirection):
 
         self.entity.move(self.dx, self.dy)
 
-        if self.entity is self.engine.player and self.target_item:
-            PickupAction(self.entity).perform()
+        if self.entity is self.engine.player:
+            if self.target_item:
+                PickupAction(self.entity).perform()
+            for enemy in self.entity.get_adjacent_actors():
+                enemy.constrict()
+
+        elif self.entity.is_next_to_player():
+            self.entity.constrict()
         
         # Make sure player can move, otherwise die    
         for direction in ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)):

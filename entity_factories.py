@@ -16,10 +16,17 @@ player = Actor(
 
 statue = Actor(
     char="0",
-    color=(127,127,127),
+    color=color.statue,
     name="Statue",
     ai_cls=ai.Statue,
     fighter=Fighter(hp=1, defense=0, power=0),
+)
+goblin = Actor(
+    char="1",
+    color=color.goblin,
+    name="Goblin",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
 )
 
 vowel = Item(

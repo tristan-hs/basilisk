@@ -132,8 +132,10 @@ def place_entities(
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
+        factory = random.choice([entity_factories.statue,entity_factories.goblin])
+
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            entity_factories.statue.spawn(dungeon, x, y)
+            factory.spawn(dungeon, x, y)
 
     for i in range(number_of_items):
         x = random.randint(room.x1 + 1, room.x2 - 1)

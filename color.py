@@ -28,3 +28,6 @@ menu_text = white
 player = (125,50,200)
 droppings = black
 player_dark = (50,20,80)
+
+statue = (127,127,127)
+goblin = (127,225,127)

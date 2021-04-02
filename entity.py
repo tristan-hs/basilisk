@@ -9,6 +9,9 @@ from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
 from render_order import RenderOrder
 
 from components.inventory import Inventory
+from components.ai import Constricted
+
+from render_functions import DIRECTIONS
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
@@ -113,6 +116,22 @@ class Entity:
             footprint = item.xy
             item.move(*goto)
 
+    def is_next_to_player(self):
+        for d in DIRECTIONS:
+            if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.gamemap.engine.player:
+                return True
+            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.gamemap.engine.player.inventory.items:
+                return True
+        return False
+
+    def get_adjacent_actors(self)->List[Actor]:
+        actors = []
+        for d in DIRECTIONS:
+            a = self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y)
+            if a:
+                actors.append(a)
+        return actors
+
 
 
 class Actor(Entity):
@@ -150,6 +169,13 @@ class Actor(Entity):
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
+
+    def constrict(self) -> None:
+        if isinstance(self.ai, Constricted):
+            return
+        self.gamemap.engine.message_log.add_message(f"The {self.name} is constricted.")
+        self.ai = Constricted(self, self.ai, self.color)
+        self.color = color.statue
 
 class Item(Entity):
     """Any letter"""
