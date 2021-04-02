@@ -10,7 +10,6 @@ from render_order import RenderOrder
 
 from components.inventory import Inventory
 from components.ai import Constricted
-from components.fighter import Fighter
 from components import consumable
 
 from render_functions import DIRECTIONS
@@ -167,9 +166,6 @@ class Actor(Entity):
 
         self.ai: Optional[BaseAI] = ai_cls(self)
 
-        self.fighter = Fighter(hp=1,defense=0,power=0)
-        self.fighter.parent = self
-
         self.inventory = Inventory()
         self.inventory.parent = self
 
@@ -188,7 +184,7 @@ class Actor(Entity):
         self.color = color.statue
         char_num = int(self.char)-1
         if char_num < 0:
-            self.fighter.die()
+            self.die()
         else:
             self.char = str(char_num)
 
@@ -197,9 +193,42 @@ class Actor(Entity):
             charset=('b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'),
             color=color.corpse,
             name="Consonant",
-            edible=consumable.HealingConsumable(amount=10),
+            edible=consumable.ReversingConsumable(amount=10),
             spitable=consumable.Projectile(damage=1)
         ).spawn(self.gamemap,self.x,self.y)
+
+    def die(self) -> None:
+        if self.gamemap.engine.player is self:
+            death_message = "You died!"
+            death_message_color = color.player_die
+            self.char = "%"
+            self.color = color.corpse
+            self.ai = None
+            self.parent.name = f"remains of {self.parent.name}"
+            self.parent.render_order = RenderOrder.CORPSE
+        else:
+            death_message = f"{self.name} is dead!"
+            death_message_color = color.enemy_die
+
+            self.gamemap.entities.remove(self)
+            self.corpse()
+
+        self.gamemap.engine.message_log.add_message(death_message, death_message_color)
+
+    def take_damage(self, amount: int) -> None:
+        if self is not self.gamemap.engine.player:
+            new_c = int(self.char)-1
+            if new_c < 0:
+                self.die()
+                return
+            self.char = str(new_c)
+            new_c = int(self.base_char)-1
+            if new_c < 0:
+                self.die()
+                return
+            self.base_char = str(new_c)
+        else:
+            self.die()
 
 class Item(Entity):
     """Any letter"""

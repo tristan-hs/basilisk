@@ -41,15 +41,14 @@ class Consumable(BaseComponent):
         """Remove the consumed item from its containing inventory.
         Only player consumes for now."""
         entity = self.parent
-        gamemap = entity.parent.gamemap
-        inventory = gamemap.engine.player.inventory.items
+        inventory = self.engine.player.inventory.items
         
         footprint = entity.xy
         startat = inventory.index(self.parent)
 
-        gamemap.entities.remove(entity)
+        self.gamemap.entities.remove(entity)
         inventory.remove(entity)
-        gamemap.engine.player.snake(footprint,startat)
+        self.engine.player.snake(footprint,startat)
 
 
 class Projectile(Consumable):
@@ -71,26 +70,18 @@ class Projectile(Consumable):
         self.engine.message_log.add_message(
                 f"You spit your {self.parent.name} at the {target.name} for {self.damage} damage!"
             )
-        target.fighter.take_damage(self.damage)
+        target.take_damage(self.damage)
         self.consume()
 
 
-class HealingConsumable(Consumable):
+class ReversingConsumable(Consumable):
     def __init__(self, amount: int):
         self.amount = amount
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
-        amount_recovered = consumer.fighter.heal(self.amount)
-
-        if amount_recovered > 0:
-            self.engine.message_log.add_message(
-                f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
-                color.health_recovered,
-            )
-            self.consume()
-        else:
-            raise Impossible(f"Your health is already full.")
+        self.engine.message_log.add_message("Used reversing consumable.")
+        self.consume()
 
 
 
@@ -152,7 +143,7 @@ class LightningDamageConsumable(Consumable):
             self.engine.message_log.add_message(
                 f"A lighting bolt strikes the {target.name} with a loud thunder, for {self.damage} damage!"
             )
-            target.fighter.take_damage(self.damage)
+            target.take_damage(self.damage)
             self.consume()
         else:
             raise Impossible("No enemy is close enough to strike.")
@@ -184,7 +175,7 @@ class FireballDamageConsumable(Consumable):
                 self.engine.message_log.add_message(
                     f"The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage!"
                 )
-                actor.fighter.take_damage(self.damage)
+                actor.take_damage(self.damage)
                 targets_hit = True
 
         if not targets_hit:

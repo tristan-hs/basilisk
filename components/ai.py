@@ -87,7 +87,7 @@ class Constricted(BaseAI):
         if self.entity.is_next_to_player():
             new_char = int(self.entity.base_char)-self.entity.how_next_to_player()
             if new_char < 0:
-                self.entity.fighter.die()
+                self.entity.die()
                 return
             self.entity.char = str(new_char)
             return WaitAction(self.entity).perform()

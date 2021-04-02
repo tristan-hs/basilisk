@@ -79,7 +79,7 @@ vowel = Item(
     charset=('a','e','i','o','u'),
     color=color.vowel,
     name="Vowel",
-    edible=consumable.HealingConsumable(amount=10),
+    edible=consumable.ReversingConsumable(amount=10),
     spitable=consumable.Projectile(damage=1)
 )
 

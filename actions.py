@@ -117,7 +117,7 @@ class MeleeAction(ActionWithDirection):
         if not target:
             raise exceptions.Impossible("Nothing to attack.")
 
-        damage = self.entity.fighter.power - target.fighter.defense
+        damage = 1
 
         attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
         if self.entity is self.engine.player:
@@ -129,7 +129,7 @@ class MeleeAction(ActionWithDirection):
             self.engine.message_log.add_message(
                 f"{attack_desc} for {damage} hit points.", attack_color
             )
-            target.fighter.hp -= damage
+            target.take_damage(damage)
         else:
             self.engine.message_log.add_message(
                 f"{attack_desc} but does no damage.", attack_color
@@ -165,7 +165,7 @@ class MovementAction(ActionWithDirection):
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
             return None
         
-        self.engine.player.fighter.die()
+        self.engine.player.die()
 
 class WaitAction(Action):
     def perform(self) -> None:
