@@ -204,8 +204,8 @@ class Actor(Entity):
             self.char = "%"
             self.color = color.corpse
             self.ai = None
-            self.parent.name = f"remains of {self.parent.name}"
-            self.parent.render_order = RenderOrder.CORPSE
+            self.name = f"remains of {self.name}"
+            self.render_order = RenderOrder.CORPSE
         else:
             death_message = f"{self.name} is dead!"
             death_message_color = color.enemy_die
