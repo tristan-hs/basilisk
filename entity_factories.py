@@ -28,6 +28,64 @@ goblin = Actor(
     ai_cls=ai.HostileEnemy,
     fighter=Fighter(hp=1, defense=0, power=1)
 )
+ogre = Actor(
+    char="2",
+    color=color.ogre,
+    name="Ogre",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+dragon = Actor(
+    char="3",
+    color=color.dragon,
+    name="Dragon",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+titan = Actor(
+    char="4",
+    color=color.titan,
+    name="Titan",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+lich = Actor(
+    char="5",
+    color=color.lich,
+    name="Lich",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+demon = Actor(
+    char="6",
+    color=color.demon,
+    name="Demon",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+war_god = Actor(
+    char="7",
+    color=color.war_god,
+    name="War God",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+elder = Actor(
+    char="8",
+    color=color.elder,
+    name="Elder",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+decider = Actor(
+    char="9",
+    color=color.decider,
+    name="The Decider",
+    ai_cls=ai.HostileEnemy,
+    fighter=Fighter(hp=1, defense=0, power=1)
+)
+
+enemies = [statue,goblin,ogre,dragon,titan,lich,demon,war_god,elder,decider]
 
 vowel = Item(
     charset=('a','e','i','o','u'),

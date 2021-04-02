@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = ()
+        self, engine: Engine, width: int, height: int, floor_number: int, entities: Iterable[Entity] = ()
     ):
         self.engine = engine
         self.width, self.height = width, height
@@ -32,6 +32,7 @@ class GameMap:
         )  # Tiles the player has seen before
 
         self.downstairs_location = (0, 0)
+        self.floor_number = floor_number
 
     @property
     def actors(self) -> Iterator[Actor]:
@@ -166,4 +167,5 @@ class GameWorld:
             max_monsters_per_room=self.max_monsters_per_room,
             max_items_per_room=self.max_items_per_room,
             engine=self.engine,
+            floor_number=self.current_floor
         )

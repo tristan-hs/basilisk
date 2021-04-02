@@ -61,5 +61,14 @@ class Fighter(BaseComponent):
         return amount_recovered
 
     def take_damage(self, amount: int) -> None:
-        self.hp -= amount
-        
+        if self.parent is not self.parent.gamemap.engine.player:
+            new_c = int(self.parent.char)-1
+            if new_c < 0:
+                self.die()
+                return
+            self.parent.char = str(new_c)
+            new_c = int(self.parent.base_char)-1
+            if new_c < 0:
+                self.die()
+                return
+            self.parent.base_char = str(new_c)

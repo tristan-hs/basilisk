@@ -124,6 +124,15 @@ class Entity:
                 return True
         return False
 
+    def how_next_to_player(self):
+        how = 0
+        for d in DIRECTIONS:
+            if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.gamemap.engine.player:
+                how += 1
+            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.gamemap.engine.player.inventory.items:
+                how += 1
+        return how
+
     def get_adjacent_actors(self)->List[Actor]:
         actors = []
         for d in DIRECTIONS:
@@ -165,6 +174,8 @@ class Actor(Entity):
         self.inventory = Inventory()
         self.inventory.parent = self
 
+        self.base_char = char
+
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
@@ -173,9 +184,14 @@ class Actor(Entity):
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
-        self.gamemap.engine.message_log.add_message(f"The {self.name} is constricted.")
+        self.gamemap.engine.message_log.add_message(f"You constrict the {self.name}!", color.status_effect_applied)
         self.ai = Constricted(self, self.ai, self.color)
         self.color = color.statue
+        char_num = int(self.char)-1
+        if char_num < 0:
+            self.fighter.die()
+        else:
+            self.char = str(char_num)
 
 class Item(Entity):
     """Any letter"""

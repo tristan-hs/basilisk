@@ -50,13 +50,14 @@ def generate_dungeon(
     max_monsters_per_room: int,
     max_items_per_room: int,
     engine: Engine,
+    floor_number: int,
 ) -> GameMap:
     """Generate a new dungeon map."""
     player = engine.player
 
     entities = set(player.inventory.items)
     entities.update([player])
-    dungeon = GameMap(engine, map_width, map_height, entities=entities)
+    dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities)
 
     rooms: List[RectangularRoom] = []
 
@@ -132,7 +133,7 @@ def place_entities(
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
-        factory = random.choice([entity_factories.statue,entity_factories.goblin])
+        factory = random.choice(entity_factories.enemies[0:min(dungeon.floor_number*2,9)])
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             factory.spawn(dungeon, x, y)

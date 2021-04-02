@@ -85,11 +85,17 @@ class Constricted(BaseAI):
 
     def perform(self) -> None:
         if self.entity.is_next_to_player():
+            new_char = int(self.entity.base_char)-self.entity.how_next_to_player()
+            if new_char < 0:
+                self.entity.fighter.die()
+                return
+            self.entity.char = str(new_char)
             return WaitAction(self.entity).perform()
         else:
             self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.")
             self.entity.ai = self.previous_ai
             self.entity.color = self.previous_color
+            self.entity.char = self.entity.base_char
 
 class ConfusedEnemy(BaseAI):
     """

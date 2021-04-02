@@ -155,9 +155,6 @@ class MovementAction(ActionWithDirection):
                 PickupAction(self.entity).perform()
             for enemy in self.entity.get_adjacent_actors():
                 enemy.constrict()
-
-        elif self.entity.is_next_to_player():
-            self.entity.constrict()
         
         # Make sure player can move, otherwise die    
         for direction in ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)):
