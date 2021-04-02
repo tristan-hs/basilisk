@@ -8,7 +8,6 @@ import components.ai
 import components.inventory
 from components.base_component import BaseComponent
 from exceptions import Impossible
-from game_map import GameMap
 from input_handlers import (
     ActionOrHandler,
     AreaRangedAttackHandler,

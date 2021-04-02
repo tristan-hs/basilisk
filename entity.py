@@ -10,13 +10,13 @@ from render_order import RenderOrder
 
 from components.inventory import Inventory
 from components.ai import Constricted
+from components.fighter import Fighter
+from components import consumable
 
 from render_functions import DIRECTIONS
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
-    from components.consumable import Consumable
-    from components.fighter import Fighter
     from game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
@@ -153,7 +153,6 @@ class Actor(Entity):
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         ai_cls: Type[BaseAI],
-        fighter: Fighter,
         render_order: RenderOrder = RenderOrder.ACTOR
     ):
         super().__init__(
@@ -168,7 +167,7 @@ class Actor(Entity):
 
         self.ai: Optional[BaseAI] = ai_cls(self)
 
-        self.fighter = fighter
+        self.fighter = Fighter(hp=1,defense=0,power=0)
         self.fighter.parent = self
 
         self.inventory = Inventory()
@@ -192,6 +191,15 @@ class Actor(Entity):
             self.fighter.die()
         else:
             self.char = str(char_num)
+
+    def corpse(self) -> None:
+        Item(
+            charset=('b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'),
+            color=color.corpse,
+            name="Consonant",
+            edible=consumable.HealingConsumable(amount=10),
+            spitable=consumable.Projectile(damage=1)
+        ).spawn(self.gamemap,self.x,self.y)
 
 class Item(Entity):
     """Any letter"""

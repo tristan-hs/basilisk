@@ -32,16 +32,18 @@ class Fighter(BaseComponent):
         if self.engine.player is self.parent:
             death_message = "You died!"
             death_message_color = color.player_die
+            self.parent.char = "%"
+            self.parent.color = color.corpse
+            self.parent.blocks_movement = False
+            self.parent.ai = None
+            self.parent.name = f"remains of {self.parent.name}"
+            self.parent.render_order = RenderOrder.CORPSE
         else:
             death_message = f"{self.parent.name} is dead!"
             death_message_color = color.enemy_die
 
-        self.parent.char = "%"
-        self.parent.color = (191, 0, 0)
-        self.parent.blocks_movement = False
-        self.parent.ai = None
-        self.parent.name = f"remains of {self.parent.name}"
-        self.parent.render_order = RenderOrder.CORPSE
+            self.parent.gamemap.entities.remove(self.parent)
+            self.parent.corpse()
 
         self.engine.message_log.add_message(death_message, death_message_color)
 
