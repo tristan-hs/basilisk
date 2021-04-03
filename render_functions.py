@@ -9,7 +9,8 @@ if TYPE_CHECKING:
     from engine import Engine
     from game_map import GameMap
 
-DIRECTIONS = ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1))
+DIRECTIONS = [(0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)]
+D_ARROWS = ['↑', '↓', '\\', '←', '/', '/','→','\\']
 
 def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
     if not game_map.in_bounds(x, y) or not game_map.visible[x, y]:

@@ -14,8 +14,19 @@ if TYPE_CHECKING:
 
 class BaseAI(Action):
 
-    def perform(self) -> None:
+    _intent = None
+
+    @property
+    def intent(self) -> None:
+        if self._intent:
+            return self._intent
+        return self.decide()
+
+    def decide(self) -> Optional[Action]:
         raise NotImplementedError()
+
+    def perform(self) -> None:
+        return self.intent.perform()
 
     def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10) -> List[Tuple[int, int]]:
         """Compute and return a path to the target position.
@@ -53,7 +64,7 @@ class HostileEnemy(BaseAI):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
-    def perform(self) -> None:
+    def decide(self) -> Optional[Action]:
         target = self.engine.player
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
@@ -61,27 +72,32 @@ class HostileEnemy(BaseAI):
 
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
-                return MeleeAction(self.entity, dx, dy).perform()
+                return BumpAction(self.entity, dx, dy)
 
             self.path = self.get_path_to(target.x, target.y)
 
         if self.path:
             dest_x, dest_y = self.path.pop(0)
-            return MovementAction(
+            return BumpAction(
                 self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-            ).perform()
+            )
 
-        return WaitAction(self.entity).perform()
+        return WaitAction(self.entity)
+
 
 class Statue(BaseAI):
-    def perform(self) -> None:
-        return WaitAction(self.entity).perform()
+    def decide(self) -> Optional[Action]:
+        return WaitAction(self.entity)
+
 
 class Constricted(BaseAI):
     def __init__(self, entity: Actor, previous_ai: Optional[BaseAI], previous_color: Optional[Tuple[int,int,int]]):
         super().__init__(entity)
         self.previous_ai = previous_ai
         self.previous_color = previous_color
+
+    def decide(self) -> Optional[Action]:
+        return WaitAction(self.entity)
 
     def perform(self) -> None:
         if self.entity.is_next_to_player():
@@ -90,10 +106,11 @@ class Constricted(BaseAI):
                 self.entity.die()
                 return
             self.entity.char = str(new_char)
-            return WaitAction(self.entity).perform()
+            return self.intent.perform()
         else:
             self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.")
             self.entity.ai = self.previous_ai
+            self.entity.ai._intent = None
             self.entity.color = self.previous_color
             self.entity.char = self.entity.base_char
 
@@ -111,6 +128,24 @@ class ConfusedEnemy(BaseAI):
         self.previous_ai = previous_ai
         self.turns_remaining = turns_remaining
 
+    def decide(self) -> Optional[Action]:
+        if self.turns_remaining <= 0:
+            return WaitAction(self.entity)
+        # Pick a random direction
+        direction_x, direction_y = random.choice(
+            [
+                (-1, -1),  # Northwest
+                (0, -1),  # North
+                (1, -1),  # Northeast
+                (-1, 0),  # West
+                (1, 0),  # East
+                (-1, 1),  # Southwest
+                (0, 1),  # South
+                (1, 1),  # Southeast
+            ]
+        )
+        return BumpAction(self.entity, direction_x, direction_y)
+
     def perform(self) -> None:
         # Revert the AI back to the original state if the effect has run its course.
         if self.turns_remaining <= 0:
@@ -118,23 +153,7 @@ class ConfusedEnemy(BaseAI):
                 f"The {self.entity.name} is no longer confused."
             )
             self.entity.ai = self.previous_ai
-        else:
-            # Pick a random direction
-            direction_x, direction_y = random.choice(
-                [
-                    (-1, -1),  # Northwest
-                    (0, -1),  # North
-                    (1, -1),  # Northeast
-                    (-1, 0),  # West
-                    (1, 0),  # East
-                    (-1, 1),  # Southwest
-                    (0, 1),  # South
-                    (1, 1),  # Southeast
-                ]
-            )
-
-            self.turns_remaining -= 1
-
-            # The actor will either try to move or attack in the chosen random direction.
-            # Its possible the actor will just bump into the wall, wasting a turn.
-            return BumpAction(self.entity, direction_x, direction_y,).perform()
+            return
+        
+        self.turns_remaining -= 1
+        return self.intent.perform()

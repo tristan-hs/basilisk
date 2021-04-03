@@ -8,6 +8,8 @@ import numpy as np  # type: ignore
 from tcod.console import Console
 
 from entity import Actor, Item
+from actions import ActionWithDirection
+from render_functions import DIRECTIONS, D_ARROWS
 import tile_types
 
 if TYPE_CHECKING:
@@ -110,6 +112,24 @@ class GameMap:
             self.entities, key=lambda x: x.render_order.value
         )
 
+        # display enemy intents on floor
+        for entity in entities_sorted_for_rendering:
+            if (
+                self.visible[entity.x,entity.y] and
+                not entity is self.engine.player and
+                isinstance(entity, Actor) and 
+                isinstance(entity.ai.intent, ActionWithDirection) and
+                self.visible[entity.ai.intent.dest_xy[0],entity.ai.intent.dest_xy[1]]
+            ):
+                console.print(
+                    x=entity.ai.intent.dest_xy[0],
+                    y=entity.ai.intent.dest_xy[1],
+                    string=D_ARROWS[DIRECTIONS.index((entity.ai.intent.dx,entity.ai.intent.dy))],
+                    fg=color.intent,
+                    bg=color.intent_bg
+                )
+
+        # display entities
         for entity in entities_sorted_for_rendering:
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
@@ -117,6 +137,7 @@ class GameMap:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=c
                 )
+
             elif entity in self.engine.player.inventory.items:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.player_dark
