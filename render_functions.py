@@ -58,3 +58,7 @@ def render_names_at_mouse_location(
     )
 
     console.print(x=x, y=y, string=names_at_mouse_location)
+
+def render_word_mode(console: Console, location: Tuple[int,int]) -> None:
+    x, y = location
+    console.print(x=x,y=y,string="WORD MODE")

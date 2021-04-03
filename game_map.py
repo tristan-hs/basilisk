@@ -115,6 +115,7 @@ class GameMap:
         # display enemy intents on floor
         for entity in entities_sorted_for_rendering:
             if (
+                self.engine.word_mode and
                 self.visible[entity.x,entity.y] and
                 not entity is self.engine.player and
                 isinstance(entity, Actor) and 

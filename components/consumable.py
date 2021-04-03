@@ -51,6 +51,7 @@ class Consumable(BaseComponent):
 
         self.gamemap.entities.remove(entity)
         inventory.remove(entity)
+        self.engine.check_word_mode()
         self.engine.player.snake(footprint,startat)
 
 

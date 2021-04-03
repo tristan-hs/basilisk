@@ -54,6 +54,7 @@ class PickupAction(Action):
             if actor_location_x == item.x and actor_location_y == item.y:
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
+                self.engine.check_word_mode()
 
                 description = item.name if item.identified and item.item_type != 'v' else item.char
 

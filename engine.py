@@ -25,6 +25,11 @@ class Engine:
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
+        self.word_mode = False
+
+    def check_word_mode(self):
+        p_word = ''.join([i.char for i in self.player.inventory.items])
+        self.word_mode = p_word in open("words.txt").read().splitlines()
 
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
@@ -54,12 +59,18 @@ class Engine:
         render_functions.render_dungeon_level(
             console=console,
             dungeon_level=self.game_world.current_floor,
-            location=(0, 47),
+            location=(1, 47),
         )
 
         render_functions.render_names_at_mouse_location(
             console=console, x=21, y=44, engine=self
         )
+
+        if self.word_mode:
+            render_functions.render_word_mode(
+                console=console,
+                location=(1,45)
+            )
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""

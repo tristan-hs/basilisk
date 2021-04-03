@@ -25,7 +25,7 @@ bar_empty = (0x40, 0x10, 0x10)
 menu_title = (255, 255, 63)
 menu_text = white
 
-intent = (0,0,0)
+intent = (10,10,10)
 intent_bg = (200,0,0)
 
 player = (0,200,0)
