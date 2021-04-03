@@ -15,6 +15,7 @@ from actions import (
 )
 import color
 import exceptions
+import math
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -583,16 +584,17 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         super().on_render(console)
 
         x, y = self.engine.mouse_location
+        radius = self.radius
 
-        # Draw a rectangle around the targeted area, so the player can see the affected tiles.
-        console.draw_frame(
-            x=x - self.radius - 1,
-            y=y - self.radius - 1,
-            width=self.radius ** 2,
-            height=self.radius ** 2,
-            fg=color.red,
-            clear=False,
-        )
+        i = x - radius
+        while i <= x+radius:
+            j=y-radius
+            while j <= y+radius:
+                if math.sqrt((x-i)**2 + (y-j)**2) <= radius:
+                    console.tiles_rgb["bg"][i, j] = color.white
+                    console.tiles_rgb["fg"][i, j] = color.black
+                j+=1
+            i+=1
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))

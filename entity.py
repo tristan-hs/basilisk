@@ -189,13 +189,7 @@ class Actor(Entity):
             self.char = str(char_num)
 
     def corpse(self) -> None:
-        Item(
-            charset=('b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'),
-            color=color.corpse,
-            name="Consonant",
-            edible=consumable.ReversingConsumable(amount=10),
-            spitable=consumable.Projectile(damage=1)
-        ).spawn(self.gamemap,self.x,self.y)
+        random.choice(self.gamemap.item_factories).spawn(self.gamemap,self.x,self.y)
 
     def die(self) -> None:
         if self.gamemap.engine.player is self:
@@ -217,12 +211,12 @@ class Actor(Entity):
 
     def take_damage(self, amount: int) -> None:
         if self is not self.gamemap.engine.player:
-            new_c = int(self.char)-1
+            new_c = int(self.char)-amount
             if new_c < 0:
                 self.die()
                 return
             self.char = str(new_c)
-            new_c = int(self.base_char)-1
+            new_c = int(self.base_char)-amount
             if new_c < 0:
                 self.die()
                 return
@@ -237,11 +231,13 @@ class Item(Entity):
         *,
         x: int = 0,
         y: int = 0,
-        charset: Set[str] = ["?"],
+        item_type: str,
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         edible: Consumable,
-        spitable: Consumable
+        spitable: Consumable,
+        char: str = '?',
+        description: str
     ):
         super().__init__(
             x=x,
@@ -251,12 +247,14 @@ class Item(Entity):
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
         )
-        self.charset = charset
+        self.item_type = item_type
         self.edible = edible
         self.spitable = spitable
         self.spitable.parent = self
         self.edible.parent = self
+        self.description=description
+        self.identified = False
 
     def preSpawn(self):
-        self.char = random.choice(self.charset)
-        self.name = self.char
+        if self.item_type == 'v':
+            self.char = random.choice(['a','e','i','o','u'])

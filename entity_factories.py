@@ -3,6 +3,7 @@ from components import consumable
 from entity import Actor, Item
 import color
 from render_order import RenderOrder
+import random
  
 player = Actor(
     char="@",
@@ -75,36 +76,41 @@ decider = Actor(
 
 enemies = [statue,goblin,ogre,dragon,titan,lich,demon,war_god,elder,decider]
 
-vowel = Item(
-    charset=('a','e','i','o','u'),
+vowel_segment = Item(
+    item_type='v',
     color=color.vowel,
     name="Vowel",
-    edible=consumable.ReversingConsumable(amount=10),
-    spitable=consumable.Projectile(damage=1)
+    edible=consumable.ReversingConsumable(),
+    spitable=consumable.Projectile(damage=1),
+    description="A common vowel. Spit to deal 1 damage."
 )
 
+fire_segment = Item(
+    item_type='c',
+    color=color.fire,
+    name="Fire",
+    edible=consumable.ReversingConsumable(),
+    spitable=consumable.FireballDamageConsumable(damage=1, radius=1),
+    description="A smoldering segment. Spit to produce a huge fireball."
+)
 
-"""confusion_scroll = Item(
-    char="~",
-    color=(207, 63, 255),
-    name="Confusion Scroll",
-    consumable=consumable.ConfusionConsumable(number_of_turns=10),
+mind_segment = Item(
+    item_type='c',
+    color=color.mind,
+    name="Mind",
+    edible=consumable.ReversingConsumable(),
+    spitable=consumable.ConfusionConsumable(number_of_turns=10),
+    description="A pink, wrinkled segment. Spit to confuse an enemy."
 )
-fireball_scroll = Item(
-    char="~",
-    color=(255, 0, 0),
-    name="Fireball Scroll",
-    consumable=consumable.FireballDamageConsumable(damage=12, radius=3),
+
+electric_segment = Item(
+    item_type='c',
+    color=color.electric,
+    name="Electric",
+    edible=consumable.ReversingConsumable(),
+    spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=5),
+    description="A shocking segment. Spit to smite a random enemy."
 )
-health_potion = Item(
-    char="!",
-    color=(127, 0, 255),
-    name="Health Potion",
-    consumable=consumable.HealingConsumable(amount=4),
-)
-lightning_scroll = Item(
-    char="~",
-    color=(255, 255, 0),
-    name="Lightning Scroll",
-    consumable=consumable.LightningDamageConsumable(damage=20, maximum_range=5),
-)"""
+
+c_segments = [fire_segment,mind_segment,electric_segment]
+consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']

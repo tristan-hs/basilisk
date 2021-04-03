@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import Iterator, List, Tuple, TYPE_CHECKING
+from typing import Iterator, List, Tuple, TYPE_CHECKING, Iterable
 
 import tcod
 
@@ -41,6 +41,14 @@ class RectangularRoom:
             and self.y2 >= other.y1
         )
 
+def generate_item_identities():
+    cons = entity_factories.consonants[:]
+    random.shuffle(cons)
+    items = entity_factories.c_segments[:]
+    for i in items:
+        i.char = cons.pop()
+    return items
+
 def generate_dungeon(
     max_rooms: int,
     room_min_size: int,
@@ -51,13 +59,14 @@ def generate_dungeon(
     max_items_per_room: int,
     engine: Engine,
     floor_number: int,
+    items: Iterable
 ) -> GameMap:
     """Generate a new dungeon map."""
     player = engine.player
 
     entities = set(player.inventory.items)
     entities.update([player])
-    dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities)
+    dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items)
 
     rooms: List[RectangularRoom] = []
 
@@ -146,4 +155,4 @@ def place_entities(
             continue
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            entity_factories.vowel.spawn(dungeon,x,y)
+            entity_factories.vowel_segment.spawn(dungeon,x,y)

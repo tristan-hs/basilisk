@@ -75,29 +75,23 @@ class Projectile(Consumable):
 
 
 class ReversingConsumable(Consumable):
-    def __init__(self, amount: int):
-        self.amount = amount
-
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         self.engine.message_log.add_message("Used reversing consumable.")
         self.consume()
 
 
-
-
-
 class ConfusionConsumable(Consumable):
     def __init__(self, number_of_turns: int):
         self.number_of_turns = number_of_turns
 
-    def get_action(self, consumer: Actor) -> SingleRangedAttackHandler:
+    def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         self.engine.message_log.add_message(
             "Select a target location.", color.needs_target
         )
         return SingleRangedAttackHandler(
             self.engine,
-            callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
+            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
         )
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -126,6 +120,9 @@ class LightningDamageConsumable(Consumable):
         self.damage = damage
         self.maximum_range = maximum_range
 
+    def get_throw_action(self, consumer: Actor):
+        return actions.ThrowItem(consumer, self.parent)
+
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         target = None
@@ -153,14 +150,14 @@ class FireballDamageConsumable(Consumable):
         self.damage = damage
         self.radius = radius
 
-    def get_action(self, consumer: Actor) -> AreaRangedAttackHandler:
+    def get_throw_action(self, consumer: Actor) -> AreaRangedAttackHandler:
         self.engine.message_log.add_message(
             "Select a target location.", color.needs_target
         )
         return AreaRangedAttackHandler(
             self.engine,
             radius=self.radius,
-            callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
+            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
         )
 
     def activate(self, action: actions.ItemAction) -> None:
