@@ -80,7 +80,7 @@ vowel_segment = Item(
     item_type='v',
     color=color.vowel,
     name="Vowel",
-    edible=consumable.ReversingConsumable(),
+    edible=consumable.ChangelingConsumable(),
     spitable=consumable.Projectile(damage=1),
     description="A plain segment."
 )

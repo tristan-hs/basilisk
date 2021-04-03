@@ -107,10 +107,7 @@ class Entity:
                 if self.gamemap.get_blocking_entity_at_location(*item.xy):
                     return
                 else:
-                    item.blocks_movement = True
-                    item.render_order = RenderOrder.ACTOR
-                    if item.item_type == 'v':
-                        item.color = Color.player
+                    item.solidify()
                     return
             goto = footprint[0] - item.x, footprint[1] - item.y
             footprint = item.xy
@@ -282,3 +279,9 @@ class Item(Entity):
     def preSpawn(self):
         if self.item_type == 'v':
             self.char = random.choice(['a','e','i','o','u'])
+
+    def solidify(self):
+        self.blocks_movement = True
+        self.render_order = RenderOrder.ACTOR
+        if self.item_type == 'v':
+            self.color = Color.player

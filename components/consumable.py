@@ -14,6 +14,7 @@ from input_handlers import (
     SingleRangedAttackHandler,
     SingleProjectileAttackHandler,
 )
+import random
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -98,6 +99,25 @@ class ReversingConsumable(Consumable):
 
         self.engine.message_log.add_message("Your head and tail swap places!")
         self.consume()
+
+class ChangelingConsumable(Consumable):
+    description = "changes its shape"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        # add new item to snake
+        items = action.entity.inventory.items
+        new_i = random.choice(self.gamemap.item_factories).spawn(self.parent.gamemap,self.parent.x,self.parent.y)
+        new_i.parent = action.entity
+        items.insert(items.index(self.parent), new_i)
+        new_i.solidify()
+        self.engine.message_log.add_message(f"Your {self.parent.char} morphs into a {new_i.char}!")
+
+        # partial consume old item
+        self.parent.identified = True
+        
+        self.gamemap.entities.remove(self.parent)
+        items.remove(self.parent)
+        self.engine.check_word_mode()
 
 
 class ConfusionConsumable(Projectile):
