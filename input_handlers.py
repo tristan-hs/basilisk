@@ -309,23 +309,30 @@ class InventoryEventHandler(AskUserEventHandler):
             px, py = self.highlighted_item.xy
             console.tiles_rgb["bg"][px, py] = color.white
             console.tiles_rgb["fg"][px, py] = color.black
-            l1 = self.highlighted_item.char
-            l2 = "unidentified"
-            l3 = self.highlighted_item.name
+            if self.highlighted_item.identified:
+                l1 = self.highlighted_item.char+": "+self.highlighted_item.name
+                l2 = self.highlighted_item.description
+                l3 = f"When eaten, {self.highlighted_item.edible.description}."
+                l4 = f"When spit, {self.highlighted_item.spitable.description}."
+            else:
+                l1 = self.highlighted_item.char+": ?"
+                l2 = "A mysterious segment."
+                l3 = "???"
+                l4 = "???"
         else:
             l1 = "(None)"
-            l2 = l3 = self.tooltip = None
+            l2 = l3 = l4 = self.tooltip = None
 
         # set dimensions
-        height = 3
+        height = 4
         if self.highlighted_item:
-            height = 5
+            height = 7
+        width = max(len(i) for i in (self.TITLE, l1,l2,l3,l4, self.tooltip) if i is not None)+4
         if player.x <= 30:
-            x = 40
+            x = 80-width-1
         else:
-            x = 0
-        y = 0
-        width = max(len(i) for i in (self.TITLE, l1,l2,l3, self.tooltip) if i is not None) + 4
+            x = 1
+        y = 1
 
         # print character drawer
         if self.highlighted_item:
@@ -352,7 +359,7 @@ class InventoryEventHandler(AskUserEventHandler):
         )
 
         # print info
-        for k, v in enumerate([l1, l2, l3]):
+        for k, v in enumerate([l1, l2, l3, l4]):
             if v:
                 console.print(x+1, y+k+1, v)
 

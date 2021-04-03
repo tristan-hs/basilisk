@@ -257,4 +257,5 @@ class Item(Entity):
 
     def preSpawn(self):
         if self.item_type == 'v':
+            self.identified = True
             self.char = random.choice(['a','e','i','o','u'])

@@ -82,7 +82,7 @@ vowel_segment = Item(
     name="Vowel",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.Projectile(damage=1),
-    description="A common vowel. Spit to deal 1 damage."
+    description="A plain segment."
 )
 
 fire_segment = Item(
@@ -91,7 +91,7 @@ fire_segment = Item(
     name="Fire",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.FireballDamageConsumable(damage=1, radius=1),
-    description="A smoldering segment. Spit to produce a huge fireball."
+    description="A smoldering segment."
 )
 
 mind_segment = Item(
@@ -100,7 +100,7 @@ mind_segment = Item(
     name="Mind",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.ConfusionConsumable(number_of_turns=10),
-    description="A pink, wrinkled segment. Spit to confuse an enemy."
+    description="A pink, wrinkled segment."
 )
 
 electric_segment = Item(
@@ -109,7 +109,7 @@ electric_segment = Item(
     name="Electric",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=5),
-    description="A shocking segment. Spit to smite a random enemy."
+    description="A shocking segment."
 )
 
 c_segments = [fire_segment,mind_segment,electric_segment]

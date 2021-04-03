@@ -52,7 +52,9 @@ class Consumable(BaseComponent):
 
 
 class Projectile(Consumable):
-    def __init__(self,damage):
+    description = "deals 1 damage to the target"
+
+    def __init__(self,damage=1):
         self.damage = damage
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
@@ -75,6 +77,8 @@ class Projectile(Consumable):
 
 
 class ReversingConsumable(Consumable):
+    description = "swaps your head and your tail"
+
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         self.engine.message_log.add_message("Used reversing consumable.")
@@ -82,6 +86,8 @@ class ReversingConsumable(Consumable):
 
 
 class ConfusionConsumable(Consumable):
+    description = "confuses an enemy"
+
     def __init__(self, number_of_turns: int):
         self.number_of_turns = number_of_turns
 
@@ -116,6 +122,8 @@ class ConfusionConsumable(Consumable):
 
 
 class LightningDamageConsumable(Consumable):
+    description = "smites a random nearby enemy"
+
     def __init__(self, damage: int, maximum_range: int):
         self.damage = damage
         self.maximum_range = maximum_range
@@ -146,6 +154,8 @@ class LightningDamageConsumable(Consumable):
             raise Impossible("No enemy is close enough to strike.")
 
 class FireballDamageConsumable(Consumable):
+    description = "blasts an area with a fireball"
+
     def __init__(self, damage: int, radius: int):
         self.damage = damage
         self.radius = radius
