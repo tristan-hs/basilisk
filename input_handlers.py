@@ -292,7 +292,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
     @property
     def highlighted_item(self) -> Optional[Item]:
-        if self.inventory_length > self.cursor:
+        if self.inventory_length > max(self.cursor,0):
             return self.engine.player.inventory.items[self.cursor]
         return None
 

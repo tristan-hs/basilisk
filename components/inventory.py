@@ -26,4 +26,6 @@ class Inventory(BaseComponent):
         item.render_order = RenderOrder.CORPSE
         item.blocks_movement = False
 
+        self.parent.gamemap.engine.check_word_mode()
+
         self.engine.message_log.add_message(f"You dropped the {item.name}.")
