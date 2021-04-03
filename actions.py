@@ -183,11 +183,6 @@ class WaitAction(Action):
     def perform(self) -> None:
         self.on_perform()
 
-class DropItem(ItemAction):
-    def perform(self) -> None:
-        self.on_perform()
-        self.entity.inventory.drop(self.item)
-
 class TakeStairsAction(Action):
     def perform(self) -> None:
         """

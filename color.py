@@ -29,7 +29,6 @@ intent = (10,10,10)
 intent_bg = (200,0,0)
 
 player = (0,200,0)
-droppings = (200,150,100)
 player_dark = (0,100,0)
 
 statue = (200,200,200)

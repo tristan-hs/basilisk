@@ -74,6 +74,11 @@ class Engine:
                 location=(1,45)
             )
 
+        render_functions.render_instructions(
+            console=console,
+            location=(62,44)
+        )
+
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
         save_data = lzma.compress(pickle.dumps(self))

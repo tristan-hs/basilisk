@@ -166,12 +166,10 @@ class MainGameEventHandler(EventHandler):
 
         elif key == tcod.event.K_i:
             return InventorySelectHandler(self.engine)
-        elif key == tcod.event.K_r:
-            return InventoryReleaseHandler(self.engine)
         elif key == tcod.event.K_s:
             return InventorySpitHandler(self.engine)
-        elif key == tcod.event.K_m:
-            return InventoryMetabolizeHandler(self.engine)
+        elif key == tcod.event.K_d:
+            return InventoryDigestHandler(self.engine)
 
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
@@ -282,7 +280,7 @@ class InventoryEventHandler(AskUserEventHandler):
     """
 
     TITLE = "<missing title>"
-    tooltip = "(s)pit / (m)etabolize / (r)elease"
+    tooltip = "(d)igest/(s)pit"
 
     def __init__(self, engine: Engine):
         super().__init__(engine)
@@ -320,13 +318,15 @@ class InventoryEventHandler(AskUserEventHandler):
                 l3 = "???"
                 l4 = "???"
         else:
-            l1 = "(None)"
-            l2 = l3 = l4 = self.tooltip = None
+            l2 = "(None)"
+            l1 = l3 = l4 = self.tooltip = None
+
+        spacer = " "
 
         # set dimensions
-        height = 4
+        height = 5
         if self.highlighted_item:
-            height = 7
+            height = 8
         width = max(len(i) for i in (self.TITLE, l1,l2,l3,l4, self.tooltip) if i is not None)+4
         if player.x <= 30:
             x = 80-width-1
@@ -354,18 +354,22 @@ class InventoryEventHandler(AskUserEventHandler):
             height=height,
             title=self.TITLE,
             clear=True,
-            fg=(255, 255, 255),
+            fg=(50, 150, 50),
             bg=(0, 0, 0),
         )
 
         # print info
-        for k, v in enumerate([l1, l2, l3, l4]):
+        for k, v in enumerate([l1, l2, spacer, l3, l4]):
             if v:
-                console.print(x+1, y+k+1, v)
+                c = self.highlighted_item.color if k == 0 else (200,200,200)
+                console.print(x+1, y+k+1, v, fg=c)
 
         # print tooltip
         if self.tooltip:
-            console.print(x+2, y+height-1, self.tooltip)
+            w = width if width % 2 == 0 else width - 1
+            ttw = len(self.tooltip) if len(self.tooltip) % 2 == 0 else len(self.tooltip) - 1
+            ttx = int(x + (w/2) - (ttw/2))
+            console.print(ttx, y+height-1, self.tooltip)
 
         # print character map
         space = width-6 if width % 2 == 0 else width-5
@@ -422,9 +426,6 @@ class InventoryEventHandler(AskUserEventHandler):
     def eat_item(self, item):
         return actions.ItemAction(self.engine.player, item)
 
-    def drop_item(self, item):
-        return actions.DropItem(self.engine.player, item)
-
 class InventorySelectHandler(InventoryEventHandler):
     TITLE = "Select a segment"
 
@@ -434,9 +435,6 @@ class InventorySelectHandler(InventoryEventHandler):
 
         elif event.sym == tcod.event.K_m:
             return self.eat_item(item)
-
-        elif event.sym == tcod.event.K_r:
-            return self.drop_item(item)
 
 
 class InventorySpitHandler(InventoryEventHandler):
@@ -449,17 +447,8 @@ class InventorySpitHandler(InventoryEventHandler):
         """Return the action for the selected item."""
         return self.spit_item(item)
 
-class InventoryReleaseHandler(InventoryEventHandler):
-    """Handle dropping an inventory item."""
 
-    TITLE = "Select a segment to release"
-    tooltip = None
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        """Drop this item."""
-        return self.drop_item(item)
-
-class InventoryMetabolizeHandler(InventoryEventHandler):
+class InventoryDigestHandler(InventoryEventHandler):
     TITLE = "Select a segment to digest"
     tooltip = None
 

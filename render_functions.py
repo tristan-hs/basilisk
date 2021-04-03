@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 DIRECTIONS = [(0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)]
 D_ARROWS = ['↑', '↓', '\\', '←', '/', '/','→','\\']
+D_KEYS = ['J','K','Y','H','B','U','L','N']
 
 def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
     if not game_map.in_bounds(x, y) or not game_map.visible[x, y]:
@@ -47,6 +48,17 @@ def render_dungeon_level(
     x, y = location
 
     console.print(x=x, y=y, string=f"Dungeon level: {dungeon_level}")
+
+def render_instructions(console: Console, location: Tuple[int,int]) -> None:
+    x, y = location
+    l1 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (i)nventory"
+    l2 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (s)pit"
+    l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (d)igest"
+    l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (>)descend"
+    l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (/)look"
+
+    for i,l in enumerate([l1,l2,l3,l4,l5]):
+        console.print(x=x, y=y+i, string=l, fg=(150,150,150))
 
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine
