@@ -85,7 +85,18 @@ class ReversingConsumable(Consumable):
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
-        self.engine.message_log.add_message("Used reversing consumable.")
+        items = consumer.inventory.items[:]
+        last_item = items.pop()
+        ox = consumer.x
+        oy = consumer.y
+
+        consumer.place(last_item.x, last_item.y)
+        last_item.place(ox,oy)
+        items.reverse()
+        items.append(last_item)
+        consumer.inventory.items = items
+
+        self.engine.message_log.add_message("Your head and tail swap places!")
         self.consume()
 
 
