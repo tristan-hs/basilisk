@@ -134,9 +134,10 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
-                c = color.player if entity in self.engine.player.inventory.items else entity.color
+                fg = color.player if entity in self.engine.player.inventory.items else entity.color
+                bg = color.enemy_bg if isinstance(entity, Actor) and entity is not self.engine.player else None
                 console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=c
+                    x=entity.x, y=entity.y, string=entity.char, fg=fg, bg=bg
                 )
 
             elif entity in self.engine.player.inventory.items:

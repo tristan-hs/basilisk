@@ -70,6 +70,13 @@ CURSOR_Y_KEYS = {
     tcod.event.K_PAGEDOWN: 10,
 }
 
+CURSOR_X_KEYS = {
+    tcod.event.K_LEFT: -1,
+    tcod.event.K_RIGHT: 1,
+    tcod.event.K_h: -1,
+    tcod.event.K_l: 1
+}
+
 
 ActionOrHandler = Union[Action, "BaseEventHandler"]
 """An event handler return value which can trigger an action or switch active handlers.
@@ -389,8 +396,8 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
         # Scroll through inventory
-        if event.sym in CURSOR_Y_KEYS:
-            adjust = CURSOR_Y_KEYS[event.sym]
+        if event.sym in CURSOR_X_KEYS:
+            adjust = CURSOR_X_KEYS[event.sym]
             if adjust < 0 and self.cursor == 0:
                 # Only move from the top to the bottom when you're on the edge.
                 self.cursor = max(self.inventory_length - 1, 0)

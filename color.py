@@ -31,6 +31,8 @@ intent_bg = (200,0,0)
 player = (0,200,0)
 player_dark = (0,100,0)
 
+enemy_bg = (80,10,10)
+
 statue = (200,200,200)
 goblin = (100,200,100)
 ogre = (200,140,180)
@@ -47,6 +49,6 @@ corpse = (191, 0, 0)
 vowel = (0,200,200)
 unidentified = (200,200,200)
 
-fire = (225,150,150)
+fire = (225,100,100)
 mind = (200,40,170)
 electric = (0,100,200)
