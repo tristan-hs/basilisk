@@ -50,7 +50,9 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
 
-                self.engine.message_log.add_message(f"You picked up the {item.name}!")
+                description = item.name if item.identified and item.item_type != 'v' else item.char
+
+                self.engine.message_log.add_message(f"You picked up the {description}!")
                 return
 
         raise exceptions.Impossible("There is nothing here to pick up.")

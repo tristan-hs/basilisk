@@ -25,25 +25,26 @@ bar_empty = (0x40, 0x10, 0x10)
 menu_title = (255, 255, 63)
 menu_text = white
 
-player = (125,50,200)
-droppings = black
-player_dark = (50,20,80)
+player = (0,200,0)
+droppings = (200,150,100)
+player_dark = (0,100,0)
 
-statue = (127,127,127)
-goblin = (127,225,127)
+statue = (200,200,200)
+goblin = (100,200,100)
 ogre = (200,140,180)
 dragon = (225,150,150)
 titan = (255,200,220)
 lich = (0,0,0)
-demon = (100,75,75)
-war_god = (75,0,75)
-elder = (0,75,0)
+demon = (200,150,150)
+war_god = (150,0,150)
+elder = (100,100,200)
 decider = (255,255,255)
 
 corpse = (191, 0, 0)
 
-vowel = (0,0,255)
+vowel = (0,200,200)
+unidentified = (200,200,200)
 
 fire = (225,150,150)
-mind = (100,20,130)
+mind = (200,40,170)
 electric = (0,100,200)

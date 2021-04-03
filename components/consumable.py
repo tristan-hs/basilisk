@@ -42,6 +42,9 @@ class Consumable(BaseComponent):
         Only player consumes for now."""
         entity = self.parent
         inventory = self.engine.player.inventory.items
+        key = self.parent.char
+
+        entity.identified = True
         
         footprint = entity.xy
         startat = inventory.index(self.parent)
@@ -70,7 +73,7 @@ class Projectile(Consumable):
         target = action.target_actor
 
         self.engine.message_log.add_message(
-                f"You spit your {self.parent.name} at the {target.name} for {self.damage} damage!"
+                f"You spit your {self.parent.char} at the {target.name} for {self.damage} damage!"
             )
         target.take_damage(self.damage)
         self.consume()
@@ -146,7 +149,7 @@ class LightningDamageConsumable(Consumable):
 
         if target:
             self.engine.message_log.add_message(
-                f"A lighting bolt strikes the {target.name} with a loud thunder, for {self.damage} damage!"
+                f"A lightning bolt strikes the {target.name} with a loud thunder, for {self.damage} damage!"
             )
             target.take_damage(self.damage)
             self.consume()

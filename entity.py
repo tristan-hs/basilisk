@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-import color
+import color as Color
 import math
 import random
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
@@ -109,7 +109,8 @@ class Entity:
                 else:
                     item.blocks_movement = True
                     item.render_order = RenderOrder.ACTOR
-                    item.color = color.player
+                    if item.item_type == 'v':
+                        item.color = Color.player
                     return
             goto = footprint[0] - item.x, footprint[1] - item.y
             footprint = item.xy
@@ -179,9 +180,9 @@ class Actor(Entity):
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
-        self.gamemap.engine.message_log.add_message(f"You constrict the {self.name}!", color.status_effect_applied)
+        self.gamemap.engine.message_log.add_message(f"You constrict the {self.name}!", Color.status_effect_applied)
         self.ai = Constricted(self, self.ai, self.color)
-        self.color = color.statue
+        self.color = Color.statue
         char_num = int(self.char)-1
         if char_num < 0:
             self.die()
@@ -194,15 +195,15 @@ class Actor(Entity):
     def die(self) -> None:
         if self.gamemap.engine.player is self:
             death_message = "You died!"
-            death_message_color = color.player_die
+            death_message_color = Color.player_die
             self.char = "%"
-            self.color = color.corpse
+            self.color = Color.corpse
             self.ai = None
             self.name = f"remains of {self.name}"
             self.render_order = RenderOrder.CORPSE
         else:
             death_message = f"{self.name} is dead!"
-            death_message_color = color.enemy_die
+            death_message_color = Color.enemy_die
 
             self.gamemap.entities.remove(self)
             self.corpse()
@@ -253,9 +254,29 @@ class Item(Entity):
         self.spitable.parent = self
         self.edible.parent = self
         self.description=description
-        self.identified = False
+        self._identified = False
+        self._color = color
+
+    @property
+    def identified(self):
+        if self.item_type == 'v':
+            return True
+        return [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified
+
+    @identified.setter
+    def identified(self, new_val: bool):
+        [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified = new_val
+
+    @property
+    def color(self):
+        if not self.identified:
+            return Color.unidentified
+        return self._color
+
+    @color.setter
+    def color(self, new_val):
+        self._color = new_val
 
     def preSpawn(self):
         if self.item_type == 'v':
-            self.identified = True
             self.char = random.choice(['a','e','i','o','u'])
