@@ -120,7 +120,8 @@ class GameMap:
                 not entity is self.engine.player and
                 isinstance(entity, Actor) and 
                 isinstance(entity.ai.intent, ActionWithDirection) and
-                self.visible[entity.ai.intent.dest_xy[0],entity.ai.intent.dest_xy[1]]
+                self.visible[entity.ai.intent.dest_xy[0],entity.ai.intent.dest_xy[1]] and
+                entity.ai.intent.dest_xy is not entity.xy
             ):
                 console.print(
                     x=entity.ai.intent.dest_xy[0],
