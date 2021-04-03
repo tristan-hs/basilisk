@@ -88,13 +88,16 @@ class ReversingConsumable(Consumable):
         self.consume()
 
 
-class ConfusionConsumable(Consumable):
+class ConfusionConsumable(Projectile):
     description = "confuses an enemy"
 
     def __init__(self, number_of_turns: int):
         self.number_of_turns = number_of_turns
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+
         self.engine.message_log.add_message(
             "Select a target location.", color.needs_target
         )
@@ -124,7 +127,7 @@ class ConfusionConsumable(Consumable):
         self.consume()
 
 
-class LightningDamageConsumable(Consumable):
+class LightningDamageConsumable(Projectile):
     description = "smites a random nearby enemy"
 
     def __init__(self, damage: int, maximum_range: int):
@@ -156,7 +159,7 @@ class LightningDamageConsumable(Consumable):
         else:
             raise Impossible("No enemy is close enough to strike.")
 
-class FireballDamageConsumable(Consumable):
+class FireballDamageConsumable(Projectile):
     description = "blasts an area with a fireball"
 
     def __init__(self, damage: int, radius: int):
@@ -164,6 +167,9 @@ class FireballDamageConsumable(Consumable):
         self.radius = radius
 
     def get_throw_action(self, consumer: Actor) -> AreaRangedAttackHandler:
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+            
         self.engine.message_log.add_message(
             "Select a target location.", color.needs_target
         )

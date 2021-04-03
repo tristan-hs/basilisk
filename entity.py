@@ -265,6 +265,8 @@ class Item(Entity):
 
     @identified.setter
     def identified(self, new_val: bool):
+        if self.item_type == 'v':
+            return
         [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified = new_val
 
     @property
