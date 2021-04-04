@@ -54,9 +54,6 @@ class PickupAction(Action):
                 description = item.name if item.identified and item.item_type != 'v' else item.char
 
                 self.engine.message_log.add_message(f"You picked up the {description}!")
-                return
-
-        raise exceptions.Impossible("There is nothing here to pick up.")
 
 
 class ItemAction(Action):
