@@ -76,17 +76,23 @@ class ReversingConsumable(Consumable):
     description = "swaps your head and your tail"
 
     def activate(self, action: actions.ItemAction) -> None:
+        # swap with the last /solid/ item
+        # any that aren't solid stay at the end in reverse order
         consumer = action.entity
         items = consumer.inventory.items[:]
-        last_item = items.pop()
-        ox = consumer.x
-        oy = consumer.y
 
-        consumer.place(last_item.x, last_item.y)
-        last_item.place(ox,oy)
-        items.reverse()
-        items.append(last_item)
-        consumer.inventory.items = items
+        solid_items = [i for i in items if i.blocks_movement]
+        nonsolid_items = [i for i in items if not i.blocks_movement]
+
+        tail = solid_items.pop()
+        solid_items.reverse()
+        nonsolid_items.reverse()
+        solid_items.append(tail)
+
+        consumer.place(tail.x,tail.y)
+        tail.place(consumer.x,consumer.y)
+
+        consumer.inventory.items = solid_items + nonsolid_items
 
         self.engine.message_log.add_message("Your head and tail swap places!")
         self.consume()
