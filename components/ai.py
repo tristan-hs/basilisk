@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 import tcod
+from exceptions import Impossible
 
 from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
 
@@ -29,7 +30,10 @@ class BaseAI(Action):
 
     def perform(self) -> None:
         for i in self.intent:
-            i.perform()
+            try:
+                i.perform()
+            except Impossible:
+                pass
         self._intent = None
 
     def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10) -> List[Tuple[int, int]]:
