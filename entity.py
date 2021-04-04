@@ -100,9 +100,7 @@ class Entity:
             self.snake(footprint)
 
     def snake(self, footprint, start_at: int = 0) -> None:
-        for i, item in enumerate(self.inventory.items):
-            if i < start_at:
-                continue
+        for item in self.inventory.items[start_at:]:
             if not item.blocks_movement:
                 if self.gamemap.get_blocking_entity_at_location(*item.xy):
                     return
@@ -112,6 +110,12 @@ class Entity:
             goto = footprint[0] - item.x, footprint[1] - item.y
             footprint = item.xy
             item.move(*goto)
+
+    def unsnake(self, start_at: int) -> None:
+        for item in self.inventory.items[start_at:]:
+            item.desolidify()
+        self.gamemap.engine.check_word_mode()
+
 
     def is_next_to_player(self):
         for d in DIRECTIONS:
@@ -287,3 +291,29 @@ class Item(Entity):
         self.render_order = RenderOrder.ACTOR
         if self.item_type == 'v':
             self.color = Color.player
+
+    def desolidify(self):
+        self.blocks_movement = False
+        self.render_order = RenderOrder.ITEM
+        if self.item_type == 'v':
+            self.color = Color.vowel
+        if self in self.gamemap.engine.player.inventory.items:
+            self.gamemap.engine.player.inventory.items.remove(self)
+
+    #remove the item from the game
+    def consume(self):
+        self.identified = True
+        self.gamemap.entities.remove(self)
+        self.gamemap.engine.player.inventory.items.remove(self)
+        self.gamemap.engine.check_word_mode()
+
+    def take_damage(self, amount: int):
+        player = self.gamemap.engine.player
+        if self in player.inventory.items:
+            i = player.inventory.items.index(self)
+            self.consume()
+            self.gamemap.engine.player.unsnake(i)
+            self.gamemap.engine.message_log.add_message(f"Your {self.char} breaks apart!", Color.enemy_atk)
+
+
+

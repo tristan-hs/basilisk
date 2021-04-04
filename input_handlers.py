@@ -317,7 +317,7 @@ class InventoryEventHandler(AskUserEventHandler):
             if self.highlighted_item.identified:
                 l1 = self.highlighted_item.char+": "+self.highlighted_item.name
                 l2 = self.highlighted_item.description
-                l3 = f"When eaten, {self.highlighted_item.edible.description}."
+                l3 = f"When digested, {self.highlighted_item.edible.description}."
                 l4 = f"When spit, {self.highlighted_item.spitable.description}."
             else:
                 l1 = self.highlighted_item.char+": ?"

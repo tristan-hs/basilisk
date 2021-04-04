@@ -41,19 +41,10 @@ class Consumable(BaseComponent):
     def consume(self) -> None:
         """Remove the consumed item from its containing inventory.
         Only player consumes for now."""
-        entity = self.parent
-        inventory = self.engine.player.inventory.items
-        key = self.parent.char
-
-        entity.identified = True
-        
-        footprint = entity.xy
-        startat = inventory.index(self.parent)
-
-        self.gamemap.entities.remove(entity)
-        inventory.remove(entity)
-        self.engine.check_word_mode()
-        self.engine.player.snake(footprint,startat)
+        footprint = self.parent.xy
+        start_at = self.parent.gamemap.engine.player.inventory.items.index(self.parent)
+        self.parent.consume()
+        self.parent.gamemap.engine.player.snake(footprint, start_at)
 
 
 class Projectile(Consumable):
@@ -113,11 +104,7 @@ class ChangelingConsumable(Consumable):
         self.engine.message_log.add_message(f"Your {self.parent.char} morphs into a {new_i.char}!")
 
         # partial consume old item
-        self.parent.identified = True
-        
-        self.gamemap.entities.remove(self.parent)
-        items.remove(self.parent)
-        self.engine.check_word_mode()
+        self.parent.consume()
 
 
 class ConfusionConsumable(Projectile):
@@ -187,9 +174,10 @@ class LightningDamageConsumable(Projectile):
                 f"A lightning bolt strikes the {target.name} with a loud thunder, for {self.damage} damage!"
             )
             target.take_damage(self.damage)
-            self.consume()
         else:
-            raise Impossible("No enemy is close enough to strike.")
+            self.engine.message_log.add_message(f"A lightning bolt strikes the ground nearby.")
+
+        self.consume()
 
 class FireballDamageConsumable(Projectile):
     description = "blasts an area with a fireball"

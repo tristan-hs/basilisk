@@ -113,7 +113,7 @@ class ActionWithDirection(Action):
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
-        target = self.target_actor
+        target = self.blocking_entity
         if not target:
             raise exceptions.Impossible("Nothing to attack.")
 
@@ -138,7 +138,7 @@ class MeleeAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
-        if self.target_actor and self.entity is not self.engine.player:
+        if self.blocking_entity and self.entity is not self.engine.player:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         return MovementAction(self.entity, self.dx, self.dy).perform()
