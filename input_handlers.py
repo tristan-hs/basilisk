@@ -414,7 +414,7 @@ class InventoryEventHandler(AskUserEventHandler):
         elif event.sym in CONFIRM_KEYS and self.highlighted_item:
             return self.on_item_selected(self.highlighted_item)
 
-        elif event.sym in (tcod.event.K_m, tcod.event.K_s, tcod.event.K_r):
+        elif event.sym in (tcod.event.K_d, tcod.event.K_s):
             return self.on_item_used(self.highlighted_item, event)
 
         return super().ev_keydown(event)
@@ -440,7 +440,7 @@ class InventorySelectHandler(InventoryEventHandler):
         if event.sym == tcod.event.K_s:
             return self.spit_item(item)
 
-        elif event.sym == tcod.event.K_m:
+        elif event.sym == tcod.event.K_d:
             return self.eat_item(item)
 
 
