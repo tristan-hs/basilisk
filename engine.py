@@ -29,7 +29,8 @@ class Engine:
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
-            return False
+            self.word_mode = False
+            return
         p_word = ''.join([i.char for i in self.player.inventory.items])
         self.word_mode = p_word in open("words.txt").read().splitlines()
 

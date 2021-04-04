@@ -33,9 +33,6 @@ class Action:
         """
         raise NotImplementedError()
 
-    def on_perform(self) -> None:
-        self.entity.ai._intent = None
-
 
 class PickupAction(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
@@ -44,8 +41,6 @@ class PickupAction(Action):
         super().__init__(entity)
 
     def perform(self) -> None:
-        self.on_perform()
-
         actor_location_x = self.entity.x
         actor_location_y = self.entity.y
         inventory = self.entity.inventory
@@ -81,13 +76,10 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        self.on_perform()
-
         self.item.edible.activate(self)
 
 class ThrowItem(ItemAction):
     def perform(self) -> None:
-        self.on_perform()
         self.item.spitable.activate(self)
 
 
@@ -121,8 +113,6 @@ class ActionWithDirection(Action):
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
-        self.on_perform()
-
         target = self.target_actor
         if not target:
             raise exceptions.Impossible("Nothing to attack.")
@@ -155,8 +145,6 @@ class BumpAction(ActionWithDirection):
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
-        self.on_perform()
-
         if not self.engine.game_map.tile_is_walkable(*self.dest_xy):
             raise exceptions.Impossible("That way is blocked.")
 
@@ -181,14 +169,13 @@ class MovementAction(ActionWithDirection):
 
 class WaitAction(Action):
     def perform(self) -> None:
-        self.on_perform()
+        pass
 
 class TakeStairsAction(Action):
     def perform(self) -> None:
         """
         Take the stairs, if any exist at the entity's location.
         """
-        self.on_perform()
         
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
             self.engine.game_world.generate_floor()

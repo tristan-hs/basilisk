@@ -116,20 +116,22 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
             if (
                 self.engine.word_mode and
-                self.visible[entity.x,entity.y] and
                 not entity is self.engine.player and
                 isinstance(entity, Actor) and 
-                isinstance(entity.ai.intent, ActionWithDirection) and
-                self.visible[entity.ai.intent.dest_xy[0],entity.ai.intent.dest_xy[1]] and
-                entity.ai.intent.dest_xy is not entity.xy
+                any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
             ):
-                console.print(
-                    x=entity.ai.intent.dest_xy[0],
-                    y=entity.ai.intent.dest_xy[1],
-                    string=D_ARROWS[DIRECTIONS.index((entity.ai.intent.dx,entity.ai.intent.dy))],
-                    fg=color.intent,
-                    bg=color.intent_bg
-                )
+                x, y = entity.xy
+                for intent in entity.ai.intent:
+                    x += intent.dx
+                    y += intent.dy
+                    if self.visible[entity.x, entity.y] or self.visible[x, y]:
+                        console.print(
+                            x=x,
+                            y=y,
+                            string=D_ARROWS[DIRECTIONS.index((intent.dx,intent.dy))],
+                            fg=color.intent,
+                            bg=color.intent_bg
+                        )
 
         # display entities
         for entity in entities_sorted_for_rendering:

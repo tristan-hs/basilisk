@@ -25,6 +25,13 @@ goblin = Actor(
     name="Goblin",
     ai_cls=ai.HostileEnemy,
 )
+jackelope = Actor(
+    char="2",
+    color=color.jackelope,
+    name="Jackelope",
+    ai_cls=ai.HostileEnemy,
+    move_speed=2
+)
 ogre = Actor(
     char="2",
     color=color.ogre,
@@ -36,45 +43,52 @@ dragon = Actor(
     color=color.dragon,
     name="Dragon",
     ai_cls=ai.HostileEnemy,
+    move_speed=2
 )
 titan = Actor(
     char="4",
     color=color.titan,
     name="Titan",
     ai_cls=ai.HostileEnemy,
+    move_speed=2
 )
 lich = Actor(
     char="5",
     color=color.lich,
     name="Lich",
     ai_cls=ai.HostileEnemy,
+    move_speed=2
 )
 demon = Actor(
     char="6",
     color=color.demon,
     name="Demon",
     ai_cls=ai.HostileEnemy,
+    move_speed=3
 )
 war_god = Actor(
     char="7",
     color=color.war_god,
     name="War God",
     ai_cls=ai.HostileEnemy,
+    move_speed=2
 )
 elder = Actor(
     char="8",
     color=color.elder,
     name="Elder",
     ai_cls=ai.HostileEnemy,
+    move_speed=3
 )
 decider = Actor(
     char="9",
     color=color.decider,
     name="The Decider",
     ai_cls=ai.HostileEnemy,
+    move_speed=4
 )
 
-enemies = [statue,goblin,ogre,dragon,titan,lich,demon,war_god,elder,decider]
+enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]
 
 vowel_segment = Item(
     item_type='v',

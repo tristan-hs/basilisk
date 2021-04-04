@@ -149,6 +149,7 @@ class Actor(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
+        move_speed: int = 1,
         ai_cls: Type[BaseAI],
         render_order: RenderOrder = RenderOrder.ACTOR
     ):
@@ -162,12 +163,13 @@ class Actor(Entity):
             render_order=render_order,
         )
 
-        self.ai: Optional[BaseAI] = ai_cls(self)
-
         self.inventory = Inventory()
         self.inventory.parent = self
 
         self.base_char = char
+        self.move_speed = move_speed
+
+        self.ai: Optional[BaseAI] = ai_cls(self)
 
     @property
     def is_alive(self) -> bool:
