@@ -25,9 +25,9 @@ def new_game() -> Engine:
     map_width = 80
     map_height = 43
 
-    room_max_size = 10
+    room_max_size = 20
     room_min_size = 6
-    max_rooms = 15
+    max_rooms = 100
 
     max_monsters_per_room = 2
     max_items_per_room = 5
@@ -35,6 +35,8 @@ def new_game() -> Engine:
     player = copy.deepcopy(entity_factories.player)
 
     engine = Engine(player=player)
+
+    ooze_factor = 0.85
 
     engine.game_world = GameWorld(
         engine=engine,
@@ -45,6 +47,7 @@ def new_game() -> Engine:
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
         max_items_per_room=max_items_per_room,
+        ooze_factor=ooze_factor,
     )
 
     engine.game_world.generate_floor()

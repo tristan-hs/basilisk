@@ -10,6 +10,7 @@ from tcod.console import Console
 from entity import Actor, Item
 from actions import ActionWithDirection
 from render_functions import DIRECTIONS, D_ARROWS
+import random
 import tile_types
 
 if TYPE_CHECKING:
@@ -105,7 +106,7 @@ class GameMap:
         console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=tile_types.SHROUD,
+            default=self.tiles["dark"],
         )
 
         entities_sorted_for_rendering = sorted(
@@ -164,7 +165,8 @@ class GameWorld:
         room_max_size: int,
         max_monsters_per_room: int,
         max_items_per_room: int,
-        current_floor: int = 0
+        current_floor: int = 0,
+        ooze_factor: int
     ):
         from procgen import generate_item_identities
         self.items = generate_item_identities()
@@ -183,14 +185,17 @@ class GameWorld:
         self.max_items_per_room = max_items_per_room
 
         self.current_floor = current_floor
+        self.ooze_factor = ooze_factor
 
     def generate_floor(self) -> None:
         from procgen import generate_dungeon
 
         self.current_floor += 1
 
+        ooze_factor = self.ooze_factor - (0.5*self.current_floor*0.02) + (random.random()*self.current_floor*0.02)
+
         self.engine.game_map = generate_dungeon(
-            max_rooms=self.max_rooms,
+            max_rooms=self.current_floor*15,
             room_min_size=self.room_min_size,
             room_max_size=self.room_max_size,
             map_width=self.map_width,
@@ -199,5 +204,6 @@ class GameWorld:
             max_items_per_room=self.max_items_per_room,
             engine=self.engine,
             floor_number=self.current_floor,
-            items=self.items
+            items=self.items,
+            ooze_factor = self.ooze_factor
         )

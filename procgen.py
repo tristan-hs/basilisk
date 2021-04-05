@@ -14,11 +14,61 @@ if TYPE_CHECKING:
 
 
 class RectangularRoom:
-    def __init__(self, x: int, y: int, width: int, height: int):
-        self.x1 = x
-        self.y1 = y
-        self.x2 = x + width
-        self.y2 = y + height
+    def __init__(self, x: int, y: int, x_dir: int, y_dir: int, map_width: int, map_height: int, rooms: List, room_max_size: int, room_min_size: int, ooze_factor: int):
+        self.door = (x, y)
+        ooze_juice = [1,1]
+        self.x1 = self.x2 = self.door[0]
+        self.y1 = self.y2 = self.door[1]
+
+        # while there's room to grow
+        while self.width < room_max_size and self.height < room_max_size:
+            # collect possible growth directions
+            growths = []
+            for d in ((0,-1),(0,1),(-1,0),(1,0)):
+                if (
+                    (d[0]+x_dir, d[1]+y_dir) == (0,0) or
+                    (d[0] != 0 and ooze_juice[0] == 0) or
+                    (d[1] != 0 and ooze_juice[1] == 0) or
+                    (d[0] < 0 and self.x1 < 1) or
+                    (d[0] > 0 and self.x2 >= map_width) or
+                    (d[1] < 0 and self.y1 < 1) or
+                    (d[1] > 0 and self.y2 >= map_height)
+                ):
+                    continue
+
+                x1 = self.x1 if d[0] > -1 else self.x1-1
+                x2 = self.x2 if d[0] < 1 else self.x2+1
+                y1 = self.y1 if d[1] > -1 else self.y1-1
+                y2 = self.y2 if d[1] < 1 else self.y2+1
+
+                if (x1, x2, y1, y2) == (self.x1, self.x2, self.y1, self.y2):
+                    break
+
+                if any(self.would_intersect(x1, x2, y1, y2, room) for room in rooms):
+                    continue
+
+                growths.append([x1,x2,y1,y2])
+
+            # if there aren't any, quit
+            if len(growths) < 1:
+                break
+
+            growth = random.choice(growths)
+
+            # deplete the ooze
+            if (growth[0] != self.x1 or growth[1] != self.x2) and growth[1] - growth[0] >= room_min_size:
+                if random.random() > ooze_juice[0]:
+                    ooze_juice[0] = 0
+                ooze_juice[0] *= ooze_factor
+
+            if (growth[2] != self.y1 or growth[3] != self.y2) and growth[3] - growth[2] >= room_min_size:
+                if random.random() > ooze_juice[1]:
+                    ooze_juice[1] = 0
+                ooze_juice[1] *= ooze_factor
+
+            # grow
+            self.x1, self.x2, self.y1, self.y2 = growth
+
     
     @property
     def center(self) -> Tuple[int, int]:
@@ -32,13 +82,29 @@ class RectangularRoom:
         """Return the inner area of this room as a 2D array index."""
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
 
+    @property
+    def width(self):
+        return self.x2 - self.x1
+
+    @property
+    def height(self):
+        return self.y2 - self.y1
+
+    def would_intersect(self, x1, x2, y1, y2, other):
+        return(
+            x1 < other.x2 and
+            x2 > other.x1 and
+            y1 < other.y2 and
+            y2 > other.y1
+        )
+
     def intersects(self, other: RectangularRoom) -> bool:
         """Return True if this room overlaps with another RectangularRoom."""
         return (
-            self.x1 <= other.x2
-            and self.x2 >= other.x1
-            and self.y1 <= other.y2
-            and self.y2 >= other.y1
+            self.x1 < other.x2
+            and self.x2 > other.x1
+            and self.y1 < other.y2
+            and self.y2 > other.y1
         )
 
 def generate_item_identities():
@@ -59,7 +125,8 @@ def generate_dungeon(
     max_items_per_room: int,
     engine: Engine,
     floor_number: int,
-    items: Iterable
+    items: Iterable,
+    ooze_factor: int
 ) -> GameMap:
     """Generate a new dungeon map."""
     player = engine.player
@@ -73,43 +140,50 @@ def generate_dungeon(
     center_of_last_room = (0, 0)
 
     for r in range(max_rooms):
-        room_width = random.randint(room_min_size, room_max_size)
-        room_height = random.randint(room_min_size, room_max_size)
+        # unless this is the first room, pick a point adjacent to another room
+        if len(rooms) == 0:
+            x = int(map_width/2) if map_width % 2 == 0 else int((map_width-1)/2)
+            y = int(map_height/2) if map_height % 2 == 0 else int((map_height-1)/2)
+            x_dir = y_dir = 0
+        else:
+            other_room = random.choice(rooms)
+            if random.random() < 0.5:
+                # top or bottom
+                x = random.choice(range(other_room.x1, other_room.x2))
+                y = random.choice([other_room.y1, other_room.y2])
+                x_dir = 0
+                y_dir = -1 if y == other_room.y1 else 1
+            else:
+                # left or right
+                x = random.choice([other_room.x1, other_room.x2])
+                y = random.choice(range(other_room.y1, other_room.y2))
+                x_dir = -1 if x == other_room.x1 else 1
+                y_dir = 0
 
-        x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_height - 1)
+        room = RectangularRoom(x, y, x_dir, y_dir, map_width, map_height, rooms, room_max_size, room_min_size, ooze_factor)
 
-        # "RectangularRoom" class makes rectangles easier to work with
-        new_room = RectangularRoom(x, y, room_width, room_height)
+        if room.width < room_min_size or room.height < room_min_size:
+            continue
 
-        # Run through the other rooms and see if they intersect with this one.
-        if any(new_room.intersects(other_room) for other_room in rooms):
-            continue  # This room intersects, so go to the next attempt.
-        # If there are no intersections then the room is valid.
-
-        # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = tile_types.floor
+        dungeon.tiles[room.inner] = tile_types.floor
 
         if len(rooms) == 0:
-            # The first room, where the player starts.
-            player.place(*new_room.center, dungeon)
+            player.place(*room.center, dungeon)
             for item in player.inventory.items:
                 item.blocks_movement = False
-                item.place(*new_room.center, dungeon)
-        else:  # All rooms after the first.
-            # Dig out a tunnel between this room and the previous one.
-            for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = tile_types.floor
+                item.place(*room.center, dungeon)
+        else:
+            dungeon.tiles[room.door[0],room.door[1]] = tile_types.door
 
-            center_of_last_room = new_room.center
+        center_of_last_room = room.center
 
-        dungeon.tiles[center_of_last_room] = tile_types.down_stairs
-        dungeon.downstairs_location = center_of_last_room
+        monsters = 0 if len(rooms) == 0 else max_monsters_per_room
+        place_entities(room, dungeon, monsters, max_items_per_room)
 
-        place_entities(new_room, dungeon, max_monsters_per_room, max_items_per_room)
-
-        # Finally, append the new room to the list.
-        rooms.append(new_room)
+        rooms.append(room)
+    
+    dungeon.tiles[center_of_last_room] = tile_types.down_stairs
+    dungeon.downstairs_location = center_of_last_room
 
     return dungeon
 
