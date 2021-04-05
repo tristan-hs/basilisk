@@ -48,6 +48,7 @@ def new_game() -> Engine:
         max_monsters_per_room=max_monsters_per_room,
         max_items_per_room=max_items_per_room,
         ooze_factor=ooze_factor,
+        vault_chance=0.02
     )
 
     engine.game_world.generate_floor()

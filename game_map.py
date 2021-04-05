@@ -106,7 +106,7 @@ class GameMap:
         console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=self.tiles["dark"],
+            default=tile_types.SHROUD,
         )
 
         entities_sorted_for_rendering = sorted(
@@ -166,7 +166,8 @@ class GameWorld:
         max_monsters_per_room: int,
         max_items_per_room: int,
         current_floor: int = 0,
-        ooze_factor: int
+        ooze_factor: float,
+        vault_chance: float
     ):
         from procgen import generate_item_identities
         self.items = generate_item_identities()
@@ -186,6 +187,7 @@ class GameWorld:
 
         self.current_floor = current_floor
         self.ooze_factor = ooze_factor
+        self.vault_chance = vault_chance
 
     def generate_floor(self) -> None:
         from procgen import generate_dungeon
@@ -193,6 +195,7 @@ class GameWorld:
         self.current_floor += 1
 
         ooze_factor = self.ooze_factor - (0.5*self.current_floor*0.02) + (random.random()*self.current_floor*0.02)
+        vault_chance = self.vault_chance + (self.current_floor*0.002)
 
         self.engine.game_map = generate_dungeon(
             max_rooms=self.current_floor*15,
@@ -205,5 +208,6 @@ class GameWorld:
             engine=self.engine,
             floor_number=self.current_floor,
             items=self.items,
-            ooze_factor = self.ooze_factor
+            ooze_factor = ooze_factor,
+            vault_chance = vault_chance
         )

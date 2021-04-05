@@ -61,3 +61,17 @@ door = new_tile(
     dark=(ord("+"), (100,50,50), (5,5,5)),
     light=(ord("+"), (150,75,75), (10,10,10))
 )
+
+vault_floor = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (255,255,255), (0,0,10)),
+    light=(ord(" "), (255,255,255), (0,0,20)),
+)
+
+tunnel_floor = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (255,255,255,), (0,50,0)),
+    light=(ord(" "), (255,255,255), (0,100,0))
+)
