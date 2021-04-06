@@ -50,10 +50,7 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
-
-                description = item.name if item.identified and item.item_type != 'v' else item.char
-
-                self.engine.message_log.add_message(f"You picked up the {description}!")
+                self.engine.message_log.add_message(f"You pick up the {item.label} segment.")
 
 
 class ItemAction(Action):
@@ -73,10 +70,14 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
+        self.engine.message_log.add_message(f"You digest the {self.item.label} segment.")
         self.item.edible.activate(self)
 
 class ThrowItem(ItemAction):
     def perform(self) -> None:
+        at = f" at the {self.target_actor.name}" if self.target_actor and self.target_actor is not self.engine.player else ''        
+        self.engine.message_log.add_message(f"You spit the {self.item.label} segment{at}.")
+        
         self.item.spitable.activate(self)
 
 
@@ -116,6 +117,7 @@ class MeleeAction(ActionWithDirection):
 
         damage = 1
 
+        label = target.name if isinstance(target, Actor) else f"your {target.char} segment"
         attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
         if self.entity is self.engine.player:
             attack_color = color.player_atk
@@ -124,12 +126,12 @@ class MeleeAction(ActionWithDirection):
             
         if damage > 0:
             self.engine.message_log.add_message(
-                f"{attack_desc} for {damage} hit points.", attack_color
+                f"{attack_desc} for {damage} damage!", attack_color
             )
             target.take_damage(damage)
         else:
             self.engine.message_log.add_message(
-                f"{attack_desc} but does no damage.", attack_color
+                f"{attack_desc}, but does no damage.", attack_color
             )
 
 
@@ -154,7 +156,7 @@ class MovementAction(ActionWithDirection):
                 enemy.constrict()
         
         # Make sure player can move, otherwise die    
-        for direction in ((0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)):
+        for direction in DIRECTIONS:
             tile = self.engine.player.x + direction[0], self.engine.player.y + direction[1]
             if self.engine.game_map.tile_is_walkable(*tile):
                 return None
@@ -162,6 +164,7 @@ class MovementAction(ActionWithDirection):
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
             return None
         
+        self.engine.message_log.add_message(f"Oof! You're trapped!")
         self.engine.player.die()
 
 class WaitAction(Action):

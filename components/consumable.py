@@ -108,16 +108,16 @@ class ChangelingConsumable(Consumable):
         new_i.parent = action.entity
         items.insert(items.index(self.parent), new_i)
         new_i.solidify()
-        self.engine.message_log.add_message(f"Your {self.parent.char} morphs into a {new_i.char}!")
+        self.engine.message_log.add_message(f"It turns into a {new_i.char}!")
 
         # partial consume old item
         self.parent.consume()
 
 class NothingConsumable(Consumable):
-    description = "provides no nutrients"
+    description = None
 
     def activate(self, action: action.ItemAction) -> None:
-        self.engine.message_log.add_message("That tasted funny.")
+        self.engine.message_log.add_message("Your stomach rumbles.")
         self.consume()
 
 
@@ -132,7 +132,7 @@ class ConfusionConsumable(Projectile):
             return super().get_throw_action(consumer)
 
         self.engine.message_log.add_message(
-            "Select a target location.", color.needs_target
+            "Select a target.", color.needs_target
         )
         return SingleRangedAttackHandler(
             self.engine,
@@ -151,7 +151,7 @@ class ConfusionConsumable(Projectile):
             raise Impossible("You cannot confuse yourself!")
 
         self.engine.message_log.add_message(
-            f"The eyes of the {target.name} look vacant, as it starts to stumble around!",
+            f"The eyes of the {target.name} glaze over as it stumbles about",
             color.status_effect_applied,
         )
         target.ai = components.ai.ConfusedEnemy(
@@ -185,11 +185,11 @@ class LightningDamageConsumable(Projectile):
 
         if target:
             self.engine.message_log.add_message(
-                f"A lightning bolt strikes the {target.name} with a loud thunder, for {self.damage} damage!"
+                f"Lightning smites the {target.name} for {self.damage} damage!"
             )
             target.take_damage(self.damage)
         else:
-            self.engine.message_log.add_message(f"A lightning bolt strikes the ground nearby.")
+            self.engine.message_log.add_message(f"Lightning strikes the ground nearby.")
 
         self.consume()
 
@@ -223,7 +223,7 @@ class FireballDamageConsumable(Projectile):
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage!"
+                    f"The explosion engulfs the {actor.name}! It takes {self.damage} damage!"
                 )
                 actor.take_damage(self.damage)
                 targets_hit = True

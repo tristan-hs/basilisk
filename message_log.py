@@ -7,10 +7,12 @@ import color
 
 
 class Message:
-    def __init__(self, text: str, fg: Tuple[int, int, int]):
+    def __init__(self, text: str, fg: Tuple[int, int, int], message_log):
         self.plain_text = text
         self.fg = fg
         self.count = 1
+        self.parent = message_log
+        self.turn_count = self.parent.engine.turn_count
 
     @property
     def full_text(self) -> str:
@@ -21,8 +23,9 @@ class Message:
 
 
 class MessageLog:
-    def __init__(self) -> None:
+    def __init__(self, engine) -> None:
         self.messages: List[Message] = []
+        self.engine = engine
 
     def add_message(
         self, text: str, fg: Tuple[int, int, int] = color.white, *, stack: bool = True,
@@ -32,10 +35,12 @@ class MessageLog:
         If `stack` is True then the message can stack with a previous message
         of the same text.
         """
+        if self.messages and self.engine.turn_count != self.messages[-1].turn_count:
+            text = f"_{text}"
         if stack and self.messages and text == self.messages[-1].plain_text:
             self.messages[-1].count += 1
         else:
-            self.messages.append(Message(text, fg))
+            self.messages.append(Message(text, fg, self))
 
     def render(
         self, console: tcod.Console, x: int, y: int, width: int, height: int,

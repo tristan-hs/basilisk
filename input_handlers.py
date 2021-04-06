@@ -308,19 +308,20 @@ class InventoryEventHandler(AskUserEventHandler):
         """
         super().on_render(console)
         player = self.engine.player
+        item = self.highlighted_item
 
         # set text values
-        if self.highlighted_item:
-            px, py = self.highlighted_item.xy
+        if item:
+            px, py = item.xy
             console.tiles_rgb["bg"][px, py] = color.white
             console.tiles_rgb["fg"][px, py] = color.black
-            if self.highlighted_item.identified:
-                l1 = self.highlighted_item.char+": "+self.highlighted_item.name
-                l2 = self.highlighted_item.description
-                l3 = f"When digested, {self.highlighted_item.edible.description}."
-                l4 = f"When spit, {self.highlighted_item.spitable.description}."
+            if item.identified:
+                l1 = item.char+": "+item.name
+                l2 = item.description
+                l3 = f"When digested, {item.edible.description}." if item.edible.description else ""
+                l4 = f"When spit, {item.spitable.description}." if item.spitable.description else ""
             else:
-                l1 = self.highlighted_item.char+": ?"
+                l1 = item.char+": ?"
                 l2 = "A mysterious segment."
                 l3 = "???"
                 l4 = "???"
@@ -332,7 +333,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
         # set dimensions
         height = 5
-        if self.highlighted_item:
+        if item:
             height = 8
         width = max(len(i) for i in (self.TITLE, l1,l2,l3,l4, self.tooltip) if i is not None)+4
         if player.x <= 30:
@@ -342,7 +343,7 @@ class InventoryEventHandler(AskUserEventHandler):
         y = 1
 
         # print character drawer
-        if self.highlighted_item:
+        if item:
             console.draw_frame(
                 x=x+1,
                 y=y+height-1,
@@ -388,8 +389,8 @@ class InventoryEventHandler(AskUserEventHandler):
                 continue
             if k > end_at:
                 break
-            fg = color.black if v is self.highlighted_item else v.color
-            bg = color.white if v is self.highlighted_item else color.black
+            fg = color.black if v is item else v.color
+            bg = color.white if v is item else color.black
             console.print(x+2+i, y+height, v.char, fg=fg, bg=bg)
             i += 1
 

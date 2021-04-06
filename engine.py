@@ -22,10 +22,11 @@ class Engine:
     game_world: GameWorld
  
     def __init__(self, player: Actor):
-        self.message_log = MessageLog()
+        self.message_log = MessageLog(self)
         self.mouse_location = (0, 0)
         self.player = player
         self.word_mode = False
+        self.turn_count = 0
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
@@ -35,6 +36,7 @@ class Engine:
         self.word_mode = p_word in open("words.txt").read().splitlines()
 
     def handle_enemy_turns(self) -> None:
+        self.turn_count += 1
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
                 try:

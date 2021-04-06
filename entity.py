@@ -17,6 +17,7 @@ from render_functions import DIRECTIONS
 if TYPE_CHECKING:
     from components.ai import BaseAI
     from game_map import GameMap
+    from engine import Engine
 
 T = TypeVar("T", bound="Entity")
 
@@ -58,6 +59,10 @@ class Entity:
     @property
     def xy(self) -> Tuple[int, int]:
         return (self.x, self.y)
+
+    @property
+    def engine(self) -> Engine:
+        return self.gamemap.engine
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -96,7 +101,7 @@ class Entity:
         self.y += dy
 
         # Snake thyself
-        if self is self.gamemap.engine.player:
+        if self is self.engine.player:
             self.snake(footprint)
 
     def snake(self, footprint, start_at: int = 0) -> None:
@@ -113,24 +118,25 @@ class Entity:
 
     def unsnake(self, start_at: int) -> None:
         for item in self.inventory.items[start_at:]:
+            self.engine.message_log.add_message(f"Your {item.char} segment falls off!")
             item.desolidify()
-        self.gamemap.engine.check_word_mode()
+        self.engine.check_word_mode()
 
 
     def is_next_to_player(self):
         for d in DIRECTIONS:
-            if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.gamemap.engine.player:
+            if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.engine.player:
                 return True
-            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.gamemap.engine.player.inventory.items:
+            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.engine.player.inventory.items:
                 return True
         return False
 
     def how_next_to_player(self):
         how = 0
         for d in DIRECTIONS:
-            if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.gamemap.engine.player:
+            if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.engine.player:
                 how += 1
-            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.gamemap.engine.player.inventory.items:
+            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.engine.player.inventory.items:
                 how += 1
         return how
 
@@ -183,7 +189,7 @@ class Actor(Entity):
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
-        self.gamemap.engine.message_log.add_message(f"You constrict the {self.name}!", Color.status_effect_applied)
+        self.engine.message_log.add_message(f"You constrict the {self.name}! It can't move!", Color.status_effect_applied)
         self.ai = Constricted(self, self.ai, self.color)
         self.color = Color.statue
         char_num = int(self.char)-1
@@ -196,7 +202,7 @@ class Actor(Entity):
         random.choice(self.gamemap.item_factories).spawn(self.gamemap,self.x,self.y)
 
     def die(self) -> None:
-        if self.gamemap.engine.player is self:
+        if self.engine.player is self:
             death_message = "You died!"
             death_message_color = Color.player_die
             self.char = "%"
@@ -212,10 +218,10 @@ class Actor(Entity):
                 self.gamemap.entities.remove(self)
             self.corpse()
 
-        self.gamemap.engine.message_log.add_message(death_message, death_message_color)
+        self.engine.message_log.add_message(death_message, death_message_color)
 
     def take_damage(self, amount: int) -> None:
-        if self is not self.gamemap.engine.player:
+        if self is not self.engine.player:
             new_c = int(self.char)-amount
             if new_c < 0:
                 self.die()
@@ -262,6 +268,10 @@ class Item(Entity):
         self._color = color
 
     @property
+    def label(self):
+        return self.name if self.identified and self.item_type != 'v' else self.char
+
+    @property
     def identified(self):
         if self.item_type == 'v':
             return True
@@ -272,6 +282,8 @@ class Item(Entity):
         if self.item_type == 'v':
             return
         [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified = new_val
+        n = 'n' if self.label[0] in ('a','e','i','o','u') else ''
+        self.engine.message_log.add_message(f"It was a{n} {self.label} segment.")
 
     @property
     def color(self):
@@ -298,23 +310,23 @@ class Item(Entity):
         self.render_order = RenderOrder.ITEM
         if self.item_type == 'v':
             self.color = Color.vowel
-        if self in self.gamemap.engine.player.inventory.items:
-            self.gamemap.engine.player.inventory.items.remove(self)
+        if self in self.engine.player.inventory.items:
+            self.engine.player.inventory.items.remove(self)
 
     #remove the item from the game
     def consume(self):
         self.identified = True
         self.gamemap.entities.remove(self)
-        self.gamemap.engine.player.inventory.items.remove(self)
-        self.gamemap.engine.check_word_mode()
+        self.engine.player.inventory.items.remove(self)
+        self.engine.check_word_mode()
 
     def take_damage(self, amount: int):
         player = self.gamemap.engine.player
         if self in player.inventory.items:
             i = player.inventory.items.index(self)
+            self.engine.message_log.add_message(f"Your {self.label} segment breaks apart!", Color.enemy_atk)
             self.consume()
-            self.gamemap.engine.player.unsnake(i)
-            self.gamemap.engine.message_log.add_message(f"Your {self.char} breaks apart!", Color.enemy_atk)
+            self.engine.player.unsnake(i)
 
 
 
