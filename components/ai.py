@@ -72,6 +72,7 @@ class HostileEnemy(BaseAI):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = None
         self.move_speed = entity.move_speed
+        self.has_seen_player = False
 
     def distance_to(self, tx, ty):
         dx = tx-self.entity.x
@@ -79,13 +80,28 @@ class HostileEnemy(BaseAI):
         return max(abs(dx),abs(dy))
 
     def pick_target(self):
-        target = self.engine.player
-        d_to_t = self.distance_to(*target.xy)
-        for i in target.inventory.items:
+        fov = tcod.map.compute_fov(
+            self.engine.game_map.tiles["transparent"],
+            (self.entity.x, self.entity.y),
+            radius=8,
+        )
+
+        target = self.engine.player if fov[self.engine.player.x,self.engine.player.y] else None
+        d_to_t = self.distance_to(*target.xy) if target else 999
+
+        if target == None and self.has_seen_player == False:
+            return (None, None)
+
+        if target != None and self.has_seen_player == False:
+            self.has_seen_player = True
+            self.engine.message_log.add_message(f"The {self.entity.name} notices you!")
+
+        for i in self.engine.player.inventory.items:
             d_to_i = self.distance_to(*i.xy)
-            if d_to_i < d_to_t:
+            if d_to_i < d_to_t and fov[i.x,i.y]:
                 d_to_t = d_to_i
                 target = i
+
         return (target, d_to_t)
 
 
@@ -95,11 +111,15 @@ class HostileEnemy(BaseAI):
         target, distance = self.pick_target()
         x, y = self.entity.xy
 
-        if self.engine.game_map.visible[x, y]:
-            if distance <= 1:
-                self._intent.append(BumpAction(self.entity, target.x-x, target.y-y))
-                return
-            self.path = self.get_path_to(target.x, target.y)
+        if target == None:
+            self._intent.append(WaitAction(self.entity))
+            return
+
+        if distance <= 1:
+            self._intent.append(BumpAction(self.entity, target.x-x, target.y-y))
+            return
+        
+        self.path = self.get_path_to(target.x, target.y)
 
         if self.path:
             next_move = self.path[0:self.move_speed]
@@ -139,10 +159,10 @@ class Constricted(BaseAI):
             super().perform()
         else:
             self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.")
-            self.entity.ai = self.previous_ai
-            self.entity.ai._intent = None
             self.entity.color = self.previous_color
             self.entity.char = self.entity.base_char
+            self.entity.ai = self.previous_ai
+            self.entity.ai._intent = None
 
 class ConfusedEnemy(BaseAI):
     """

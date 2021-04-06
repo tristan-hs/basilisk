@@ -208,7 +208,8 @@ class Actor(Entity):
             death_message = f"{self.name} is dead!"
             death_message_color = Color.enemy_die
 
-            self.gamemap.entities.remove(self)
+            if self in self.gamemap.entities:
+                self.gamemap.entities.remove(self)
             self.corpse()
 
         self.gamemap.engine.message_log.add_message(death_message, death_message_color)
