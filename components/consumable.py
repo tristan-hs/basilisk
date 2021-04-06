@@ -108,7 +108,7 @@ class ChangelingConsumable(Consumable):
         new_i.parent = action.entity
         items.insert(items.index(self.parent), new_i)
         new_i.solidify()
-        self.engine.message_log.add_message(f"It turns into a ?!", color.offwhite, new_i.char, new_i.color)
+        self.engine.message_log.add_message(f"It turns into ?!", color.offwhite, new_i.char, new_i.color)
 
         # partial consume old item
         self.parent.consume()

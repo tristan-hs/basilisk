@@ -57,29 +57,36 @@ class Engine:
     def render(self, console: Console) -> None:
         self.game_map.render(console)
 
-        self.message_log.render(console=console, x=21, y=45, width=40, height=5)
+        self.message_log.render(console=console, x=21, y=41, width=41, height=9)
 
         # maybe put drawer contents here instead?
 
         render_functions.render_dungeon_level(
             console=console,
             dungeon_level=self.game_world.current_floor,
-            location=(1, 47),
+            location=(76,0),
         )
 
         render_functions.render_names_at_mouse_location(
-            console=console, x=21, y=44, engine=self
+            console=console, x=1, y=41, engine=self
         )
 
-        if self.word_mode:
-            render_functions.render_word_mode(
-                console=console,
-                location=(1,45)
-            )
+        render_functions.render_word_mode(
+            console=console,
+            location=(76,3),
+            active=self.word_mode
+        )
 
         render_functions.render_instructions(
             console=console,
-            location=(62,44)
+            location=(63,41)
+        )
+
+        render_functions.render_player_drawer(
+            console=console,
+            location=(78,9),
+            player=self.player,
+            turn=self.turn_count
         )
 
     def save_as(self, filename: str) -> None:

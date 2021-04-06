@@ -47,7 +47,16 @@ def render_dungeon_level(
     """
     x, y = location
 
-    console.print(x=x, y=y, string=f"Dungeon level: {dungeon_level}")
+    console.draw_frame(
+        x=x,
+        y=y,
+        width=4,
+        height=3,
+        clear=True,
+        fg=color.offwhite,
+        bg=(0,0,0)
+    )
+    console.print(x=x+1, y=y+1, string=f"D{dungeon_level}")
 
 def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     x, y = location
@@ -56,8 +65,10 @@ def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (d)igest"
     l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (>)descend"
     l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (/)look"
+    l6 = f"      (.)wait"
+    l7 = f"    re(v)iew"
 
-    for i,l in enumerate([l1,l2,l3,l4,l5]):
+    for i,l in enumerate([l1,l2,l3,l4,l5,l6,l7]):
         console.print(x=x, y=y+i, string=l, fg=(150,150,150))
 
 def render_names_at_mouse_location(
@@ -71,6 +82,43 @@ def render_names_at_mouse_location(
 
     console.print(x=x, y=y, string=names_at_mouse_location)
 
-def render_word_mode(console: Console, location: Tuple[int,int]) -> None:
+def render_word_mode(console: Console, location: Tuple[int,int], active: bool) -> None:
     x, y = location
-    console.print(x=x,y=y,string="WORD MODE")
+
+    c = color.white if active else color.grey
+
+    console.draw_frame(
+        x=x,
+        y=y,
+        width=4,
+        height=6,
+        clear=True,
+        fg=c,
+        bg=(0,0,0)
+    )
+
+    console.print(x=x+1,y=y+1,string="WM\nOO\nRD\nDE", fg=c)
+
+def render_player_drawer(console: Console, location: Tuple[int,int], player, turn) -> None:
+    sx, sy = x, y = location
+    items = player.inventory.items
+
+    adj = turn % 4
+
+    sy += adj
+    x += adj
+
+    r = 26
+
+    for i in range(r):
+        if r-i == len(items)+1:
+            console.print(x=x,y=y,string=player.char,fg=player.color)
+        if r-i < len(items)+1:
+            item = items[len(items)-r+i]
+            console.print(x=x,y=y,string=item.char,fg=item.color)
+
+        if (x == sx and y % 4 == sy % 4) or x < sx:
+            x += 1
+        else:
+            x -= 1
+        y += 1
