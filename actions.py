@@ -50,7 +50,7 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
-                self.engine.message_log.add_message(f"You pick up the {item.label} segment.")
+                self.engine.message_log.add_message(f"You pick up the {item.char} segment.", item.color)
 
 
 class ItemAction(Action):
@@ -70,13 +70,13 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        self.engine.message_log.add_message(f"You digest the {self.item.label} segment.")
+        self.engine.message_log.add_message(f"You digest the {self.item.label} segment.", self.item.color)
         self.item.edible.activate(self)
 
 class ThrowItem(ItemAction):
     def perform(self) -> None:
         at = f" at the {self.target_actor.name}" if self.target_actor and self.target_actor is not self.engine.player else ''        
-        self.engine.message_log.add_message(f"You spit the {self.item.label} segment{at}.")
+        self.engine.message_log.add_message(f"You spit the {self.item.label} segment{at}.", self.item.color)
         
         self.item.spitable.activate(self)
 
@@ -117,8 +117,8 @@ class MeleeAction(ActionWithDirection):
 
         damage = 1
 
-        label = target.name if isinstance(target, Actor) else f"your {target.char} segment"
-        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        label = f"your {target.char} segment" if target in self.engine.player.inventory.items else {target.name}
+        attack_desc = f"{self.entity.name.capitalize()} attacks {label}"
         if self.entity is self.engine.player:
             attack_color = color.player_atk
         else:
@@ -164,7 +164,7 @@ class MovementAction(ActionWithDirection):
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
             return None
         
-        self.engine.message_log.add_message(f"Oof! You're trapped!")
+        self.engine.message_log.add_message(f"Oof! You're trapped!", color.player_die)
         self.engine.player.die()
 
 class WaitAction(Action):

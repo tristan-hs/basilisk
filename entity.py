@@ -118,7 +118,7 @@ class Entity:
 
     def unsnake(self, start_at: int) -> None:
         for item in self.inventory.items[start_at:]:
-            self.engine.message_log.add_message(f"Your {item.char} segment falls off!")
+            self.engine.message_log.add_message(f"Your {item.char} segment falls off!", Color.status_effect_applied)
             item.desolidify()
         self.engine.check_word_mode()
 
@@ -279,11 +279,15 @@ class Item(Entity):
 
     @identified.setter
     def identified(self, new_val: bool):
-        if self.item_type == 'v':
+        if self.item_type == 'v' or self._identified == True:
             return
-        [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified = new_val
-        n = 'n' if self.label[0] in ('a','e','i','o','u') else ''
-        self.engine.message_log.add_message(f"It was a{n} {self.label} segment.")
+        factory = [i for i in self.gamemap.item_factories if i.char == self.char][0]
+        if factory._identified == True:
+            self._identified = True
+            return
+        factory._identified = self._identified = new_val
+        n = 'n' if self.label[0].lower() in ('a','e','i','o','u') else ''
+        self.engine.message_log.add_message(f"It was a{n} {self.label} segment.", self.color)
 
     @property
     def color(self):

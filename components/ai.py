@@ -9,6 +9,7 @@ import tcod
 from exceptions import Impossible
 
 from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
+import color
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -94,7 +95,7 @@ class HostileEnemy(BaseAI):
 
         if target != None and self.has_seen_player == False:
             self.has_seen_player = True
-            self.engine.message_log.add_message(f"The {self.entity.name} notices you!")
+            self.engine.message_log.add_message(f"The {self.entity.name} notices you!", self.entity.color)
 
         for i in self.engine.player.inventory.items:
             d_to_i = self.distance_to(*i.xy)
@@ -158,7 +159,7 @@ class Constricted(BaseAI):
             self.entity.char = str(new_char)
             super().perform()
         else:
-            self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.")
+            self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.", color.grey)
             self.entity.color = self.previous_color
             self.entity.char = self.entity.base_char
             self.entity.ai = self.previous_ai
@@ -205,7 +206,7 @@ class ConfusedEnemy(BaseAI):
         # Revert the AI back to the original state if the effect has run its course.
         if self.turns_remaining <= 0:
             self.engine.message_log.add_message(
-                f"The {self.entity.name} is no longer confused."
+                f"The {self.entity.name} is no longer confused.", color.grey
             )
             self.entity.ai = self.previous_ai
             return

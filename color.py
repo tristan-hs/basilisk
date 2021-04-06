@@ -1,6 +1,10 @@
+
+# TEXT
+
 white = (0xFF, 0xFF, 0xFF)
 black = (0x0, 0x0, 0x0)
 red = (0xFF, 0x0, 0x0)
+grey = (150,150,150)
 
 player_atk = (0xE0, 0xE0, 0xE0)
 enemy_atk = (0xFF, 0xC0, 0xC0)
@@ -25,6 +29,8 @@ bar_empty = (0x40, 0x10, 0x10)
 menu_title = (255, 255, 63)
 menu_text = white
 
+# MAP
+
 intent = (10,10,10)
 intent_bg = (200,0,0)
 
@@ -34,7 +40,7 @@ player_dark = (0,100,0)
 enemy_bg = (80,10,10)
 
 statue = (200,200,200)
-goblin = (100,200,100)
+goblin = (150,150,75)
 jackelope = (0,200,200)
 ogre = (200,140,180)
 dragon = (225,150,150)
