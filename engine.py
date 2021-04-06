@@ -71,12 +71,6 @@ class Engine:
             console=console, x=1, y=41, engine=self
         )
 
-        render_functions.render_word_mode(
-            console=console,
-            location=(76,3),
-            active=self.word_mode
-        )
-
         render_functions.render_instructions(
             console=console,
             location=(63,41)
@@ -84,9 +78,10 @@ class Engine:
 
         render_functions.render_player_drawer(
             console=console,
-            location=(78,9),
+            location=(77,9),
             player=self.player,
-            turn=self.turn_count
+            turn=self.turn_count,
+            word_mode=self.word_mode
         )
 
     def save_as(self, filename: str) -> None:

@@ -82,36 +82,22 @@ def render_names_at_mouse_location(
 
     console.print(x=x, y=y, string=names_at_mouse_location)
 
-def render_word_mode(console: Console, location: Tuple[int,int], active: bool) -> None:
-    x, y = location
 
-    c = color.white if active else color.grey
-
-    console.draw_frame(
-        x=x,
-        y=y,
-        width=4,
-        height=6,
-        clear=True,
-        fg=c,
-        bg=(0,0,0)
-    )
-
-    console.print(x=x+1,y=y+1,string="WM\nOO\nRD\nDE", fg=c)
-
-def render_player_drawer(console: Console, location: Tuple[int,int], player, turn) -> None:
+def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:
     sx, sy = x, y = location
     items = player.inventory.items
 
     adj = turn % 4
-
     sy += adj
     x += adj
-
     r = 26
+
+    c = color.snake_green if word_mode else color.grey
 
     for i in range(r):
         if r-i == len(items)+1:
+            f_start = y-1
+            f_height = r-i+2
             console.print(x=x,y=y,string=player.char,fg=player.color)
         if r-i < len(items)+1:
             item = items[len(items)-r+i]
@@ -122,3 +108,18 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
         else:
             x -= 1
         y += 1
+
+    console.draw_frame(
+        x=sx-2,
+        y=f_start,
+        width=5,
+        height=f_height,
+        clear=False,
+        fg=c,
+        bg=(0,0,0)
+    )
+
+    x, y = 75, sy - adj + r - f_height
+
+    console.print(x=x,y=y,string="WORD░",fg=c)
+    console.print(x=x,y=y+f_height+1,string="░MODE",fg=c)
