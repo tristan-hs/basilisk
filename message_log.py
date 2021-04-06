@@ -23,8 +23,6 @@ class Message:
     @property
     def full_text(self) -> str:
         """The full text of this message, including the count if necessary."""
-        if self.count > 1:
-            return f"{self.plain_text} (x{self.count})"
         return self.plain_text
 
 
@@ -34,7 +32,7 @@ class MessageLog:
         self.engine = engine
 
     def add_message(
-        self, text: str, fg: Tuple[int, int, int] = color.grey, arg: str = None, arg_color: str = None, *, stack: bool = True,
+        self, text: str, fg: Tuple[int, int, int] = color.grey, arg: str = None, arg_color: str = None
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.
@@ -46,12 +44,12 @@ class MessageLog:
         else:
             ftext = text
 
-        if self.messages and self.engine.turn_count != self.messages[-1].turn_count:
-            ftext = f"_{text}"
-        if stack and self.messages and ftext == self.messages[-1].plain_text:
-            self.messages[-1].count += 1
-        else:
-            self.messages.append(Message(text, fg, self, arg, arg_color))
+        last_msg = self.messages[-1] if self.messages else None
+        if self.messages and self.engine.turn_count != last_msg.turn_count and last_msg.text[0] != '_':
+                last_msg.text = '_'+last_msg.text
+                last_msg.plain_text = '_'+last_msg.plain_text
+
+        self.messages.append(Message(text, fg, self, arg, arg_color))
 
     def render(
         self, console: tcod.Console, x: int, y: int, width: int, height: int,

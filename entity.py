@@ -189,7 +189,7 @@ class Actor(Entity):
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
-        self.engine.message_log.add_message(f"You constrict the {self.name}! It can't move!", Color.offwhite)
+        self.engine.message_log.add_message(f"You constrict the {self.name}!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)
         self.color = Color.statue
         char_num = int(self.char)-1

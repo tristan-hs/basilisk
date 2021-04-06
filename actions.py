@@ -119,17 +119,17 @@ class MeleeAction(ActionWithDirection):
         i_tar = target in self.engine.player.inventory.items
 
         pred = "your ? segment" if i_tar else "?"
-        label = target.char if i_char else target.name
+        label = target.char if i_tar else target.name
         attack_desc = f"{self.entity.name.capitalize()} attacks {pred}!"
             
         if damage > 0:
-            t_color = target.color if i_char else color.offwhite
+            t_color = target.color if i_tar else color.offwhite
             self.engine.message_log.add_message(
                 attack_desc, color.offwhite, label, t_color
             )
             target.take_damage(damage)
         else:
-            t_color = target.color if i_char else color.grey
+            t_color = target.color if i_tar else color.grey
             self.engine.message_log.add_message(
                 f"{attack_desc} But it does no damage.", color.grey, label, t_color
             )
