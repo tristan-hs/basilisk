@@ -66,36 +66,37 @@ class Projectile(Consumable):
         target = action.target_actor
 
         self.engine.message_log.add_message(
-                f"You spit your {self.parent.char} at the {target.name} for {self.damage} damage!"
+                f"{target.name} takes {self.damage} damage!"
             )
         target.take_damage(self.damage)
         self.consume()
 
 
 class ReversingConsumable(Consumable):
-    description = "swaps your head and your tail"
+    description = "turns you around"
 
     def activate(self, action: actions.ItemAction) -> None:
         # swap with the last /solid/ item
         # any that aren't solid stay at the end in reverse order
         consumer = action.entity
+        tail = [i for i in consumer.inventory.items if i.blocks_movement][-1]
+        x, y = tail.xy
+
+        self.consume()
+
         items = consumer.inventory.items[:]
 
         solid_items = [i for i in items if i.blocks_movement]
         nonsolid_items = [i for i in items if not i.blocks_movement]
 
-        tail = solid_items.pop()
         solid_items.reverse()
         nonsolid_items.reverse()
-        solid_items.append(tail)
 
-        consumer.place(tail.x,tail.y)
-        tail.place(consumer.x,consumer.y)
+        consumer.place(x,y)
 
         consumer.inventory.items = solid_items + nonsolid_items
 
-        self.engine.message_log.add_message("Your head and tail swap places!")
-        self.consume()
+        self.engine.message_log.add_message("You turn tail!")
 
 class ChangelingConsumable(Consumable):
     description = "changes its shape"
