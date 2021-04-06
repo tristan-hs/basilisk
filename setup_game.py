@@ -55,7 +55,7 @@ def new_game() -> Engine:
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Salutations, Basilisk. The dungeon awaits!", color.snake_green
+        "Salutations, ?. The dungeon awaits!", color.snake_green, "Basilisk", color.yellow
     )
     return engine
 

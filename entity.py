@@ -118,7 +118,7 @@ class Entity:
 
     def unsnake(self, start_at: int) -> None:
         for item in self.inventory.items[start_at:]:
-            self.engine.message_log.add_message(f"Your {item.char} segment falls off!", Color.grey)
+            self.engine.message_log.add_message(f"Your ? segment falls off!", Color.grey, item.char, item.color)
             item.desolidify()
         self.engine.check_word_mode()
 
@@ -287,7 +287,7 @@ class Item(Entity):
             return
         factory._identified = self._identified = new_val
         n = 'n' if self.label[0].lower() in ('a','e','i','o','u') else ''
-        self.engine.message_log.add_message(f"It was a{n} {self.label} segment.", Color.grey)
+        self.engine.message_log.add_message(f"It was a{n} ? segment.", Color.grey, self.label, self.color)
 
     @property
     def color(self):
@@ -328,7 +328,7 @@ class Item(Entity):
         player = self.gamemap.engine.player
         if self in player.inventory.items:
             i = player.inventory.items.index(self)
-            self.engine.message_log.add_message(f"Your {self.label} segment breaks apart!", Color.dark_red)
+            self.engine.message_log.add_message(f"Your ? segment breaks apart!", Color.dark_red, self.label, self.color)
             self.consume()
             self.engine.player.unsnake(i)
 

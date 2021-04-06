@@ -108,7 +108,7 @@ class ChangelingConsumable(Consumable):
         new_i.parent = action.entity
         items.insert(items.index(self.parent), new_i)
         new_i.solidify()
-        self.engine.message_log.add_message(f"It turns into a {new_i.char}!", color.offwhite)
+        self.engine.message_log.add_message(f"It turns into a ?!", color.offwhite, new_i.char, new_i.color)
 
         # partial consume old item
         self.parent.consume()
@@ -185,7 +185,7 @@ class LightningDamageConsumable(Projectile):
 
         if target:
             self.engine.message_log.add_message(
-                f"Lightning smites the {target.name} for {self.damage} damage!", color.offwhite
+                f"Lightning smites the {target.name} for {self.damage} damage!", color.offwhite,
             )
             target.take_damage(self.damage)
         else:
@@ -223,7 +223,7 @@ class FireballDamageConsumable(Projectile):
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The explosion engulfs the {actor.name}! It takes {self.damage} damage!", color.offwhite
+                    f"The explosion engulfs the {actor.name}! It takes {self.damage} damage!", color.offwhite,
                 )
                 actor.take_damage(self.damage)
                 targets_hit = True

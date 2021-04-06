@@ -95,7 +95,7 @@ class HostileEnemy(BaseAI):
 
         if target != None and self.has_seen_player == False:
             self.has_seen_player = True
-            self.engine.message_log.add_message(f"The {self.entity.name} notices you!", color.red)
+            self.engine.message_log.add_message(f"The ? notices you!", color.offwhite, self.entity.name, self.entity.color)
 
         for i in self.engine.player.inventory.items:
             d_to_i = self.distance_to(*i.xy)

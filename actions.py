@@ -50,7 +50,7 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
-                self.engine.message_log.add_message(f"You pick up the {item.char} segment.", color.offwhite)
+                self.engine.message_log.add_message(f"You pick up the ? segment.", color.offwhite, item.char, item.color)
 
 
 class ItemAction(Action):
@@ -70,13 +70,13 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        self.engine.message_log.add_message(f"You digest the {self.item.label} segment.", color.offwhite)
+        self.engine.message_log.add_message(f"You digest the ? segment.", color.offwhite, self.item.label, self.item.color)
         self.item.edible.activate(self)
 
 class ThrowItem(ItemAction):
     def perform(self) -> None:
         at = f" at the {self.target_actor.name}" if self.target_actor and self.target_actor is not self.engine.player else ''        
-        self.engine.message_log.add_message(f"You spit the {self.item.label} segment{at}.", color.offwhite)
+        self.engine.message_log.add_message(f"You spit the ? segment{at}.", color.offwhite, self.item.label, self.item.color)
         
         self.item.spitable.activate(self)
 
@@ -116,18 +116,22 @@ class MeleeAction(ActionWithDirection):
             raise exceptions.Impossible("Nothing to attack.")
 
         damage = 1
+        i_tar = target in self.engine.player.inventory.items
 
-        label = f"your {target.char} segment" if target in self.engine.player.inventory.items else target.name
-        attack_desc = f"{self.entity.name.capitalize()} attacks {label}!"
+        pred = "your ? segment" if i_tar else "?"
+        label = target.char if i_char else target.name
+        attack_desc = f"{self.entity.name.capitalize()} attacks {pred}!"
             
         if damage > 0:
+            t_color = target.color if i_char else color.offwhite
             self.engine.message_log.add_message(
-                attack_desc, color.offwhite
+                attack_desc, color.offwhite, label, t_color
             )
             target.take_damage(damage)
         else:
+            t_color = target.color if i_char else color.grey
             self.engine.message_log.add_message(
-                f"{attack_desc} But it does no damage.", color.grey
+                f"{attack_desc} But it does no damage.", color.grey, label, t_color
             )
 
 

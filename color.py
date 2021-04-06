@@ -30,6 +30,12 @@ purple = (0x9F, 0x3F, 0xFF)
 # snakey messages
 snake_green = (100,200,100)
 
+green = (0,200,0)
+
+# enemy colors only on notice
+# red overrides everything
+# segment colors prominent
+
 
 
 

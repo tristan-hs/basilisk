@@ -7,12 +7,18 @@ import color
 
 
 class Message:
-    def __init__(self, text: str, fg: Tuple[int, int, int], message_log):
-        self.plain_text = text
+    def __init__(self, text: str, fg: Tuple[int, int, int], message_log, arg: str = None, arg_color: str = None):
+        if arg:
+            self.plain_text = arg.join(text.split('?'))
+        else:
+            self.plain_text = text
+        self.text = text
         self.fg = fg
         self.count = 1
         self.parent = message_log
         self.turn_count = self.parent.engine.turn_count
+        self.arg = arg
+        self.arg_color = arg_color
 
     @property
     def full_text(self) -> str:
@@ -28,19 +34,24 @@ class MessageLog:
         self.engine = engine
 
     def add_message(
-        self, text: str, fg: Tuple[int, int, int] = color.grey, *, stack: bool = True,
+        self, text: str, fg: Tuple[int, int, int] = color.grey, arg: str = None, arg_color: str = None, *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.
         If `stack` is True then the message can stack with a previous message
         of the same text.
         """
+        if arg:
+            ftext = arg.join(text.split('?'))
+        else:
+            ftext = text
+
         if self.messages and self.engine.turn_count != self.messages[-1].turn_count:
-            text = f"_{text}"
-        if stack and self.messages and text == self.messages[-1].plain_text:
+            ftext = f"_{text}"
+        if stack and self.messages and ftext == self.messages[-1].plain_text:
             self.messages[-1].count += 1
         else:
-            self.messages.append(Message(text, fg, self))
+            self.messages.append(Message(text, fg, self, arg, arg_color))
 
     def render(
         self, console: tcod.Console, x: int, y: int, width: int, height: int,
@@ -76,8 +87,21 @@ class MessageLog:
         y_offset = height - 1
 
         for message in reversed(messages):
+            i = 0
+            arg_printed = False
             for line in reversed(list(cls.wrap(message.full_text, width))):
-                console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
-                y_offset -= 1
+                if message.arg and i + len(line) > len(message.text.split('?')[1]) and arg_printed == False:
+                    # we've printed backwards up to a line w/ an argument
+                    pos = len(message.text.split('?')[1])-i
+                    pos2 = pos + len(message.arg)
+
+                    console.print(x=x, y=y+y_offset,string=line[:-pos2], fg=message.fg)
+                    console.print(x=x+len(line)-pos2, y=y+y_offset, string=line[-pos2:-pos],fg=message.arg_color)
+                    arg_printed = True
+                    console.print(x=x+len(line)-pos, y=y+y_offset, string=line[-pos:], fg=message.fg)
+                else:
+                    console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
+                y_offset -= 1                
                 if y_offset < 0:
                     return  # No more space to print messages.
+                i += len(line)+1
