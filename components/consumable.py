@@ -112,6 +112,13 @@ class ChangelingConsumable(Consumable):
         # partial consume old item
         self.parent.consume()
 
+class NothingConsumable(Consumable):
+    description = "provides no nutrients"
+
+    def activate(self, action: action.ItemAction) -> None:
+        self.engine.message_log.add_message("That tasted funny.")
+        self.consume()
+
 
 class ConfusionConsumable(Projectile):
     description = "confuses an enemy"

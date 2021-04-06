@@ -57,7 +57,6 @@ lich = Actor(
     color=color.lich,
     name="Lich",
     ai_cls=ai.HostileEnemy,
-    move_speed=2
 )
 demon = Actor(
     char="6",
@@ -78,7 +77,7 @@ elder = Actor(
     color=color.elder,
     name="Elder",
     ai_cls=ai.HostileEnemy,
-    move_speed=3
+    move_speed=1
 )
 decider = Actor(
     char="9",
@@ -94,7 +93,7 @@ vowel_segment = Item(
     item_type='v',
     color=color.vowel,
     name="Vowel",
-    edible=consumable.ChangelingConsumable(),
+    edible=consumable.NothingConsumable(),
     spitable=consumable.Projectile(damage=1),
     description="A plain segment."
 )
@@ -103,7 +102,7 @@ fire_segment = Item(
     item_type='c',
     color=color.fire,
     name="Fire",
-    edible=consumable.ReversingConsumable(),
+    edible=consumable.NothingConsumable(),
     spitable=consumable.FireballDamageConsumable(damage=1, radius=1),
     description="A smoldering segment."
 )
@@ -112,7 +111,7 @@ mind_segment = Item(
     item_type='c',
     color=color.mind,
     name="Mind",
-    edible=consumable.ReversingConsumable(),
+    edible=consumable.ChangelingConsumable(),
     spitable=consumable.ConfusionConsumable(number_of_turns=10),
     description="A pink, wrinkled segment."
 )
@@ -121,10 +120,19 @@ electric_segment = Item(
     item_type='c',
     color=color.electric,
     name="Electric",
-    edible=consumable.ReversingConsumable(),
+    edible=consumable.NothingConsumable(),
     spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=5),
     description="A shocking segment."
 )
 
-c_segments = [fire_segment,mind_segment,electric_segment]
+reversal_segment = Item(
+    item_type='c',
+    color=color.reversal,
+    name="Reversal",
+    edible=consumable.ReversingConsumable(),
+    spitable=consumable.Projectile(damage=1),
+    description="A backwards segment"
+)
+
+c_segments = [fire_segment,mind_segment,electric_segment, reversal_segment, vowel_segment]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']
