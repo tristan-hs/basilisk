@@ -118,7 +118,7 @@ class Entity:
 
     def unsnake(self, start_at: int) -> None:
         for item in self.inventory.items[start_at:]:
-            self.engine.message_log.add_message(f"Your {item.char} segment falls off!", Color.status_effect_applied)
+            self.engine.message_log.add_message(f"Your {item.char} segment falls off!", Color.grey)
             item.desolidify()
         self.engine.check_word_mode()
 
@@ -189,7 +189,7 @@ class Actor(Entity):
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
-        self.engine.message_log.add_message(f"You constrict the {self.name}! It can't move!", Color.status_effect_applied)
+        self.engine.message_log.add_message(f"You constrict the {self.name}! It can't move!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)
         self.color = Color.statue
         char_num = int(self.char)-1
@@ -204,7 +204,7 @@ class Actor(Entity):
     def die(self) -> None:
         if self.engine.player is self:
             death_message = "You died!"
-            death_message_color = Color.player_die
+            death_message_color = Color.dark_red
             self.char = "%"
             self.color = Color.corpse
             self.ai = None
@@ -212,7 +212,7 @@ class Actor(Entity):
             self.render_order = RenderOrder.CORPSE
         else:
             death_message = f"{self.name} is dead!"
-            death_message_color = Color.enemy_die
+            death_message_color = Color.dark_red
 
             if self in self.gamemap.entities:
                 self.gamemap.entities.remove(self)
@@ -287,7 +287,7 @@ class Item(Entity):
             return
         factory._identified = self._identified = new_val
         n = 'n' if self.label[0].lower() in ('a','e','i','o','u') else ''
-        self.engine.message_log.add_message(f"It was a{n} {self.label} segment.", self.color)
+        self.engine.message_log.add_message(f"It was a{n} {self.label} segment.", Color.grey)
 
     @property
     def color(self):
@@ -328,7 +328,7 @@ class Item(Entity):
         player = self.gamemap.engine.player
         if self in player.inventory.items:
             i = player.inventory.items.index(self)
-            self.engine.message_log.add_message(f"Your {self.label} segment breaks apart!", Color.enemy_atk)
+            self.engine.message_log.add_message(f"Your {self.label} segment breaks apart!", Color.dark_red)
             self.consume()
             self.engine.player.unsnake(i)
 

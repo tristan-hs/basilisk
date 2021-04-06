@@ -55,7 +55,7 @@ def new_game() -> Engine:
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Salutations, Basilisk. The dungeon awaits!", color.welcome_text
+        "Salutations, Basilisk. The dungeon awaits!", color.snake_green
     )
     return engine
 
@@ -77,14 +77,14 @@ class MainMenu(input_handlers.BaseEventHandler):
             console.width // 2,
             console.height // 2 - 4,
             "BASILISK",
-            fg=color.menu_title,
+            fg=color.snake_green,
             alignment=tcod.CENTER,
         )
         console.print(
             console.width // 2,
             console.height - 2,
             "by -taq",
-            fg=color.menu_title,
+            fg=color.purple,
             alignment=tcod.CENTER,
         )
 
@@ -96,7 +96,7 @@ class MainMenu(input_handlers.BaseEventHandler):
                 console.width // 2,
                 console.height // 2 - 2 + i,
                 text.ljust(menu_width),
-                fg=color.menu_text,
+                fg=color.white,
                 bg=color.black,
                 alignment=tcod.CENTER,
                 bg_blend=tcod.BKGND_ALPHA(64),

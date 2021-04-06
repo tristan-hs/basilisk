@@ -54,7 +54,7 @@ class Projectile(Consumable):
         self.damage = damage
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
-        self.engine.message_log.add_message("Select a target.", color.needs_target)
+        self.engine.message_log.add_message("Select a target.", color.cyan)
         return SingleProjectileAttackHandler(
             self.engine,
             callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy)
@@ -66,7 +66,7 @@ class Projectile(Consumable):
         target = action.target_actor
 
         self.engine.message_log.add_message(
-                f"{target.name} takes {self.damage} damage!", self.parent._color
+                f"{target.name} takes {self.damage} damage!", color.offwhite
             )
         target.take_damage(self.damage)
         self.consume()
@@ -96,7 +96,7 @@ class ReversingConsumable(Consumable):
 
         consumer.inventory.items = solid_items + nonsolid_items
 
-        self.engine.message_log.add_message("You turn tail!", self.parent._color)
+        self.engine.message_log.add_message("You turn tail!", color.offwhite)
 
 class ChangelingConsumable(Consumable):
     description = "changes its shape"
@@ -108,7 +108,7 @@ class ChangelingConsumable(Consumable):
         new_i.parent = action.entity
         items.insert(items.index(self.parent), new_i)
         new_i.solidify()
-        self.engine.message_log.add_message(f"It turns into a {new_i.char}!", self.parent._color)
+        self.engine.message_log.add_message(f"It turns into a {new_i.char}!", color.offwhite)
 
         # partial consume old item
         self.parent.consume()
@@ -117,7 +117,7 @@ class NothingConsumable(Consumable):
     description = None
 
     def activate(self, action: action.ItemAction) -> None:
-        self.engine.message_log.add_message("Your stomach rumbles.", self.parent._color)
+        self.engine.message_log.add_message("Your stomach rumbles.", color.grey)
         self.consume()
 
 
@@ -132,7 +132,7 @@ class ConfusionConsumable(Projectile):
             return super().get_throw_action(consumer)
 
         self.engine.message_log.add_message(
-            "Select a target.", color.needs_target
+            "Select a target.", color.cyan
         )
         return SingleRangedAttackHandler(
             self.engine,
@@ -152,7 +152,7 @@ class ConfusionConsumable(Projectile):
 
         self.engine.message_log.add_message(
             f"The eyes of the {target.name} glaze over as it stumbles about",
-            self.parent._color,
+            color.offwhite,
         )
         target.ai = components.ai.ConfusedEnemy(
             entity=target, previous_ai=target.ai, turns_remaining=self.number_of_turns,
@@ -185,11 +185,11 @@ class LightningDamageConsumable(Projectile):
 
         if target:
             self.engine.message_log.add_message(
-                f"Lightning smites the {target.name} for {self.damage} damage!", self.parent._color
+                f"Lightning smites the {target.name} for {self.damage} damage!", color.offwhite
             )
             target.take_damage(self.damage)
         else:
-            self.engine.message_log.add_message(f"Lightning strikes the ground nearby.", self.parent._color)
+            self.engine.message_log.add_message(f"Lightning strikes the ground nearby.", color.offwhite)
 
         self.consume()
 
@@ -205,7 +205,7 @@ class FireballDamageConsumable(Projectile):
             return super().get_throw_action(consumer)
             
         self.engine.message_log.add_message(
-            "Select a target location.", color.needs_target
+            "Select a target location.", color.cyan
         )
         return AreaRangedAttackHandler(
             self.engine,
@@ -223,7 +223,7 @@ class FireballDamageConsumable(Projectile):
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The explosion engulfs the {actor.name}! It takes {self.damage} damage!", self.parent._color
+                    f"The explosion engulfs the {actor.name}! It takes {self.damage} damage!", color.offwhite
                 )
                 actor.take_damage(self.damage)
                 targets_hit = True

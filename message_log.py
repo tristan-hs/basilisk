@@ -28,7 +28,7 @@ class MessageLog:
         self.engine = engine
 
     def add_message(
-        self, text: str, fg: Tuple[int, int, int] = color.white, *, stack: bool = True,
+        self, text: str, fg: Tuple[int, int, int] = color.grey, *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.

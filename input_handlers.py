@@ -131,7 +131,7 @@ class EventHandler(BaseEventHandler):
         try:
             action.perform()
         except exceptions.Impossible as exc:
-            self.engine.message_log.add_message(exc.args[0], color.impossible)
+            self.engine.message_log.add_message(exc.args[0], color.grey)
             return False  # Skip enemy turn on exceptions.
 
         self.engine.handle_enemy_turns()

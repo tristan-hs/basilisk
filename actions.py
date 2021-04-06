@@ -50,7 +50,7 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
-                self.engine.message_log.add_message(f"You pick up the {item.char} segment.", item.color)
+                self.engine.message_log.add_message(f"You pick up the {item.char} segment.", color.offwhite)
 
 
 class ItemAction(Action):
@@ -70,13 +70,13 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        self.engine.message_log.add_message(f"You digest the {self.item.label} segment.", self.item.color)
+        self.engine.message_log.add_message(f"You digest the {self.item.label} segment.", color.offwhite)
         self.item.edible.activate(self)
 
 class ThrowItem(ItemAction):
     def perform(self) -> None:
         at = f" at the {self.target_actor.name}" if self.target_actor and self.target_actor is not self.engine.player else ''        
-        self.engine.message_log.add_message(f"You spit the {self.item.label} segment{at}.", self.item.color)
+        self.engine.message_log.add_message(f"You spit the {self.item.label} segment{at}.", color.offwhite)
         
         self.item.spitable.activate(self)
 
@@ -117,21 +117,17 @@ class MeleeAction(ActionWithDirection):
 
         damage = 1
 
-        label = f"your {target.char} segment" if target in self.engine.player.inventory.items else {target.name}
-        attack_desc = f"{self.entity.name.capitalize()} attacks {label}"
-        if self.entity is self.engine.player:
-            attack_color = color.player_atk
-        else:
-            attack_color = color.enemy_atk
+        label = f"your {target.char} segment" if target in self.engine.player.inventory.items else target.name
+        attack_desc = f"{self.entity.name.capitalize()} attacks {label}!"
             
         if damage > 0:
             self.engine.message_log.add_message(
-                f"{attack_desc} for {damage} damage!", attack_color
+                attack_desc, color.offwhite
             )
             target.take_damage(damage)
         else:
             self.engine.message_log.add_message(
-                f"{attack_desc}, but does no damage.", attack_color
+                f"{attack_desc} But it does no damage.", color.grey
             )
 
 
@@ -164,7 +160,7 @@ class MovementAction(ActionWithDirection):
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
             return None
         
-        self.engine.message_log.add_message(f"Oof! You're trapped!", color.player_die)
+        self.engine.message_log.add_message(f"Oof! You're trapped!", color.red)
         self.engine.player.die()
 
 class WaitAction(Action):
@@ -180,7 +176,7 @@ class TakeStairsAction(Action):
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
             self.engine.game_world.generate_floor()
             self.engine.message_log.add_message(
-                "You descend the staircase.", color.descend
+                "You descend the staircase.", color.purple
             )
         else:
             raise exceptions.Impossible("There are no stairs here.")
