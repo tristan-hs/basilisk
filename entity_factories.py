@@ -131,7 +131,7 @@ reversal_segment = Item(
     name="Reversal",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.Projectile(damage=1),
-    description="A backwards segment"
+    description="A backwards segment."
 )
 
 c_segments = [fire_segment,mind_segment,electric_segment, reversal_segment, vowel_segment]

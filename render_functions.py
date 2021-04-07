@@ -4,6 +4,8 @@ from typing import Tuple, TYPE_CHECKING
 
 import color
 
+from message_log import MessageLog
+
 if TYPE_CHECKING:
     from tcod import Console
     from engine import Engine
@@ -12,16 +14,6 @@ if TYPE_CHECKING:
 DIRECTIONS = [(0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)]
 D_ARROWS = ['↑', '↓', '\\', '←', '/', '/','→','\\']
 D_KEYS = ['J','K','Y','H','B','U','L','N']
-
-def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
-    if not game_map.in_bounds(x, y) or not game_map.visible[x, y]:
-        return ""
-
-    names = ", ".join(
-        entity.name for entity in game_map.entities if entity.x == x and entity.y == y
-    )
-
-    return names.capitalize()
 
 def render_bar(
     console: Console, current_value: int, maximum_value: int, total_width: int
@@ -80,11 +72,20 @@ def render_names_at_mouse_location(
 ) -> None:
     mouse_x, mouse_y = engine.mouse_location
 
-    names_at_mouse_location = get_names_at_location(
-        x=mouse_x, y=mouse_y, game_map=engine.game_map
-    )
+    if not engine.game_map.in_bounds(mouse_x, mouse_y) or not engine.game_map.visible[mouse_x, mouse_y]:
+        return
 
-    console.print(x=x, y=y, string=names_at_mouse_location)
+    entities = [e for e in engine.game_map.entities if e.x == mouse_x and e.y == mouse_y]
+
+    if len(entities) == 1:
+        # print info panel
+        entity = entities[0]
+        console.print(x=x,y=y,string=entity.label,fg=entity.color)
+        console.print_box(x,y+2,20,7,entity.description,color.offwhite)
+    elif len(entities) > 1:
+        # print list -- toggle between info on top + list w/ tab?
+        pass
+
 
 
 def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:

@@ -39,6 +39,7 @@ class Entity:
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
         render_order: RenderOrder = RenderOrder.CORPSE,
+        description: str = "???",
     ):
         self.x = x
         self.y = y
@@ -47,6 +48,7 @@ class Entity:
         self.name = name
         self.blocks_movement = blocks_movement
         self.render_order = render_order
+        self._description=description
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -63,6 +65,14 @@ class Entity:
     @property
     def engine(self) -> Engine:
         return self.gamemap.engine
+
+    @property
+    def label(self) -> str:
+        return self.name
+
+    @property
+    def description(self) -> str:
+        return self._description
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -257,13 +267,13 @@ class Item(Entity):
             name=name,
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
+            description=description
         )
         self.item_type = item_type
         self.edible = edible
         self.spitable = spitable
         self.spitable.parent = self
         self.edible.parent = self
-        self.description=description
         self._identified = False
         self._color = color
 
@@ -294,6 +304,18 @@ class Item(Entity):
         if not self.identified:
             return Color.unidentified
         return self._color
+
+    @property
+    def description(self):
+        if self.identified:
+            d = self._description
+            if self.edible.description:
+                d += f"\n\ndigest: {self.edible.description}"
+            if self.spitable.description:
+                d += f"\n\nspit: {self.spitable.description}"
+            return d
+        else:
+            return '???'
 
     @color.setter
     def color(self, new_val):

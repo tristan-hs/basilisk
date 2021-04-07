@@ -315,32 +315,24 @@ class InventoryEventHandler(AskUserEventHandler):
             px, py = item.xy
             console.tiles_rgb["bg"][px, py] = color.white
             console.tiles_rgb["fg"][px, py] = color.black
-            if item.identified:
-                l1 = item.char+": "+item.name
-                l2 = item.description
-                l3 = f"When digested, {item.edible.description}." if item.edible.description else ""
-                l4 = f"When spit, {item.spitable.description}." if item.spitable.description else ""
-            else:
-                l1 = item.char+": ?"
-                l2 = "A mysterious segment."
-                l3 = "???"
-                l4 = "???"
-        else:
-            l2 = "(None)"
-            l1 = l3 = l4 = self.tooltip = None
 
         spacer = " "
 
         # set dimensions
-        height = 5
-        if item:
-            height = 8
-        width = max(len(i) for i in (self.TITLE, l1,l2,l3,l4, self.tooltip) if i is not None)+4
+        width = max(len(i) for i in (self.TITLE, range(31), self.tooltip) if i is not None)+4
         if player.x <= 30:
             x = 80-width-1
         else:
             x = 1
         y = 1
+
+        # print info
+        if item:
+            inner = console.get_height_rect(x+1,y+1,width-2,47,item.description)+2
+        else:
+            inner = 1
+
+        height = inner+2
 
         # print character drawer
         if item:
@@ -349,7 +341,7 @@ class InventoryEventHandler(AskUserEventHandler):
                 y=y+height-1,
                 width=width-2 if width % 2 != 0 else width - 3,
                 height=3,
-                clear=True,
+                clear=False,
                 fg=(100,100,100),
                 bg=(0,0,0)
             )
@@ -366,11 +358,13 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        # print info
-        for k, v in enumerate([l1, l2, spacer, l3, l4]):
-            if v:
-                c = self.highlighted_item.color if k == 0 else (200,200,200)
-                console.print(x+1, y+k+1, v, fg=c)
+
+        if item:
+            console.print(x+1, y+1, item.label, item.color)
+            console.print_box(x+1,y+3,width-2,inner-2,item.description,color.offwhite)
+        else:
+            console.print(x+1,y+1,"(None)", color.grey)
+
 
         # print tooltip
         if self.tooltip:
