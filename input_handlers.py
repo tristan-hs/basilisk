@@ -294,6 +294,12 @@ class InventoryEventHandler(AskUserEventHandler):
         self.items = [i for i in engine.player.inventory.items if i_filter(i)]
         self.inventory_length = len(self.items)
         self.cursor = 0
+        self.frame_width = max(len(i) for i in (self.TITLE, range(31), self.tooltip) if i is not None)+4
+        if engine.player.x <= 30:
+            self.frame_x = 80-self.frame_width-1
+        else:
+            self.frame_x = 1
+        self.frame_y = 1
 
     @property
     def highlighted_item(self) -> Optional[Item]:
@@ -301,80 +307,52 @@ class InventoryEventHandler(AskUserEventHandler):
             return self.items[self.cursor]
         return None
 
-    def on_render(self, console: tcod.Console) -> None:
-        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
-        Will move to a different position based on where the player is located, so the player can always see where
-        they are.
-        """
-        super().on_render(console)
-        player = self.engine.player
-        item = self.highlighted_item
-
-        # set text values
-        if item:
-            px, py = item.xy
-            console.tiles_rgb["bg"][px, py] = color.white
-            console.tiles_rgb["fg"][px, py] = color.black
-
-        spacer = " "
-
-        # set dimensions
-        width = max(len(i) for i in (self.TITLE, range(31), self.tooltip) if i is not None)+4
-        if player.x <= 30:
-            x = 80-width-1
-        else:
-            x = 1
-        y = 1
-
-        # get height
-        if item:
-            inner = console.get_height_rect(x+1,y+1,width-2,47,item.description)+2
+    def get_frame_height(self, console: tcod.Console) -> int:
+        if self.highlighted_item:
+            inner = console.get_height_rect(
+                self.frame_x+1,self.frame_y+1,self.frame_width-2,47,self.highlighted_item.description
+            )+2
         else:
             inner = 1
 
-        height = inner+2
+        return inner+2
 
-        # print character drawer
-        if item:
-            console.draw_frame(
-                x=x+1,
-                y=y+height-1,
-                width=width-2 if width % 2 != 0 else width - 3,
-                height=3,
-                clear=True,
-                fg=(100,100,100),
-                bg=(0,0,0)
-            )
+    def highlight_item(self, console: tcod.Console):
+        x, y = self.highlighted_item.xy
+        console.tiles_rgb["bg"][x, y] = color.white
+        console.tiles_rgb["fg"][x, y] = color.black
 
+    def render_item_panel(self, console: tcod.Console):
         # print main popup
         console.draw_frame(
-            x=x,
-            y=y,
-            width=width,
-            height=height,
+            x=self.frame_x,
+            y=self.frame_y,
+            width=self.frame_width,
+            height=self.frame_height,
             title=self.TITLE,
             clear=True,
             fg=(50, 150, 50),
             bg=(0, 0, 0),
         )
 
-        # print info
-        if item:
-            console.print(x+1, y+1, item.label, item.color)
-            console.print_box(x+1,y+3,width-2,inner-2,item.description,color.offwhite)
+        if self.highlighted_item:
+            console.print(self.frame_x+1, self.frame_y+1, self.highlighted_item.label, self.highlighted_item.color)
+            console.print_box(self.frame_x+1,self.frame_y+3,self.frame_width-2,self.frame_height-4,self.highlighted_item.description,color.offwhite)
         else:
-            console.print(x+1,y+1,"(None)", color.grey)
+            console.print(self.frame_x+1,self.frame_y+1,"(None)", color.grey)
 
+    def render_items_drawer(self, console: tcod.Console):
+        console.draw_frame(
+            x=self.frame_x+1,
+            y=self.frame_y+self.frame_height-1,
+            width=self.frame_width-2 if self.frame_width % 2 != 0 else self.frame_width - 3,
+            height=3,
+            clear=True,
+            fg=(100,100,100),
+            bg=(0,0,0)
+        )
 
-        # print tooltip
-        if self.tooltip:
-            w = width if width % 2 == 0 else width - 1
-            ttw = len(self.tooltip) if len(self.tooltip) % 2 == 0 else len(self.tooltip) - 1
-            ttx = int(x + (w/2) - (ttw/2))
-            console.print(ttx, y+height-1, self.tooltip)
-
-        # print character map
-        space = width-6 if width % 2 == 0 else width-5
+        space = self.frame_width-6 if self.frame_width % 2 == 0 else self.frame_width-5
         start_at = min(self.cursor - (space/2), len(self.items)-space-1)
         end_at = max(start_at,0) + space
         i = 0
@@ -383,10 +361,39 @@ class InventoryEventHandler(AskUserEventHandler):
                 continue
             if k > end_at:
                 break
-            fg = color.black if v is item else v.color
-            bg = color.white if v is item else color.black
-            console.print(x+2+i, y+height, v.char, fg=fg, bg=bg)
+            fg = color.black if v is self.highlighted_item else v.color
+            bg = color.white if v is self.highlighted_item else color.black
+            console.print(self.frame_x+2+i, self.frame_y+self.frame_height, v.char, fg=fg, bg=bg)
             i += 1
+
+    def render_tooltip(self, console: tcod.Console):
+        w = self.frame_width if self.frame_width % 2 == 0 else self.frame_width - 1
+        ttw = len(self.tooltip) if len(self.tooltip) % 2 == 0 else len(self.tooltip) - 1
+        ttx = int(self.frame_x + (w/2) - (ttw/2))
+        console.print(ttx, self.frame_y+self.frame_height-1, self.tooltip)
+
+    def render_menu(self, console: tcod.Console):
+        self.frame_height = self.get_frame_height(console)
+
+        if self.highlighted_item:
+            self.render_items_drawer(console)
+
+        if self.highlighted_item:
+            self.highlight_item(console)
+
+        self.render_item_panel(console)
+
+        if self.tooltip:
+            self.render_tooltip(console)
+
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
+        Will move to a different position based on where the player is located, so the player can always see where
+        they are.
+        """
+        super().on_render(console)
+        self.render_menu(console)
 
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
@@ -475,6 +482,57 @@ class InventoryIdentifyHandler(InventoryEventHandler):
     def on_exit(self):
         if self.identifier.identified:
             return super().on_exit()
+
+class InventoryRearrangeHandler(InventoryEventHandler):
+    TITLE = "Type yourself out"
+    tooltip = None
+
+    def __init__(self, engine: Engine, rearranger: Item):
+        super().__init__(engine, lambda x:x is not rearranger)
+        self.rearranger = rearranger
+        self.selected_items = []
+        self.all_items = self.engine.player.inventory.items[:]
+
+    def on_exit(self):
+        if self.rearranger.identified:
+            return super().on_exit()
+
+    def render_menu(self, console: tcod.Console):
+        self.frame_height = 3
+
+        self.render_items_drawer(console)
+        self.render_input_panel(console)
+
+    def render_input_panel(self, console: tcod.Console):
+        console.draw_frame(
+            x=self.frame_x,
+            y=self.frame_y,
+            width=self.frame_width,
+            height=self.frame_height,
+            clear=True,
+            fg=(50,150,50),
+            bg=(0,0,0)
+        )
+
+        chars = ''.join([i.char for i in self.selected_items])+'_'*len(self.items)
+        console.print(self.frame_x+1,self.frame_y+1,chars,fg=color.grey)
+
+    def on_item_selected(self, item: Optional[Item]):
+        self.items.remove(item)
+        self.selected_items.append(item)
+        if self.cursor > len(self.items)-1:
+            self.cursor = len(self.items)-1
+
+        if len(self.items) == 0:
+            new_order = self.selected_items + [self.rearranger]
+
+            poses = [i.xy for i in self.all_items]
+            for s, segment in enumerate(new_order):
+                new_order[s].place(*poses[s])
+
+            self.engine.player.inventory.items = new_order
+
+            return actions.ItemAction(self.engine.player, self.rearranger)
 
 
 class SelectIndexHandler(AskUserEventHandler):

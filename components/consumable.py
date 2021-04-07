@@ -13,7 +13,8 @@ from input_handlers import (
     AreaRangedAttackHandler,
     SingleRangedAttackHandler,
     SingleProjectileAttackHandler,
-    InventoryIdentifyHandler
+    InventoryIdentifyHandler,
+    InventoryRearrangeHandler
 )
 import random
 
@@ -138,11 +139,34 @@ class IdentifyingConsumable(Consumable):
         self.consume()
         item = action.target_item
         if not item:
-            self.engine.message_log.add_message("You feel momentarily nostalgic.", color.grey)
+            self.engine.message_log.add_message("You feel nostalgic.", color.grey)
             return
 
         self.engine.message_log.add_message(f"You identified the {item.char}.", color.offwhite)
         item.identified = True
+
+
+class RearrangingConsumable(Consumable):
+    description = "rearrange yourself"
+
+    @property
+    def can_rearrange(self):
+        return len(self.engine.player.inventory.items) > 2
+
+    def get_eat_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+        if not self.can_rearrange and self.parent.identified:
+            self.engine.message_log.add_message("You don't have enough segments.", color.grey)
+            return
+
+        if self.can_rearrange:
+            self.engine.message_log.add_message("Type out your new self.", color.cyan)
+            return InventoryRearrangeHandler(self.engine, self.parent)
+
+        return actions.ItemAction(consumer, self.parent)
+
+    def activate(self, action:action.ItemAction) -> None:
+        self.consume()
+        self.engine.message_log.add_message("You feel self-assured.", color.grey)
 
 
 class NothingConsumable(Consumable):
