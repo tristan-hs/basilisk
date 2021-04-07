@@ -40,12 +40,13 @@ def render_bar(
     )
 
 def render_dungeon_level(
-    console: Console, dungeon_level: int, location: Tuple[int, int]
+    console: Console, dungeon_level: int, location: Tuple[int, int], word_mode: bool
 ) -> None:
     """
     Render the level the player is currently on, at the given location.
     """
     x, y = location
+    c = color.offwhite if word_mode else color.grey
 
     console.draw_frame(
         x=x,
@@ -53,10 +54,13 @@ def render_dungeon_level(
         width=4,
         height=3,
         clear=True,
-        fg=color.offwhite,
+        fg=c,
         bg=(0,0,0)
     )
-    console.print(x=x+1, y=y+1, string=f"D{dungeon_level}")
+
+    console.print(x=x-1,y=y,string='╚╦',fg=color.snake_green if word_mode else color.grey)
+
+    console.print(x=x+1, y=y+1, string=f"D{dungeon_level}", fg=c)
 
 def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     x, y = location
@@ -121,5 +125,27 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
 
     x, y = 75, sy - adj + r - f_height
 
-    console.print(x=x,y=y,string="WORD░",fg=c)
-    console.print(x=x,y=y+f_height+1,string="░MODE",fg=c)
+    console.print(x=x,y=y,string="WORD║",fg=c)
+    y=y+f_height
+    console.print(x=x,y=y,string='╠',fg=c)
+    y+=1
+    console.print(x=x,y=y,string="║MODE",fg=c)
+    # frame up from word to d#
+    console.print_box(79,2,1,f_start-1,'╣'+'║'*(f_start-3)+'╣',fg=c)
+    # frame down from mode
+    y+=1
+    console.print(x=x,y=y,string='╚═══╗\n    ║\n╔═══╝',fg=c)
+    y+=3
+    c2 = color.offwhite if word_mode else color.grey
+    console.print_box(0,y,80,1,'═'*20+'╦'+'═'*40+'╦'+'═'*13+'╩════',fg=c2)
+    y+=1
+    console.print_box(20,y,1,9,'║'*9,fg=c2)
+    console.print_box(61,y,1,9,'║'*9,fg=c2)
+
+
+
+
+
+
+
+
