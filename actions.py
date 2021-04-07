@@ -46,7 +46,7 @@ class PickupAction(Action):
         inventory = self.entity.inventory
 
         for item in self.engine.game_map.items:
-            if actor_location_x == item.x and actor_location_y == item.y:
+            if actor_location_x == item.x and actor_location_y == item.y and len(inventory.items) < 26:
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
