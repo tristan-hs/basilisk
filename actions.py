@@ -50,18 +50,20 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
-                self.engine.message_log.add_message(f"You pick up the ? segment.", color.offwhite, item.label, item.color)
+                segment = "" if len(item.label) == 1 else " segment"
+                self.engine.message_log.add_message(f"You pick up the ?{segment}.", color.offwhite, item.label, item.color)
 
 
 class ItemAction(Action):
     def __init__(
-        self, entity: Actor, item: Item, target_xy: Optional[Tuple[int, int]] = None
+        self, entity: Actor, item: Item, target_xy: Optional[Tuple[int, int]] = None, target_item: Optional[Item] = None
     ):
         super().__init__(entity)
         self.item = item
         if not target_xy:
             target_xy = entity.x, entity.y
         self.target_xy = target_xy
+        self.target_item = target_item
 
     @property
     def target_actor(self) -> Optional[Actor]:

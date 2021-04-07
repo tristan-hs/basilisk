@@ -289,16 +289,16 @@ class InventoryEventHandler(AskUserEventHandler):
     TITLE = "<missing title>"
     tooltip = "(d)igest/(s)pit"
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, i_filter=lambda x: True):
         super().__init__(engine)
-        player = self.engine.player
-        self.inventory_length = len(player.inventory.items)
+        self.items = [i for i in engine.player.inventory.items if i_filter(i)]
+        self.inventory_length = len(self.items)
         self.cursor = 0
 
     @property
     def highlighted_item(self) -> Optional[Item]:
         if self.inventory_length > max(self.cursor,0):
-            return self.engine.player.inventory.items[self.cursor]
+            return self.items[self.cursor]
         return None
 
     def on_render(self, console: tcod.Console) -> None:
@@ -326,7 +326,7 @@ class InventoryEventHandler(AskUserEventHandler):
             x = 1
         y = 1
 
-        # print info
+        # get height
         if item:
             inner = console.get_height_rect(x+1,y+1,width-2,47,item.description)+2
         else:
@@ -341,7 +341,7 @@ class InventoryEventHandler(AskUserEventHandler):
                 y=y+height-1,
                 width=width-2 if width % 2 != 0 else width - 3,
                 height=3,
-                clear=False,
+                clear=True,
                 fg=(100,100,100),
                 bg=(0,0,0)
             )
@@ -358,7 +358,7 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-
+        # print info
         if item:
             console.print(x+1, y+1, item.label, item.color)
             console.print_box(x+1,y+3,width-2,inner-2,item.description,color.offwhite)
@@ -375,10 +375,10 @@ class InventoryEventHandler(AskUserEventHandler):
 
         # print character map
         space = width-6 if width % 2 == 0 else width-5
-        start_at = min(self.cursor - (space/2), len(player.inventory.items)-space-1)
+        start_at = min(self.cursor - (space/2), len(self.items)-space-1)
         end_at = max(start_at,0) + space
         i = 0
-        for k, v in enumerate(player.inventory.items):
+        for k, v in enumerate(self.items):
             if k < start_at:
                 continue
             if k > end_at:
@@ -390,6 +390,9 @@ class InventoryEventHandler(AskUserEventHandler):
 
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
+        if len(self.items) < 1:
+            return super().ev_keydown(event)
+
         # Scroll through inventory
         if event.sym in CURSOR_X_KEYS:
             adjust = CURSOR_X_KEYS[event.sym]
@@ -426,7 +429,7 @@ class InventoryEventHandler(AskUserEventHandler):
         return item.spitable.get_throw_action(self.engine.player)
 
     def eat_item(self, item):
-        return actions.ItemAction(self.engine.player, item)
+        return item.edible.get_eat_action(self.engine.player)
 
 class InventorySelectHandler(InventoryEventHandler):
     TITLE = "Select a segment"
@@ -456,6 +459,23 @@ class InventoryDigestHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         return self.eat_item(item)
+
+
+class InventoryIdentifyHandler(InventoryEventHandler):
+    TITLE = "Select a segment to identify"
+    tooltip = None
+
+    def __init__(self,engine: Engine, identifier: Item):
+        super().__init__(engine, lambda x:x.identified == False and x.char != identifier.char)
+        self.identifier = identifier
+
+    def on_item_selected(self, item: Optional[Item]) -> Optional[ActionOrHandler]:
+        return actions.ItemAction(self.engine.player, self.identifier, target_item=item)
+
+    def on_exit(self):
+        if self.identifier.identified:
+            return super().on_exit()
+
 
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""

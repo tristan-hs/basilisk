@@ -13,6 +13,7 @@ from input_handlers import (
     AreaRangedAttackHandler,
     SingleRangedAttackHandler,
     SingleProjectileAttackHandler,
+    InventoryIdentifyHandler
 )
 import random
 
@@ -112,6 +113,37 @@ class ChangelingConsumable(Consumable):
 
         # partial consume old item
         self.parent.consume()
+
+
+class IdentifyingConsumable(Consumable):
+    description = "identify another segment"
+
+    @property
+    def can_identify(self):
+        return any(i.identified == False and i.char != self.parent.char for i in self.engine.player.inventory.items)
+
+    def get_eat_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+        if not self.can_identify and self.parent.identified:
+            self.engine.message_log.add_message("You have no unidentified segments.", color.grey)
+            return
+
+        if self.can_identify:
+            self.engine.message_log.add_message("Select a segment to identify.", color.cyan)
+            return InventoryIdentifyHandler(self.engine, self.parent)
+
+        return actions.ItemAction(consumer, self.parent)
+
+
+    def activate(self, action:action.ItemAction) -> None:
+        self.consume()
+        item = action.target_item
+        if not item:
+            self.engine.message_log.add_message("You feel momentarily nostalgic.", color.grey)
+            return
+
+        self.engine.message_log.add_message(f"You identified the {item.char}.", color.offwhite)
+        item.identified = True
+
 
 class NothingConsumable(Consumable):
     description = None
