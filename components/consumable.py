@@ -48,7 +48,7 @@ class Consumable(BaseComponent):
 
 
 class Projectile(Consumable):
-    description = "deals 1 damage to the target"
+    description = "launch a small projectile"
 
     def __init__(self,damage=1):
         self.damage = damage
@@ -73,7 +73,7 @@ class Projectile(Consumable):
 
 
 class ReversingConsumable(Consumable):
-    description = "turns you around"
+    description = "turn around"
 
     def activate(self, action: actions.ItemAction) -> None:
         # swap with the last /solid/ item
@@ -99,7 +99,7 @@ class ReversingConsumable(Consumable):
         self.engine.message_log.add_message("You turn tail!", color.offwhite)
 
 class ChangelingConsumable(Consumable):
-    description = "changes its shape"
+    description = "transform this"
 
     def activate(self, action: actions.ItemAction) -> None:
         # add new item to snake
@@ -122,7 +122,7 @@ class NothingConsumable(Consumable):
 
 
 class ConfusionConsumable(Projectile):
-    description = "confuses an enemy"
+    description = "confuse an enemy"
 
     def __init__(self, number_of_turns: int):
         self.number_of_turns = number_of_turns
@@ -161,7 +161,7 @@ class ConfusionConsumable(Projectile):
 
 
 class LightningDamageConsumable(Projectile):
-    description = "smites a random nearby enemy"
+    description = "smite a random enemy"
 
     def __init__(self, damage: int, maximum_range: int):
         self.damage = damage
@@ -194,7 +194,7 @@ class LightningDamageConsumable(Projectile):
         self.consume()
 
 class FireballDamageConsumable(Projectile):
-    description = "blasts an area with a fireball"
+    description = "conjure an explosion"
 
     def __init__(self, damage: int, radius: int):
         self.damage = damage

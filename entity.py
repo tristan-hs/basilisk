@@ -171,7 +171,8 @@ class Actor(Entity):
         name: str = "<Unnamed>",
         move_speed: int = 1,
         ai_cls: Type[BaseAI],
-        render_order: RenderOrder = RenderOrder.ACTOR
+        render_order: RenderOrder = RenderOrder.ACTOR,
+        description: str = "???"
     ):
         super().__init__(
             x=x,
@@ -181,6 +182,7 @@ class Actor(Entity):
             name=name,
             blocks_movement=True,
             render_order=render_order,
+            description=description
         )
 
         self.inventory = Inventory()
@@ -258,7 +260,7 @@ class Item(Entity):
         edible: Consumable,
         spitable: Consumable,
         char: str = '?',
-        description: str
+        description: str = '???'
     ):
         super().__init__(
             x=x,
@@ -279,7 +281,7 @@ class Item(Entity):
 
     @property
     def label(self):
-        return self.name if self.identified and self.item_type != 'v' else self.char
+        return self.name if self.identified else self.char
 
     @property
     def identified(self):
@@ -308,11 +310,13 @@ class Item(Entity):
     @property
     def description(self):
         if self.identified:
-            d = self._description
+            d = ''
             if self.edible.description:
-                d += f"\n\ndigest: {self.edible.description}"
+                d += f"Digest: {self.edible.description}"
             if self.spitable.description:
-                d += f"\n\nspit: {self.spitable.description}"
+                if self.edible.description:
+                    d += "\n\n"
+                d += f"Spit: {self.spitable.description}"
             return d
         else:
             return '???'
