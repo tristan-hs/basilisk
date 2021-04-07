@@ -6,6 +6,8 @@ import color
 
 from message_log import MessageLog
 
+from render_order import RenderOrder
+
 if TYPE_CHECKING:
     from tcod import Console
     from engine import Engine
@@ -77,15 +79,25 @@ def render_names_at_mouse_location(
 
     entities = [e for e in engine.game_map.entities if e.x == mouse_x and e.y == mouse_y]
 
+    if len(entities) < 1:
+        return
+
     if len(entities) == 1:
         # print info panel
         entity = entities[0]
-        console.print(x=x,y=y,string=entity.label,fg=entity.color)
-        console.print_box(x,y+2,20,7,entity.description,color.offwhite)
     elif len(entities) > 1:
-        # print list -- toggle between info on top + list w/ tab?
-        pass
-
+        actors = [e for e in entities if e.render_order == RenderOrder.ACTOR]
+        if len(actors) == 1:
+            entity = actors[0]
+        else:
+            for e,entity in enumerate(entities):
+                console.print(x,y+e,entity.label,fg=entity.color)
+                if e > 8:
+                    break
+            return
+    console.print(x=x,y=y,string=entity.label,fg=entity.color)
+    console.print_box(x,y+2,20,7,entity.description,color.offwhite)
+    
 
 
 def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:

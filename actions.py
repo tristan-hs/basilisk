@@ -50,7 +50,7 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
                 self.engine.check_word_mode()
-                self.engine.message_log.add_message(f"You pick up the ? segment.", color.offwhite, item.char, item.color)
+                self.engine.message_log.add_message(f"You pick up the ? segment.", color.offwhite, item.label, item.color)
 
 
 class ItemAction(Action):
