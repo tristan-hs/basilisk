@@ -58,16 +58,29 @@ def render_dungeon_level(
 
 def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     x, y = location
-    l1 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (i)nventory"
-    l2 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (s)pit"
-    l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (d)igest"
-    l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (>)descend"
-    l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (/)look"
-    l6 = f"      (.)wait"
-    l7 = f"    re(v)iew"
+    l0 = f"      (i)nventory"
+    l1 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (s)pit"
+    l2 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (d)igest"
+    l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (>)descend"
+    l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (/)look"
+    l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
+    l6 = f"      (f)ind"
+    l7 =   "    re(v)iew"
+    l8 = f"      (c)haracter"
 
-    for i,l in enumerate([l1,l2,l3,l4,l5,l6,l7]):
-        console.print(x=x, y=y+i, string=l, fg=(150,150,150))
+    for i,l in enumerate([l0,l1,l2,l3,l4,l5,l6,l7,l8]):
+        console.print(x=x, y=y+i, string=l, fg=color.grey)
+
+def render_status(console: Console, location: Tuple[int,int], statuses: List) -> None:
+    x, y = location
+    for s,status in enumerate(statuses):
+        console.print(
+            x=x,
+            y=y+s,
+            string=status.label,
+            fg=status.color
+        )
+    console.print(x,y+7,"      (c)ontrols",color.grey)
 
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine
@@ -104,10 +117,13 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
     sx, sy = x, y = location
     items = player.inventory.items
 
+    sy -= 4
+    y -= 4
+
     adj = turn % 4
     sy += adj
     x += adj
-    r = 26
+    r = 30
 
     c = color.snake_green if word_mode else color.grey
 

@@ -27,6 +27,7 @@ class Engine:
         self.player = player
         self.word_mode = False
         self.turn_count = 0
+        self.show_instructions = False
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
@@ -36,6 +37,7 @@ class Engine:
         self.word_mode = p_word in open("words.txt").read().splitlines()
 
     def handle_enemy_turns(self) -> None:
+        self.player.on_turn()
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
                 try:
@@ -57,7 +59,7 @@ class Engine:
     def render(self, console: Console) -> None:
         self.game_map.render(console)
 
-        self.message_log.render(console=console, x=21, y=41, width=41, height=9)
+        self.message_log.render(console=console, x=21, y=41, width=40, height=9)
 
         # maybe put drawer contents here instead?
 
@@ -72,10 +74,13 @@ class Engine:
             console=console, x=0, y=41, engine=self
         )
 
-        render_functions.render_instructions(
-            console=console,
-            location=(63,42)
-        )
+        if self.show_instructions:
+            render_functions.render_instructions(
+                console=console,
+                location=(63,41)
+            )
+        else:
+            render_functions.render_status(console=console,location=(63,42),statuses=self.player.statuses)
 
         render_functions.render_player_drawer(
             console=console,

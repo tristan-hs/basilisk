@@ -17,6 +17,7 @@ from input_handlers import (
     InventoryRearrangeHandler
 )
 import random
+from components.status_effect import ThirdEyeBlind
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -174,6 +175,24 @@ class NothingConsumable(Consumable):
 
     def activate(self, action: action.ItemAction) -> None:
         self.engine.message_log.add_message("Your stomach rumbles.", color.grey)
+        self.consume()
+
+
+class ThirdEyeBlindConsumable(Consumable):
+    description = "blind your third eye"
+
+    def get_throw_action(self, consumer: Actor) -> Action:
+        return actions.ThrowItem(consumer, self.parent)
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("The segment dissolves in the air, leaving a shroud of temporal ambiguity.")
+        
+        teb = [s for s in action.target_actor.statuses if isinstance(s,ThirdEyeBlind)]
+        if teb:
+            teb[0].strengthen()
+        else:
+            teb = ThirdEyeBlind(10, action.target_actor)
+
         self.consume()
 
 

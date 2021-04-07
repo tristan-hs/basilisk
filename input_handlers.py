@@ -181,6 +181,9 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
 
+        elif key == tcod.event.K_c:
+            self.engine.show_instructions = not self.engine.show_instructions
+
         # No valid key was pressed
         return action
 

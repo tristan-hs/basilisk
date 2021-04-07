@@ -146,7 +146,7 @@ familiar_segment = Item(
     color=color.mind,
     name="familiar",
     edible=consumable.IdentifyingConsumable(),
-    spitable=consumable.Projectile(damage=1)
+    spitable=consumable.ThirdEyeBlindConsumable()
 )
 
 insightful_segment = Item(
@@ -157,13 +157,13 @@ insightful_segment = Item(
     spitable=consumable.Projectile(damage=1)
 )
 
-c_segments = [
+"""c_segments = [
     fire_segment,
     mind_segment,
     electric_segment, 
     reversal_segment, 
     familiar_segment, 
     insightful_segment
-]
-# c_segments = [insightful_segment]
+]"""
+c_segments = [familiar_segment]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']

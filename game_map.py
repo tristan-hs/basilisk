@@ -10,6 +10,7 @@ from tcod.console import Console
 from entity import Actor, Item
 from actions import ActionWithDirection
 from render_functions import DIRECTIONS, D_ARROWS
+from components.status_effect import ThirdEyeBlind
 import random
 import tile_types
 
@@ -115,25 +116,26 @@ class GameMap:
         )
 
         # display enemy intents on floor
-        for entity in entities_sorted_for_rendering:
-            if (
-                self.engine.word_mode and
-                not entity is self.engine.player and
-                isinstance(entity, Actor) and 
-                any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
-            ):
-                x, y = entity.xy
-                for intent in entity.ai.intent:
-                    x += intent.dx
-                    y += intent.dy
-                    if self.visible[entity.x, entity.y] or self.visible[x, y]:
-                        console.print(
-                            x=x,
-                            y=y,
-                            string=D_ARROWS[DIRECTIONS.index((intent.dx,intent.dy))],
-                            fg=color.intent,
-                            bg=color.intent_bg
-                        )
+        if not any(isinstance(s,ThirdEyeBlind) for s in self.engine.player.statuses):
+            for entity in entities_sorted_for_rendering:
+                if (
+                    self.engine.word_mode and
+                    not entity is self.engine.player and
+                    isinstance(entity, Actor) and 
+                    any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
+                ):
+                    x, y = entity.xy
+                    for intent in entity.ai.intent:
+                        x += intent.dx
+                        y += intent.dy
+                        if self.visible[entity.x, entity.y] or self.visible[x, y]:
+                            console.print(
+                                x=x,
+                                y=y,
+                                string=D_ARROWS[DIRECTIONS.index((intent.dx,intent.dy))],
+                                fg=color.intent,
+                                bg=color.intent_bg
+                            )
 
         # display entities
         for entity in entities_sorted_for_rendering:

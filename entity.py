@@ -193,10 +193,17 @@ class Actor(Entity):
 
         self.ai: Optional[BaseAI] = ai_cls(self)
 
+        self.statuses = []
+
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
+
+
+    def on_turn(self) -> None:
+        for status in self.statuses:
+            status.decrement()
 
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
