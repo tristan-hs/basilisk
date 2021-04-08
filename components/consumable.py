@@ -75,6 +75,31 @@ class Projectile(Consumable):
         self.consume()
 
 
+class ConsumingConsumable(Consumable):
+    description = "lose weight"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        items = action.entity.inventory.items
+        i = items.index(self.parent)
+        neighbours = []
+        if i > 0:
+            neighbours.append(items[i-1])
+        if i < len(items)-1:
+            neighbours.append(items[i+1])
+
+        self.consume()
+        self.engine.message_log.add_message("A spatial rift opens within you!", color.red)
+
+        if neighbours:
+            neighbour = random.choice(neighbours)
+            self.engine.message_log.add_message(f"The rift swallows your {neighbour.char}!", color.red)
+            neighbour.edible.consume()
+        else:
+            self.engine.message_log.add_message("But it closes harmlessly.", color.grey)
+
+
+
+
 class ReversingConsumable(Consumable):
     description = "turn around"
 
