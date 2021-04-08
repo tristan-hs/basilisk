@@ -391,4 +391,8 @@ def place_entities(
             continue
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            entity_factories.vowel_segment.spawn(dungeon,x,y)
+            if random.random() > 0.9:
+                entity_factories.y_segment.spawn(dungeon,x,y)
+            else:
+                entity_factories.vowel_segment.spawn(dungeon,x,y)
+

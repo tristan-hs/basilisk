@@ -294,11 +294,13 @@ class Item(Entity):
     def identified(self):
         if self.item_type == 'v':
             return True
+        if self.item_type == 'y':
+            return False
         return [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified
 
     @identified.setter
     def identified(self, new_val: bool):
-        if self.item_type == 'v' or self._identified == True:
+        if self.item_type != 'c' or self._identified == True:
             return
         factory = [i for i in self.gamemap.item_factories if i.char == self.char][0]
         if factory._identified == True:
@@ -310,8 +312,10 @@ class Item(Entity):
 
     @property
     def color(self):
-        if not self.identified:
+        if not self.identified and self.item_type != 'y':
             return Color.unidentified
+        if self.item_type == 'y' and random.random() > 0.5:
+            return random.choice([Color.electric, Color.tongue, Color.electric, Color.reversal, Color.fire, Color.vowel])
         return self._color
 
     @property
@@ -335,11 +339,34 @@ class Item(Entity):
     def preSpawn(self):
         if self.item_type == 'v':
             self.char = random.choice(['a','e','i','o','u'])
+        if self.item_type == 'y':
+            self.char = 'y'
+            self.edible = random.choice([
+                consumable.ChokingConsumable,
+                consumable.ConsumingConsumable,
+                consumable.ReversingConsumable,
+                consumable.ChangelingConsumable,
+                consumable.IdentifyingConsumable,
+                consumable.RearrangingConsumable,
+                consumable.NothingConsumable,
+                consumable.ThirdEyeBlindConsumable
+            ])()
+            self.spitable = random.choice([
+                consumable.Projectile,
+                consumable.MappingConsumable,
+                consumable.LightningDamageConsumable,
+                consumable.FireballDamageConsumable,
+                consumable.ConfusionConsumable,
+            ])()
+            self.edible.description = self.spitable.description = '????'
+            self.edible.parent = self.spitable.parent = self
 
     def solidify(self):
         self.blocks_movement = True
         self.render_order = RenderOrder.ACTOR
         if self.item_type == 'v':
+            self.color = Color.player
+        if self.item_type == 'y' and random.random() > 0.5:
             self.color = Color.player
 
     def desolidify(self):
@@ -347,6 +374,8 @@ class Item(Entity):
         self.render_order = RenderOrder.ITEM
         if self.item_type == 'v':
             self.color = Color.vowel
+        if self.item_type == 'y' and random.random() > 0.5:
+            self.color = Color.player
         if self in self.engine.player.inventory.items:
             self.engine.player.inventory.items.remove(self)
 

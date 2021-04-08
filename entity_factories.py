@@ -173,6 +173,14 @@ forked_segment = Item(
     spitable=consumable.Projectile(damage=3)
 )
 
+y_segment = Item(
+    item_type='y',
+    color=color.unidentified,
+    name="mYsterious",
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.Projectile()
+)
+
 c_segments = [
     fire_segment,
     mind_segment,
@@ -181,7 +189,8 @@ c_segments = [
     familiar_segment, 
     insightful_segment,
     warped_segment,
-    forked_segment
+    forked_segment,
+    y_segment
 ]
-#c_segments = [forked_segment, familiar_segment]
-consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']
+#c_segments = [y_segment]
+consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

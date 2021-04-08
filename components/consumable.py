@@ -55,6 +55,13 @@ class Projectile(Consumable):
 
     def __init__(self,damage=1):
         self.damage = damage
+        if damage > 4:
+            descriptor = "large"
+        elif damage > 2:
+            descriptor = ""
+        else:
+            descriptor = "small "    
+        self.description = f"launch a {descriptor}projectile"
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
@@ -88,7 +95,6 @@ class ChokingConsumable(Consumable):
             choke = Choking(10, action.target_actor)
 
         self.consume()
-
 
 
 class ConsumingConsumable(Consumable):
@@ -140,6 +146,7 @@ class ReversingConsumable(Consumable):
         self.engine.check_word_mode()
 
         self.engine.message_log.add_message("You turn tail!", color.offwhite)
+
 
 class ChangelingConsumable(Consumable):
     description = "transform this"
@@ -239,7 +246,7 @@ class ThirdEyeBlindConsumable(Consumable):
 class ConfusionConsumable(Projectile):
     description = "confuse an enemy"
 
-    def __init__(self, number_of_turns: int):
+    def __init__(self, number_of_turns: int=10):
         self.number_of_turns = number_of_turns
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
@@ -290,7 +297,7 @@ class MappingConsumable(Consumable):
 class LightningDamageConsumable(Projectile):
     description = "smite a random enemy"
 
-    def __init__(self, damage: int, maximum_range: int):
+    def __init__(self, damage: int=4, maximum_range: int=5):
         self.damage = damage
         self.maximum_range = maximum_range
 
@@ -320,10 +327,11 @@ class LightningDamageConsumable(Projectile):
 
         self.consume()
 
+
 class FireballDamageConsumable(Projectile):
     description = "conjure an explosion"
 
-    def __init__(self, damage: int, radius: int):
+    def __init__(self, damage: int=2, radius: int=2):
         self.damage = damage
         self.radius = radius
 
@@ -358,3 +366,6 @@ class FireballDamageConsumable(Projectile):
         if not targets_hit:
             raise Impossible("There are no targets in the radius.")
         self.consume()
+
+
+
