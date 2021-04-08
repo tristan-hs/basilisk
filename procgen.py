@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class RectangularRoom:
-    def __init__(self, x: int, y: int, x_dir: int, y_dir: int, map_width: int, map_height: int, rooms: List, room_max_size: int, room_min_size: int, ooze_factor: int):
+    def __init__(self, x: int, y: int, x_dir: int, y_dir: int, map_width: int, map_height: int, rooms: List, room_max_size: int, room_min_size: int, ooze_factor: int, door2: Tuple[int,int]):
         self.door = (x, y)
         ooze_juice = [1,1]
         self.ooze_factor = ooze_factor
@@ -25,6 +25,7 @@ class RectangularRoom:
         self.map_height = map_height
         self.rooms = rooms
         self.tunnels = []
+        self.door2 = door2
 
         # while there's room to grow
         while self.width < room_max_size and self.height < room_max_size:
@@ -286,22 +287,31 @@ def generate_dungeon(
             x = int(map_width/2) if map_width % 2 == 0 else int((map_width-1)/2)
             y = int(map_height/2) if map_height % 2 == 0 else int((map_height-1)/2)
             x_dir = y_dir = 0
+            door2 = None
         else:
             other_room = random.choice(rooms)
             if random.random() < 0.5:
                 # top or bottom
-                x = random.choice(range(other_room.x1, other_room.x2))
+                options = list(range(other_room.x1, other_room.x2))
+                random.shuffle(options)
+                x = options.pop()
+                x2 = options.pop()
                 y = random.choice([other_room.y1, other_room.y2])
                 x_dir = 0
                 y_dir = -1 if y == other_room.y1 else 1
+                door2 = (x2, y)
             else:
                 # left or right
+                options = list(range(other_room.y1,other_room.y2))
+                random.shuffle(options)
                 x = random.choice([other_room.x1, other_room.x2])
-                y = random.choice(range(other_room.y1, other_room.y2))
+                y = options.pop()
+                y2 = options.pop()
                 x_dir = -1 if x == other_room.x1 else 1
                 y_dir = 0
+                door2 = (x,y2)
 
-        room = RectangularRoom(x, y, x_dir, y_dir, map_width, map_height, rooms+vaults, room_max_size, room_min_size, ooze_factor)
+        room = RectangularRoom(x, y, x_dir, y_dir, map_width, map_height, rooms+vaults, room_max_size, room_min_size, ooze_factor, door2)
 
         if room.width < room_min_size or room.height < room_min_size:
             continue
@@ -324,6 +334,8 @@ def generate_dungeon(
             else:
                 dungeon.tiles[room.inner] = tile_types.floor
                 dungeon.tiles[room.door[0],room.door[1]] = tile_types.door
+                if room.door2 and room.has_tile(room.door2):
+                    dungeon.tiles[room.door2[0],room.door2[1]] = tile_types.door
 
         if not room.is_vault:
             center_of_last_room = room.center
