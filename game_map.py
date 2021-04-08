@@ -34,6 +34,9 @@ class GameMap:
         self.explored = np.full(
             (width, height), fill_value=False, order="F"
         )  # Tiles the player has seen before
+        self.mapped = np.full(
+            (width, height), fill_value=False, order="F"
+        )
 
         self.downstairs_location = (0, 0)
         self.floor_number = floor_number
@@ -55,6 +58,15 @@ class GameMap:
     @property
     def items(self) -> Iterator[Item]:
         yield from (entity for entity in self.entities if isinstance(entity, Item))
+
+    def make_mapped(self):
+        for i,row in enumerate(self.mapped):
+            for j, tile in enumerate(row):
+                if self.tiles[i,j] in (tile_types.floor, tile_types.door):
+                    self.mapped[i,j] = True
+                if self.tiles[i,j] == tile_types.down_stairs:
+                    self.explored[i,j] = True
+
     
     def get_blocking_entity_at_location(
         self, location_x: int, location_y: int,
@@ -105,8 +117,8 @@ class GameMap:
         Otherwise, the default is "SHROUD".
         """
         console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
-            condlist=[self.visible, self.explored],
-            choicelist=[self.tiles["light"], self.tiles["dark"]],
+            condlist=[self.visible, self.explored, self.mapped],
+            choicelist=[self.tiles["light"], self.tiles["dark"], tile_types.MAPPED],
             default=tile_types.SHROUD,
             #default=self.tiles["dark"]
         )

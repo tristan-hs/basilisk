@@ -235,6 +235,18 @@ class ConfusionConsumable(Projectile):
         self.consume()
 
 
+class MappingConsumable(Consumable):
+    description = "map this floor"
+
+    def get_throw_action(self, consumer: Actor):
+        return actions.ThrowItem(consumer, self.parent)
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("The segment splatters and spreads across the dungeon, and with it goes your mind")
+        self.engine.game_map.make_mapped()
+        self.consume()
+
+
 class LightningDamageConsumable(Projectile):
     description = "smite a random enemy"
 

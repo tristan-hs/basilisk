@@ -154,7 +154,7 @@ insightful_segment = Item(
     color=color.mind,
     name="insightful",
     edible=consumable.RearrangingConsumable(),
-    spitable=consumable.Projectile(damage=1)
+    spitable=consumable.MappingConsumable()
 )
 
 c_segments = [
@@ -165,5 +165,5 @@ c_segments = [
     familiar_segment, 
     insightful_segment
 ]
-# c_segments = [familiar_segment]
+# c_segments = [insightful_segment]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']
