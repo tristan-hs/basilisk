@@ -35,6 +35,20 @@ class StatusEffect(BaseComponent):
 		self.duration += strength
 
 
+class FreeSpit(StatusEffect):
+	label="salivating"
+	description="spit segments without consuming them"
+	color=color.snake_green
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message("All you spit replenishes.", color.snake_green)
+
+	def strengthen(self):
+		super().strengthen(3)
+		self.engine.message_log.add_message("Your bile wells up within you.", color.snake_green)
+
+
 class PetrifEyes(StatusEffect):
 	label = "petrifying"
 	description = "gaze of stone"
@@ -42,11 +56,11 @@ class PetrifEyes(StatusEffect):
 
 	def apply(self):
 		super().apply()
-		self.engine.message_log.add_message("All you see turns grey and stoney.")
+		self.engine.message_log.add_message("All you see turns grey and stoney.", color.yellow)
 
 	def strengthen(self):
 		super().strengthen(3)
-		self.engine.message_log.add_message("You feel your gaze grow stronger.")
+		self.engine.message_log.add_message("You feel your gaze grow stronger.", color.yellow)
 
 
 class Choking(StatusEffect):

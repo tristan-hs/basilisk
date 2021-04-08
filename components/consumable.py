@@ -17,7 +17,7 @@ from input_handlers import (
     InventoryRearrangeHandler
 )
 import random
-from components.status_effect import ThirdEyeBlind, Choking, PetrifEyes
+from components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -48,6 +48,13 @@ class Consumable(BaseComponent):
         start_at = self.parent.gamemap.engine.player.inventory.items.index(self.parent)
         self.parent.consume()
         self.parent.gamemap.engine.player.snake(footprint, start_at)
+
+    def apply_status(self, action, status, duration=10) -> None:
+        st = [s for s in action.target_actor.statuses if isinstance(s,status)]
+        if st:
+            st[0].strengthen()
+        else:
+            st = status(duration, action.target_actor)
 
 
 class Projectile(Consumable):
@@ -81,17 +88,26 @@ class Projectile(Consumable):
         target.take_damage(self.damage)
         self.consume()
 
+    def consume(self) -> None:
+        if any(isinstance(s,FreeSpit) for s in self.engine.player.statuses):
+            return
+
+        super().consume()
+
+
+class FreeSpitConsumable(Consumable):
+    description = "spit spit spit"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.apply_status(action,FreeSpit,4)
+        self.consume()
+
 
 class PetrifEyesConsumable(Consumable):
     description = "be your best self"
 
     def activate(self, action: actions.ItemAction) -> None:        
-        pe = [s for s in action.target_actor.statuses if isinstance(s,PetrifEyes)]
-        if pe:
-            pe[0].strengthen()
-        else:
-            pe = PetrifEyes(4, action.target_actor)
-
+        self.apply_status(action, PetrifEyes, 4)
         self.consume()
 
 
@@ -100,13 +116,7 @@ class ChokingConsumable(Consumable):
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The segment bubbles up and gets caught in your throat!")
-        
-        choke = [s for s in action.target_actor.statuses if isinstance(s,Choking)]
-        if choke:
-            choke[0].strengthen()
-        else:
-            choke = Choking(10, action.target_actor)
-
+        self.apply_status(action, Choking)
         self.consume()
 
 
@@ -243,13 +253,7 @@ class ThirdEyeBlindConsumable(Consumable):
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The segment dissolves in the air, leaving a shroud of temporal ambiguity.")
-        
-        teb = [s for s in action.target_actor.statuses if isinstance(s,ThirdEyeBlind)]
-        if teb:
-            teb[0].strengthen()
-        else:
-            teb = ThirdEyeBlind(10, action.target_actor)
-
+        self.apply_status(action, ThirdEyeBlind)
         self.consume()
 
 

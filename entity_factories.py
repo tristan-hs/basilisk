@@ -205,8 +205,16 @@ petrif_eyes = Item(
     spitable=consumable.ThirdEyeBlindConsumable(),
 )
 
+bulky = Item(
+    item_type='c',
+    color=color.tongue,
+    name="bulky",
+    edible=consumable.FreeSpitConsumable(),
+    spitable=consumable.Projectile(damage=5)
+)
+
 c_segments = [
-    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,vowel_segment,petrif_eyes
-    #petrif_eyes
+    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,vowel_segment,petrif_eyes,bulky
+    #bulky
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
