@@ -17,7 +17,7 @@ from input_handlers import (
     InventoryRearrangeHandler
 )
 import random
-from components.status_effect import ThirdEyeBlind, Choking
+from components.status_effect import ThirdEyeBlind, Choking, PetrifEyes
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -28,7 +28,7 @@ class Consumable(BaseComponent):
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
-        return actions.ItemAction(consumer, self.parent)
+        return actions.ThrowItem(consumer, self.parent)
 
     def get_eat_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
@@ -79,6 +79,19 @@ class Projectile(Consumable):
                 f"{target.name} takes {self.damage} damage!", color.offwhite
             )
         target.take_damage(self.damage)
+        self.consume()
+
+
+class PetrifEyesConsumable(Consumable):
+    description = "be your best self"
+
+    def activate(self, action: actions.ItemAction) -> None:        
+        pe = [s for s in action.target_actor.statuses if isinstance(s,PetrifEyes)]
+        if pe:
+            pe[0].strengthen()
+        else:
+            pe = PetrifEyes(4, action.target_actor)
+
         self.consume()
 
 
@@ -228,9 +241,6 @@ class NothingConsumable(Consumable):
 class ThirdEyeBlindConsumable(Consumable):
     description = "blind your third eye"
 
-    def get_throw_action(self, consumer: Actor) -> Action:
-        return actions.ThrowItem(consumer, self.parent)
-
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The segment dissolves in the air, leaving a shroud of temporal ambiguity.")
         
@@ -285,9 +295,6 @@ class ConfusionConsumable(Projectile):
 class MappingConsumable(Consumable):
     description = "map this floor"
 
-    def get_throw_action(self, consumer: Actor):
-        return actions.ThrowItem(consumer, self.parent)
-
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The segment splatters and spreads across the dungeon, and with it goes your mind")
         self.engine.game_map.make_mapped()
@@ -300,9 +307,6 @@ class LightningDamageConsumable(Projectile):
     def __init__(self, damage: int=4, maximum_range: int=5):
         self.damage = damage
         self.maximum_range = maximum_range
-
-    def get_throw_action(self, consumer: Actor):
-        return actions.ThrowItem(consumer, self.parent)
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity

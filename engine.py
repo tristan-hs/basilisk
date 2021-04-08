@@ -12,6 +12,8 @@ import exceptions
 from message_log import MessageLog
 import render_functions
 
+from components.status_effect import PetrifEyes
+
 if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap, GameWorld
@@ -38,12 +40,13 @@ class Engine:
 
     def handle_enemy_turns(self) -> None:
         self.player.on_turn()
-        for entity in set(self.game_map.actors) - {self.player}:
-            if entity.ai:
-                try:
-                    entity.ai.perform()
-                except exceptions.Impossible:
-                    pass  # Ignore impossible action exceptions from AI.
+        if not any(isinstance(s,PetrifEyes) for s in self.player.statuses):
+            for entity in set(self.game_map.actors) - {self.player}:
+                if entity.ai:
+                    try:
+                        entity.ai.perform()
+                    except exceptions.Impossible:
+                        pass  # Ignore impossible action exceptions from AI.
         self.turn_count += 1
 
     def update_fov(self) -> None:

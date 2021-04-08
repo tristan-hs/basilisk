@@ -342,14 +342,13 @@ class Item(Entity):
         if self.item_type == 'y':
             self.char = 'y'
             self.edible = random.choice([
-                consumable.ChokingConsumable,
-                consumable.ConsumingConsumable,
                 consumable.ReversingConsumable,
                 consumable.ChangelingConsumable,
                 consumable.IdentifyingConsumable,
                 consumable.RearrangingConsumable,
                 consumable.NothingConsumable,
-                consumable.ThirdEyeBlindConsumable
+                consumable.ChokingConsumable,
+                consumable.MappingConsumable,
             ])()
             self.spitable = random.choice([
                 consumable.Projectile,
@@ -357,6 +356,8 @@ class Item(Entity):
                 consumable.LightningDamageConsumable,
                 consumable.FireballDamageConsumable,
                 consumable.ConfusionConsumable,
+                consumable.ThirdEyeBlindConsumable,
+                consumable.NothingConsumable
             ])()
             self.edible.description = self.spitable.description = '????'
             self.edible.parent = self.spitable.parent = self

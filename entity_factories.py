@@ -109,39 +109,47 @@ vowel_segment = Item(
     spitable=consumable.Projectile(damage=1),
 )
 
-fire_segment = Item(
+fireball = Item(
     item_type='c',
     color=color.fire,
     name="explosive",
-    edible=consumable.NothingConsumable(),
-    spitable=consumable.FireballDamageConsumable(damage=1, radius=1),
+    edible=consumable.ChokingConsumable(),
+    spitable=consumable.FireballDamageConsumable(damage=2, radius=1),
 )
 
-mind_segment = Item(
+confusion = Item(
+    item_type='c',
+    color=color.mind,
+    name="shifting",
+    edible=consumable.ChokingConsumable(),
+    spitable=consumable.ConfusionConsumable(number_of_turns=10),
+)
+
+changeling = Item(
     item_type='c',
     color=color.mind,
     name="shifting",
     edible=consumable.ChangelingConsumable(),
-    spitable=consumable.ConfusionConsumable(number_of_turns=10),
+    spitable=consumable.Projectile(damage=2)
 )
 
-electric_segment = Item(
+electric = Item(
     item_type='c',
     color=color.electric,
     name="electric",
-    edible=consumable.NothingConsumable(),
-    spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=5),
+    edible=consumable.ConsumingConsumable(),
+    spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=8),
 )
 
-reversal_segment = Item(
+reversal = Item(
     item_type='c',
     color=color.reversal,
     name="backwards",
     edible=consumable.ReversingConsumable(),
-    spitable=consumable.Projectile(damage=1),
+    spitable=consumable.Projectile(damage=2),
 )
 
-familiar_segment = Item(
+familiar = Item(
     item_type='c',
     color=color.mind,
     name="familiar",
@@ -149,23 +157,31 @@ familiar_segment = Item(
     spitable=consumable.ThirdEyeBlindConsumable()
 )
 
-insightful_segment = Item(
+mapping = Item(
+    item_type='c',
+    color=color.mind,
+    name="crinkly",
+    edible=consumable.MappingConsumable(),
+    spitable=consumable.ThirdEyeBlindConsumable()
+)
+
+insightful = Item(
     item_type='c',
     color=color.mind,
     name="insightful",
     edible=consumable.RearrangingConsumable(),
-    spitable=consumable.MappingConsumable()
+    spitable=consumable.ThirdEyeBlindConsumable()
 )
 
-warped_segment = Item(
+warped = Item(
     item_type='c',
     color=color.mind,
     name="warped",
     edible=consumable.ConsumingConsumable(),
-    spitable=consumable.Projectile(damage=3)
+    spitable=consumable.Projectile(damage=5)
 )
 
-forked_segment = Item(
+forked = Item(
     item_type='c',
     color=color.tongue,
     name="forked",
@@ -178,19 +194,19 @@ y_segment = Item(
     color=color.unidentified,
     name="mYsterious",
     edible=consumable.NothingConsumable(),
-    spitable=consumable.Projectile()
+    spitable=consumable.Projectile(damage=2)
+)
+
+petrif_eyes = Item(
+    item_type='c',
+    color=color.cyan,
+    name="eye-covered",
+    edible=consumable.PetrifEyesConsumable(),
+    spitable=consumable.ThirdEyeBlindConsumable(),
 )
 
 c_segments = [
-    fire_segment,
-    mind_segment,
-    electric_segment, 
-    reversal_segment, 
-    familiar_segment, 
-    insightful_segment,
-    warped_segment,
-    forked_segment,
-    y_segment
+    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,vowel_segment,petrif_eyes
+    #petrif_eyes
 ]
-#c_segments = [y_segment]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

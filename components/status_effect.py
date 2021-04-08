@@ -35,6 +35,20 @@ class StatusEffect(BaseComponent):
 		self.duration += strength
 
 
+class PetrifEyes(StatusEffect):
+	label = "petrifying"
+	description = "gaze of stone"
+	color = color.cyan
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message("All you see turns grey and stoney.")
+
+	def strengthen(self):
+		super().strengthen(3)
+		self.engine.message_log.add_message("You feel your gaze grow stronger.")
+
+
 class Choking(StatusEffect):
 	label = "choking"
 	description = "can't spit"
