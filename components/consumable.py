@@ -98,6 +98,7 @@ class ReversingConsumable(Consumable):
         consumer.place(x,y)
 
         consumer.inventory.items = solid_items + nonsolid_items
+        self.engine.check_word_mode()
 
         self.engine.message_log.add_message("You turn tail!", color.offwhite)
 
