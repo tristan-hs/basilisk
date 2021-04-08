@@ -35,8 +35,22 @@ class StatusEffect(BaseComponent):
 		self.duration += strength
 
 
+class Choking(StatusEffect):
+	label = "choking"
+	description = "can't spit"
+	color = color.tongue
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message("You can't spit!", color.red)
+
+	def strengthen(self):
+		super().strengthen()
+		self.engine.message_log.add_message("Your throat is feeling even worse!", color.red)
+
+
 class ThirdEyeBlind(StatusEffect):
-	label ="TE Blind"
+	label ="future blind"
 	description = "can't see intents"
 	color = color.red
 	

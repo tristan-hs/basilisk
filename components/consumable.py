@@ -17,7 +17,7 @@ from input_handlers import (
     InventoryRearrangeHandler
 )
 import random
-from components.status_effect import ThirdEyeBlind
+from components.status_effect import ThirdEyeBlind, Choking
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -75,6 +75,22 @@ class Projectile(Consumable):
         self.consume()
 
 
+class ChokingConsumable(Consumable):
+    description = "at your own risk"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("The segment bubbles up and gets caught in your throat!")
+        
+        choke = [s for s in action.target_actor.statuses if isinstance(s,Choking)]
+        if choke:
+            choke[0].strengthen()
+        else:
+            choke = Choking(10, action.target_actor)
+
+        self.consume()
+
+
+
 class ConsumingConsumable(Consumable):
     description = "lose weight"
 
@@ -96,8 +112,6 @@ class ConsumingConsumable(Consumable):
             neighbour.edible.consume()
         else:
             self.engine.message_log.add_message("But it closes harmlessly.", color.grey)
-
-
 
 
 class ReversingConsumable(Consumable):

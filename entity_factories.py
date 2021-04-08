@@ -162,17 +162,26 @@ warped_segment = Item(
     color=color.mind,
     name="warped",
     edible=consumable.ConsumingConsumable(),
-    spitable=consumable.Projectile()
+    spitable=consumable.Projectile(damage=3)
 )
 
-"""c_segments = [
+forked_segment = Item(
+    item_type='c',
+    color=color.tongue,
+    name="forked",
+    edible=consumable.ChokingConsumable(),
+    spitable=consumable.Projectile(damage=3)
+)
+
+c_segments = [
     fire_segment,
     mind_segment,
     electric_segment, 
     reversal_segment, 
     familiar_segment, 
     insightful_segment,
-    warped_segment
-]"""
-c_segments = [warped_segment]
+    warped_segment,
+    forked_segment
+]
+#c_segments = [forked_segment, familiar_segment]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']
