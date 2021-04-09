@@ -4,6 +4,10 @@ import random
 from typing import Iterator, List, Tuple, TYPE_CHECKING, Iterable
 
 import tcod
+import numpy
+import copy
+
+from entity import Item
 
 import entity_factories
 from game_map import GameMap
@@ -248,12 +252,63 @@ class Tunnel(RectangularRoom):
 
 
 def generate_item_identities():
-    cons = entity_factories.consonants[:]
-    random.shuffle(cons)
-    items = entity_factories.c_segments[:]
-    for i in items:
-        i.char = cons.pop()
-    return items
+    letters = {
+        'b':2,
+        'c':2,
+        'd':4,
+        'f':2,
+        'g':3,
+        'h':2,
+        'j':1,
+        'k':1,
+        'l':4,
+        'm':2,
+        'n':6,
+        'p':2,
+        'q':1,
+        'r':6,
+        's':4,
+        't':6,
+        'v':2,
+        'w':2,
+        'x':1,
+        'z':1
+    }
+
+    letters_weighted = []
+    for k,v in letters.items():
+        letters_weighted += [k]*v
+
+    all_items = []
+    letters_weighted.sort(key=lambda l:letters[l]+random.random())
+
+    # assign letters to items + print list
+    while len(letters_weighted) > 0:
+        item_fs = entity_factories.c_segments[:]
+        random.shuffle(item_fs)
+        for i in item_fs:
+            letters_weighted_thirds = numpy.array_split(letters_weighted,3)
+            third = letters_weighted_thirds[{'r':0,'u':1,'c':2}[i.rarity]]
+            
+            char = random.choice(third) if len(third) > 0 else random.choice(letters_weighted)
+
+            item = Item(
+                item_type='c',
+                color=i._color,
+                name=i.name,
+                edible=copy.deepcopy(i.edible),
+                spitable=copy.deepcopy(i.spitable),
+                rarity=i.rarity
+            )
+            item.edible.parent = item.spitable.parent = item
+            item.char = char
+            all_items.append(item)
+            letters_weighted = [l for l in letters_weighted if l != item.char]
+
+            if len(letters_weighted) == 0:
+                break
+
+    return all_items
 
 def generate_dungeon(
     max_rooms: int,

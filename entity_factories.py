@@ -115,14 +115,16 @@ fireball = Item(
     name="explosive",
     edible=consumable.ChokingConsumable(),
     spitable=consumable.FireballDamageConsumable(damage=2, radius=1),
+    rarity='c'
 )
 
 confusion = Item(
     item_type='c',
     color=color.mind,
-    name="shifting",
+    name="confusing",
     edible=consumable.ChokingConsumable(),
     spitable=consumable.ConfusionConsumable(number_of_turns=10),
+    rarity='u'
 )
 
 changeling = Item(
@@ -130,7 +132,8 @@ changeling = Item(
     color=color.mind,
     name="shifting",
     edible=consumable.ChangelingConsumable(),
-    spitable=consumable.Projectile(damage=2)
+    spitable=consumable.Projectile(damage=2),
+    rarity='u'
 )
 
 electric = Item(
@@ -139,6 +142,7 @@ electric = Item(
     name="electric",
     edible=consumable.ConsumingConsumable(),
     spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=8),
+    rarity='u'
 )
 
 reversal = Item(
@@ -147,6 +151,7 @@ reversal = Item(
     name="backwards",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.Projectile(damage=2),
+    rarity='u'
 )
 
 familiar = Item(
@@ -154,7 +159,8 @@ familiar = Item(
     color=color.mind,
     name="familiar",
     edible=consumable.IdentifyingConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable()
+    spitable=consumable.ThirdEyeBlindConsumable(),
+    rarity='c'
 )
 
 mapping = Item(
@@ -162,7 +168,8 @@ mapping = Item(
     color=color.mind,
     name="crinkly",
     edible=consumable.MappingConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable()
+    spitable=consumable.ThirdEyeBlindConsumable(),
+    rarity='u'
 )
 
 insightful = Item(
@@ -170,7 +177,8 @@ insightful = Item(
     color=color.mind,
     name="insightful",
     edible=consumable.RearrangingConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable()
+    spitable=consumable.ThirdEyeBlindConsumable(),
+    rarity='r'
 )
 
 warped = Item(
@@ -178,7 +186,8 @@ warped = Item(
     color=color.mind,
     name="warped",
     edible=consumable.ConsumingConsumable(),
-    spitable=consumable.Projectile(damage=5)
+    spitable=consumable.Projectile(damage=5),
+    rarity='u'
 )
 
 forked = Item(
@@ -186,7 +195,8 @@ forked = Item(
     color=color.tongue,
     name="forked",
     edible=consumable.ChokingConsumable(),
-    spitable=consumable.Projectile(damage=3)
+    spitable=consumable.Projectile(damage=3),
+    rarity='c'
 )
 
 y_segment = Item(
@@ -203,6 +213,7 @@ petrif_eyes = Item(
     name="eye-covered",
     edible=consumable.PetrifEyesConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
+    rarity='r'
 )
 
 bulky = Item(
@@ -210,11 +221,15 @@ bulky = Item(
     color=color.tongue,
     name="bulky",
     edible=consumable.FreeSpitConsumable(),
-    spitable=consumable.Projectile(damage=5)
+    spitable=consumable.Projectile(damage=5),
+    rarity='r'
 )
 
 c_segments = [
-    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,vowel_segment,petrif_eyes,bulky
+    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,petrif_eyes,bulky
     #bulky
+]
+c_segments2 = [
+    fireball, familiar, confusion, changeling, electric, reversal, insightful, petrif_eyes
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

@@ -40,6 +40,7 @@ class Entity:
         blocks_movement: bool = False,
         render_order: RenderOrder = RenderOrder.CORPSE,
         description: str = "???",
+        rarity: Optional[str] = None,
     ):
         self.x = x
         self.y = y
@@ -49,6 +50,7 @@ class Entity:
         self.blocks_movement = blocks_movement
         self.render_order = render_order
         self._description=description
+        self.rarity = rarity
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -77,10 +79,10 @@ class Entity:
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
-        clone.preSpawn()
         clone.x = x
         clone.y = y
         clone.parent = gamemap
+        clone.preSpawn()
         gamemap.entities.add(clone)
         return clone
 
@@ -267,7 +269,8 @@ class Item(Entity):
         edible: Consumable,
         spitable: Consumable,
         char: str = '?',
-        description: str = '???'
+        description: str = '???',
+        rarity: Optional[str] = None,
     ):
         super().__init__(
             x=x,
@@ -276,7 +279,8 @@ class Item(Entity):
             name=name,
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
-            description=description
+            description=description,
+            rarity=rarity
         )
         self.item_type = item_type
         self.edible = edible
@@ -285,6 +289,7 @@ class Item(Entity):
         self.edible.parent = self
         self._identified = False
         self._color = color
+        self.rarity = rarity
 
     @property
     def label(self):
@@ -300,7 +305,7 @@ class Item(Entity):
 
     @identified.setter
     def identified(self, new_val: bool):
-        if self.item_type != 'c' or self._identified == True:
+        if self.item_type != 'c' or self._identified:
             return
         factory = [i for i in self.gamemap.item_factories if i.char == self.char][0]
         if factory._identified == True:
