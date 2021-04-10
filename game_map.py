@@ -43,13 +43,13 @@ class GameMap:
         self.item_factories = items
 
     @property
-    def actors(self) -> Iterator[Actor]:
+    def actors(self) -> Iterable[Actor]:
         """Iterate over this maps living actors."""
-        return (
+        return [
             entity
             for entity in self.entities
             if isinstance(entity, Actor) and entity.is_alive
-        )
+        ]
 
     @property
     def gamemap(self) -> GameMap:
