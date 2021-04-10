@@ -222,6 +222,8 @@ class Actor(Entity):
             self.char = str(char_num)
 
     def corpse(self) -> None:
+        if random.random() > (int(self.char) + self.move_speed + 1)*0.1:
+            return
         my_drops = []
         for i in self.gamemap.item_factories:
             factor = Item.letters()[i.char]

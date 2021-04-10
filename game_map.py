@@ -164,6 +164,11 @@ class GameMap:
                     x=entity.x, y=entity.y, string=entity.char, fg=color.player_dark
                 )
 
+            elif isinstance(entity, Item) and self.explored[entity.x, entity.y]:
+                console.print(
+                    x=entity.x, y=entity.y, string=entity.char, fg=color.grey
+                )
+
 class GameWorld:
     """
     Holds the settings for the GameMap, and generates new maps when moving down the stairs.
