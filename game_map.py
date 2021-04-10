@@ -45,7 +45,7 @@ class GameMap:
     @property
     def actors(self) -> Iterator[Actor]:
         """Iterate over this maps living actors."""
-        yield from (
+        return (
             entity
             for entity in self.entities
             if isinstance(entity, Actor) and entity.is_alive
@@ -215,10 +215,12 @@ class GameWorld:
         self.current_floor += 1
 
         ooze_factor = self.ooze_factor - (0.5*self.current_floor*0.02) + (random.random()*self.current_floor*0.02)
-        vault_chance = self.vault_chance + (self.current_floor*0.002)
+        vault_chance = self.vault_chance + (self.current_floor*0.005)
+
+        room_buffer = random.randint(3,max(self.current_floor,6))
 
         self.engine.game_map = generate_dungeon(
-            max_rooms=self.current_floor*15,
+            max_rooms=self.current_floor*2+room_buffer,
             room_min_size=self.room_min_size,
             room_max_size=self.room_max_size,
             map_width=self.map_width,

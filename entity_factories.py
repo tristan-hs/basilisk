@@ -111,6 +111,19 @@ decider = Actor(
 )
 
 enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]
+enemy_sets = [
+[goblin,statue],
+[goblin,statue,jackelope],
+[jackelope,goblin,ogre,statue],
+
+[jackelope,ogre,goblin,dragon,statue],
+[dragon,ogre,jackelope,lich,titan],
+[lich,dragon,titan,ogre,demon],
+
+[titan,lich,demon,dragon,war_god],
+[demon,war_god,lich,titan,elder],
+[decider,elder,war_god,demon,lich]
+]
 
 vowel_segment = Item(
     item_type='v',

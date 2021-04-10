@@ -315,7 +315,10 @@ def generate_dungeon(
 
     center_of_last_room = (0, 0)
 
-    for r in range(max_rooms):
+    attempts = 0
+
+    while len(rooms) < max_rooms and attempts < 1000:
+        attempts += 1
         # unless this is the first room, pick a point adjacent to another room
         if len(rooms) == 0:
             x = int(map_width/2) if map_width % 2 == 0 else int((map_width-1)/2)
@@ -409,36 +412,72 @@ def tunnel_between(
 def place_entities(
     room: RectangularRoom, dungeon: GameMap, maximum_monsters: int, maximum_items: int
 ) -> None:
-    number_of_monsters = random.randint(0, maximum_monsters)
-    number_of_items = random.randint(0, maximum_items)
-    min_monster = dungeon.floor_number-1
-    max_monster = dungeon.floor_number*2
+
+
+    enemy_set = entity_factories.enemy_sets[dungeon.floor_number-1][:]
+    monster_points = 0
+    factor = dungeon.floor_number+1
+
+    if random.random() > 0.3:
+        monster_points += factor
+        if random.random() > 0.3:
+            monster_points *= factor
+            if random.random() > 0.3:
+                monster_points += factor
 
     if room.is_vault:
-        number_of_monsters += 1
-        number_of_items += 1
-        min_monster += 1
-        max_monster += 1
+        monster_points += random.randint(1,factor*factor)
+        if entity_factories.enemy_sets[dungeon.floor_number]:
+            enemy_set.append(random.choice(entity_factories.enemy_sets[dungeon.floor_number]))
 
-    for i in range(number_of_monsters):
-        x = random.randint(room.x1 + 1, room.x2 - 1)
-        y = random.randint(room.y1 + 1, room.y2 - 1)
+    def calc_mp(monster):
+        return int(monster.char) * monster.move_speed + 1
 
-        factory = random.choice(entity_factories.enemies[max(0,min_monster):min(10,max_monster)])
+    attempts = 0
+    monsters = 0
+    while monster_points > min(calc_mp(p) for p in enemy_set) and attempts < 1000 and monsters < maximum_monsters:
+        attempts += 1
+        monster = random.choice(enemy_set)
+        mp = calc_mp(monster)
+        if mp > monster_points:
+            continue
+
+        x = random.randint(room.x1 + 1, room.x2-1)
+        y = random.randint(room.y1+1, room.y2-1)
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            factory.spawn(dungeon, x, y)
+            monster.spawn(dungeon,x,y)
+            monster_points -= calc_mp(monster)
+            monsters += 1
 
-    for i in range(number_of_items):
+
+    item_points = 0
+    if random.random() < 0.4:
+        item_points = 1
+
+    if room.is_vault:
+        item_points += random.randint(1,factor)
+        factory_set = dungeon.item_factories
+    elif random.random() > 0.9:
+        factory_set = [entity_factories.y_segment]
+    else:
+        factory_set = [entity_factories.vowel_segment]
+
+    attempts = 0
+    while item_points > 0 and attempts < 1000:
+        attempts += 1
+
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
         if dungeon.tiles[x,y] == tile_types.down_stairs:
             continue
 
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            if random.random() > 0.9:
-                entity_factories.y_segment.spawn(dungeon,x,y)
-            else:
-                entity_factories.vowel_segment.spawn(dungeon,x,y)
+        if not any(entity.x == x and entity.y == y and isinstance(entity, Item) for entity in dungeon.entities):
+            item = random.choice(factory_set)
+            cost = {'c':1,'u':2,'r':3}[item.rarity] if item.rarity else 1
+            if cost > item_points:
+                continue
+            item.spawn(dungeon,x,y)
+            item_points -= cost
 
