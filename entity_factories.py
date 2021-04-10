@@ -19,14 +19,16 @@ statue = Actor(
     color=color.statue,
     name="Statue",
     ai_cls=ai.Statue,
-    description="Can't do much, but drops loot all the same."
+    description="Can't do much, but drops loot all the same.",
+    drop_tier='c'
 )
 goblin = Actor(
     char="1",
     color=color.goblin,
     name="Goblin",
     ai_cls=ai.HostileEnemy,
-    description="Will rush you on sight."
+    description="Will rush you on sight.",
+    drop_tier='c'
 )
 jackelope = Actor(
     char="1",
@@ -34,14 +36,16 @@ jackelope = Actor(
     name="Jackelope",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Moves 2 tiles per turn!"
+    description="Moves 2 tiles per turn!",
+    drop_tier='c'
 )
 ogre = Actor(
     char="2",
     color=color.ogre,
     name="Ogre",
     ai_cls=ai.HostileEnemy,
-    description="Large and slow."
+    description="Large and slow.",
+    drop_tier='c'
 )
 dragon = Actor(
     char="3",
@@ -49,7 +53,8 @@ dragon = Actor(
     name="Dragon",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Large and fast!"
+    description="Large and fast!",
+    drop_tier='u'
 )
 titan = Actor(
     char="4",
@@ -57,14 +62,16 @@ titan = Actor(
     name="Titan",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Durable and fast!"
+    description="Durable and fast!",
+    drop_tier='u'
 )
 lich = Actor(
     char="5",
     color=color.lich,
     name="Lich",
     ai_cls=ai.HostileEnemy,
-    description="Slow, but hard to kill."
+    description="Slow, but hard to kill.",
+    drop_tier='u'
 )
 demon = Actor(
     char="4",
@@ -72,7 +79,8 @@ demon = Actor(
     name="Demon",
     ai_cls=ai.HostileEnemy,
     move_speed=3,
-    description="A speed demon, to be precise."
+    description="A speed demon, to be precise.",
+    drop_tier='u'
 )
 war_god = Actor(
     char="7",
@@ -80,7 +88,8 @@ war_god = Actor(
     name="War God",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Holy calamity"
+    description="Holy calamity",
+    drop_tier='r'
 )
 elder = Actor(
     char="8",
@@ -88,7 +97,8 @@ elder = Actor(
     name="Elder",
     ai_cls=ai.HostileEnemy,
     move_speed=1,
-    description="Slow seeping madness, nigh unkillable"
+    description="Slow seeping madness, nigh unkillable",
+    drop_tier='r'
 )
 decider = Actor(
     char="9",
@@ -96,7 +106,8 @@ decider = Actor(
     name="The Decider",
     ai_cls=ai.HostileEnemy,
     move_speed=4,
-    description="The fastest + most durable thing in the dungeon (so far)"
+    description="The fastest + most durable thing in the dungeon (so far)",
+    drop_tier='r'
 )
 
 enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]

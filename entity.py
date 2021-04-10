@@ -174,7 +174,8 @@ class Actor(Entity):
         move_speed: int = 1,
         ai_cls: Type[BaseAI],
         render_order: RenderOrder = RenderOrder.ACTOR,
-        description: str = "???"
+        description: str = "???",
+        drop_tier: str = 'c'
     ):
         super().__init__(
             x=x,
@@ -196,6 +197,7 @@ class Actor(Entity):
         self.ai: Optional[BaseAI] = ai_cls(self)
 
         self.statuses = []
+        self.drop_tier = drop_tier
 
     @property
     def is_alive(self) -> bool:
@@ -220,7 +222,13 @@ class Actor(Entity):
             self.char = str(char_num)
 
     def corpse(self) -> None:
-        random.choice(self.gamemap.item_factories).spawn(self.gamemap,self.x,self.y)
+        my_drops = []
+        for i in self.gamemap.item_factories:
+            factor = Item.letters()[i.char]
+            additions = [i] * factor if i.rarity != self.drop_tier else [i] * (factor+2) * (factor+2)
+            my_drops += additions
+
+        random.choice(my_drops).spawn(self.gamemap,self.x,self.y)
 
     def die(self) -> None:
         if self.engine.player is self:
@@ -340,6 +348,31 @@ class Item(Entity):
     @color.setter
     def color(self, new_val):
         self._color = new_val
+
+    @staticmethod
+    def letters():
+        return {
+        'b':2,
+        'c':2,
+        'd':4,
+        'f':2,
+        'g':3,
+        'h':2,
+        'j':1,
+        'k':1,
+        'l':4,
+        'm':2,
+        'n':6,
+        'p':2,
+        'q':1,
+        'r':6,
+        's':4,
+        't':6,
+        'v':2,
+        'w':2,
+        'x':1,
+        'z':1
+    }
 
     def preSpawn(self):
         if self.item_type == 'v':

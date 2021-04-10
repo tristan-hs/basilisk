@@ -252,28 +252,7 @@ class Tunnel(RectangularRoom):
 
 
 def generate_item_identities():
-    letters = {
-        'b':2,
-        'c':2,
-        'd':4,
-        'f':2,
-        'g':3,
-        'h':2,
-        'j':1,
-        'k':1,
-        'l':4,
-        'm':2,
-        'n':6,
-        'p':2,
-        'q':1,
-        'r':6,
-        's':4,
-        't':6,
-        'v':2,
-        'w':2,
-        'x':1,
-        'z':1
-    }
+    letters = Item.letters()
 
     letters_weighted = []
     for k,v in letters.items():
