@@ -1,12 +1,12 @@
 from __future__ import annotations
-from components.base_component import BaseComponent
 
-import color
+from basilisk.components.base_component import BaseComponent
+from basilisk import color
 
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-	from entity import Actor
+	from basilisk.entity import Actor
 
 class StatusEffect(BaseComponent):
 	parent: Actor

@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING
 
-from components.base_component import BaseComponent
+from basilisk.components.base_component import BaseComponent
+from basilisk import color
+from basilisk.render_order import RenderOrder
 
 if TYPE_CHECKING:
-    from entity import Actor, Item
-
-import color
-from render_order import RenderOrder
+    from basilisk.entity import Actor, Item
 
 
 class Inventory(BaseComponent):

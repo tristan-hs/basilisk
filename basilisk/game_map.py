@@ -2,21 +2,19 @@ from __future__ import annotations
 
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
-import color
-
 import numpy as np  # type: ignore
 from tcod.console import Console
-
-from entity import Actor, Item
-from actions import ActionWithDirection
-from render_functions import DIRECTIONS, D_ARROWS
-from components.status_effect import ThirdEyeBlind
 import random
-import tile_types
+
+from basilisk import color, tile_types
+from basilisk.entity import Actor, Item
+from basilisk.actions import ActionWithDirection
+from basilisk.render_functions import DIRECTIONS, D_ARROWS
+from basilisk.components.status_effect import ThirdEyeBlind
 
 if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Entity
+    from basilisk.engine import Engine
+    from basilisk.entity import Entity
 
 
 class GameMap:
@@ -189,7 +187,7 @@ class GameWorld:
         ooze_factor: float,
         vault_chance: float
     ):
-        from procgen import generate_item_identities
+        from basilisk.procgen import generate_item_identities
         self.items = generate_item_identities()
 
         self.engine = engine
@@ -210,7 +208,7 @@ class GameWorld:
         self.vault_chance = vault_chance
 
     def generate_floor(self) -> None:
-        from procgen import generate_dungeon
+        from basilisk.procgen import generate_dungeon
 
         self.current_floor += 1
 

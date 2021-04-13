@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from render_functions import DIRECTIONS
-
-import color
-import exceptions
+from basilisk.render_functions import DIRECTIONS
+from basilisk import color, exceptions
 
 if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Actor, Entity
+    from basilisk.engine import Engine
+    from basilisk.entity import Actor, Entity
 
 
 class Action:

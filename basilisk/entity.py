@@ -1,23 +1,24 @@
 from __future__ import annotations
 
 import copy
-import color as Color
 import math
 import random
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
 
-from render_order import RenderOrder
+from basilisk.render_order import RenderOrder
 
-from components.inventory import Inventory
-from components.ai import Constricted
-from components import consumable
+from basilisk import color as Color
 
-from render_functions import DIRECTIONS
+from basilisk.components.inventory import Inventory
+from basilisk.components.ai import Constricted
+from basilisk.components import consumable
+
+from basilisk.render_functions import DIRECTIONS
 
 if TYPE_CHECKING:
-    from components.ai import BaseAI
-    from game_map import GameMap
-    from engine import Engine
+    from basilisk.components.ai import BaseAI
+    from basilisk.game_map import GameMap
+    from basilisk.engine import Engine
 
 T = TypeVar("T", bound="Entity")
 

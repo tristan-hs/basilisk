@@ -9,15 +9,16 @@ from typing import Optional
 
 import tcod
 
-import color
-from engine import Engine
-import entity_factories
-import input_handlers
-from game_map import GameWorld
+from basilisk import input_handlers
+from basilisk.engine import Engine
+from basilisk import color, entity_factories
+from basilisk.game_map import GameWorld
+
+import utils
 
 
 # Load the background image and remove the alpha channel.
-background_image = tcod.image.load("menu_background.png")[:, :, :3]
+background_image = tcod.image.load(utils.get_resource("menu_background.png"))[:, :, :3]
 
 
 def new_game() -> Engine:
@@ -109,7 +110,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             raise SystemExit()
         elif event.sym == tcod.event.K_c:
             try:
-                return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
+                return input_handlers.MainGameEventHandler(load_game("resources/savegame.sav"))
             except FileNotFoundError:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
             except Exception as exc:

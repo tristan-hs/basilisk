@@ -3,7 +3,7 @@ import textwrap
 
 import tcod
 
-import color
+from basilisk import color
 
 
 class Message:

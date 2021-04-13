@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
+import random
 
-import actions
-import color
-import components.ai
-import components.inventory
-from components.base_component import BaseComponent
-from exceptions import Impossible
-from input_handlers import (
+from basilisk import actions, color
+
+import basilisk.components.ai
+
+from basilisk.components.base_component import BaseComponent
+from basilisk.exceptions import Impossible
+from basilisk.input_handlers import (
     ActionOrHandler,
     AreaRangedAttackHandler,
     SingleRangedAttackHandler,
@@ -16,11 +17,10 @@ from input_handlers import (
     InventoryIdentifyHandler,
     InventoryRearrangeHandler
 )
-import random
-from components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit
+from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit
 
 if TYPE_CHECKING:
-    from entity import Actor, Item
+    from basilisk.entity import Actor, Item
 
 
 class Consumable(BaseComponent):
@@ -290,7 +290,7 @@ class ConfusionConsumable(Projectile):
             f"The eyes of the {target.name} glaze over as it stumbles about",
             color.offwhite,
         )
-        target.ai = components.ai.ConfusedEnemy(
+        target.ai = basilisk.components.ai.ConfusedEnemy(
             entity=target, previous_ai=target.ai, turns_remaining=self.number_of_turns,
         )
         self.consume()

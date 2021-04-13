@@ -1,9 +1,9 @@
-from components import ai
-from components import consumable
-from entity import Actor, Item
-import color
-from render_order import RenderOrder
 import random
+
+from basilisk.components import ai, consumable
+from basilisk.entity import Actor, Item
+from basilisk import color
+from basilisk.render_order import RenderOrder
  
 player = Actor(
     char="@",

@@ -6,14 +6,15 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 import tcod
-from exceptions import Impossible
 
-from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
-import color
+from basilisk.exceptions import Impossible
+
+from basilisk.actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
+from basilisk import color
 
 if TYPE_CHECKING:
-    from entity import Actor
-    from action import Action
+    from basilisk.entity import Actor
+    from basilisk.action import Action
 
 class BaseAI(Action):
 

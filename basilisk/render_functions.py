@@ -2,16 +2,14 @@ from __future__ import annotations
 
 from typing import Tuple, TYPE_CHECKING
 
-import color
-
-from message_log import MessageLog
-
-from render_order import RenderOrder
+from basilisk import color
+from basilisk.message_log import MessageLog
+from basilisk.render_order import RenderOrder
 
 if TYPE_CHECKING:
     from tcod import Console
-    from engine import Engine
-    from game_map import GameMap
+    from basilisk.engine import Engine
+    from basilisk.game_map import GameMap
 
 DIRECTIONS = [(0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)]
 D_ARROWS = ['↑', '↓', '\\', '←', '/', '/','→','\\']

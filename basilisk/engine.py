@@ -8,15 +8,15 @@ from typing import TYPE_CHECKING
 from tcod.console import Console
 from tcod.map import compute_fov
 
-import exceptions
-from message_log import MessageLog
-import render_functions
-
-from components.status_effect import PetrifEyes
+from basilisk import exceptions, render_functions
+from basilisk.message_log import MessageLog
+from basilisk.components.status_effect import PetrifEyes
 
 if TYPE_CHECKING:
-    from entity import Actor
-    from game_map import GameMap, GameWorld
+    from basilisk.entity import Actor
+    from basilisk.game_map import GameMap, GameWorld
+
+import utils
 
 
 class Engine:
@@ -36,7 +36,7 @@ class Engine:
             self.word_mode = False
             return
         p_word = ''.join([i.char for i in self.player.inventory.items])
-        self.word_mode = p_word in open("words.txt").read().splitlines()
+        self.word_mode = p_word in open(utils.get_resource("words.txt")).read().splitlines()
 
     def handle_enemy_turns(self) -> None:
         self.player.on_turn()

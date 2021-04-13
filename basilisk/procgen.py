@@ -7,14 +7,13 @@ import tcod
 import numpy
 import copy
 
-from entity import Item
+from basilisk.entity import Item
 
-import entity_factories
-from game_map import GameMap
-import tile_types
+from basilisk import entity_factories, tile_types
+from basilisk.game_map import GameMap
 
 if TYPE_CHECKING:
-    from engine import Engine
+    from basilisk.engine import Engine
 
 
 class RectangularRoom:

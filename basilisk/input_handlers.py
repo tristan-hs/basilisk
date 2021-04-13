@@ -5,21 +5,21 @@ import os
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod.event
+import math
 
-import actions
-from actions import (
+from basilisk import actions, color, exceptions
+from basilisk.actions import (
     Action,
     BumpAction,
     WaitAction,
     PickupAction,
 )
-import color
-import exceptions
-import math
 
 if TYPE_CHECKING:
-    from engine import Engine
-    from entity import Item
+    from basilisk.engine import Engine
+    from basilisk.entity import Item
+
+import utils
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -219,8 +219,8 @@ class AskUserEventHandler(EventHandler):
 class GameOverEventHandler(EventHandler):
     def on_quit(self) -> None:
         """Handle exiting out of a finished game."""
-        if os.path.exists("savegame.sav"):
-            os.remove("savegame.sav")  # Deletes the active save file.
+        if os.path.exists(utils.get_resource("savegame.sav")):
+            os.remove(utils.get_resource("savegame.sav"))  # Deletes the active save file.
         raise exceptions.QuitWithoutSaving()  # Avoid saving a finished game.
 
     def ev_quit(self, event: tcod.event.Quit) -> None:
