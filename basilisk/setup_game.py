@@ -110,7 +110,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             raise SystemExit()
         elif event.sym == tcod.event.K_c:
             try:
-                return input_handlers.MainGameEventHandler(load_game("resources/savegame.sav"))
+                return input_handlers.MainGameEventHandler(load_game(utils.get_resource("savegame.sav")))
             except FileNotFoundError:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
             except Exception as exc:
