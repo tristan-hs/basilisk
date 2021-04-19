@@ -110,6 +110,17 @@ decider = Actor(
     drop_tier='r'
 )
 
+final_boss = Actor(
+    char="9",
+    color=color.purple,
+    name="Voidmaw",
+    ai_cls=ai.Statue,
+    move_speed=0,
+    description="The object of your quest",
+    drop_tier='r',
+    is_boss=True
+)
+
 enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]
 enemy_sets = [
 [goblin,statue],

@@ -117,6 +117,8 @@ class EventHandler(BaseEventHandler):
             if not self.engine.player.is_alive:
                 # The player was killed sometime during or after the action.
                 return GameOverEventHandler(self.engine)
+            if self.engine.boss_killed:
+                return VictoryEventHandler(self.engine)
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
 
@@ -229,6 +231,12 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
             self.on_quit()
+
+class VictoryEventHandler(GameOverEventHandler):
+    def __init__(self,engine):
+        super().__init__(engine)
+        engine.message_log.add_message("Congratulations! You've encircled the Voidmaw and saved the world from annihilation!", color.purple)
+
 
 
 class HistoryViewer(EventHandler):

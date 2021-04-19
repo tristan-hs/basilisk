@@ -176,7 +176,8 @@ class Actor(Entity):
         ai_cls: Type[BaseAI],
         render_order: RenderOrder = RenderOrder.ACTOR,
         description: str = "???",
-        drop_tier: str = 'c'
+        drop_tier: str = 'c',
+        is_boss: bool = False
     ):
         super().__init__(
             x=x,
@@ -199,6 +200,7 @@ class Actor(Entity):
 
         self.statuses = []
         self.drop_tier = drop_tier
+        self.is_boss = is_boss
 
     @property
     def is_alive(self) -> bool:
@@ -248,7 +250,11 @@ class Actor(Entity):
 
             if self in self.gamemap.entities:
                 self.gamemap.entities.remove(self)
-            self.corpse()
+
+            if self.is_boss:
+                self.engine.boss_killed = True
+            else:
+                self.corpse()
 
         self.engine.message_log.add_message(death_message, death_message_color)
 

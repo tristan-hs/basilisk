@@ -30,6 +30,7 @@ class Engine:
         self.word_mode = False
         self.turn_count = 0
         self.show_instructions = False
+        self.boss_killed = False
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
