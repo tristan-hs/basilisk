@@ -377,7 +377,7 @@ def generate_dungeon(
             center_of_last_room = room.center
 
         monsters = 0 if len(rooms) == 0 else max_monsters_per_room
-        place_entities(room, dungeon, monsters, max_items_per_room)
+        place_entities(room, dungeon, monsters, max_items_per_room, len(rooms) == 0)
 
         if room.is_vault:
             vaults.append(room)
@@ -413,7 +413,7 @@ def tunnel_between(
         yield x, y
 
 def place_entities(
-    room: RectangularRoom, dungeon: GameMap, maximum_monsters: int, maximum_items: int
+    room: RectangularRoom, dungeon: GameMap, maximum_monsters: int, maximum_items: int, first_room: bool
 ) -> None:
 
 
@@ -455,7 +455,7 @@ def place_entities(
 
 
     item_points = 0
-    if random.random() < 0.4:
+    if random.random() < 0.4 or first_room:
         item_points = 1
 
     if room.is_vault:
