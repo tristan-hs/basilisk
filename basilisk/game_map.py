@@ -215,7 +215,8 @@ class GameWorld:
         ooze_factor = self.ooze_factor - (0.5*self.current_floor*0.02) + (random.random()*self.current_floor*0.02)
         vault_chance = self.vault_chance + (self.current_floor*0.005)
 
-        room_buffer = random.randint(3,max(self.current_floor,6))
+        room_dice = max(5,self.current_floor)
+        room_buffer = int(round((random.randint(1,room_dice) + random.randint(1,room_dice) + random.randint(1,room_dice))/2))
 
         self.engine.game_map = generate_dungeon(
             max_rooms=self.current_floor*2+room_buffer,

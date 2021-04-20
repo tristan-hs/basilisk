@@ -101,7 +101,7 @@ elder = Actor(
     drop_tier='r'
 )
 decider = Actor(
-    char="9",
+    char="6",
     color=color.decider,
     name="The Decider",
     ai_cls=ai.HostileEnemy,
@@ -123,17 +123,20 @@ final_boss = Actor(
 
 enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]
 enemy_sets = [
-[goblin,statue],
-[goblin,statue,jackelope],
-[jackelope,goblin,ogre,statue],
+[statue,    goblin,     jackelope,  goblin,     goblin],
+[statue,    goblin,     jackelope,  jackelope,  ogre],
+[goblin,    ogre,       jackelope,  lich,       lich],
 
-[jackelope,ogre,goblin,dragon,statue],
-[dragon,ogre,jackelope,lich,titan],
-[lich,dragon,titan,ogre,demon],
+[ogre,      dragon,     titan,      lich,       lich],
+[lich,      dragon,     titan,      lich,       elder],
+[lich,      titan,      demon,      lich,       elder],
 
-[titan,lich,demon,dragon,war_god],
-[demon,war_god,lich,titan,elder],
-[decider,elder,war_god,demon,lich]
+[lich,      titan,      demon,      war_god,    elder],
+[elder,     demon,      demon,      war_god,    war_god],
+[elder,     elder,      elder,      war_god,    decider],
+
+[statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider],
+[decider,elder,war_god]
 ]
 
 vowel_segment = Item(
@@ -213,7 +216,7 @@ insightful = Item(
     name="insightful",
     edible=consumable.RearrangingConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='r'
+    rarity='u'
 )
 
 warped = Item(
@@ -221,8 +224,8 @@ warped = Item(
     color=color.mind,
     name="warped",
     edible=consumable.ConsumingConsumable(),
-    spitable=consumable.Projectile(damage=5),
-    rarity='u'
+    spitable=consumable.Projectile(damage=7),
+    rarity='r'
 )
 
 forked = Item(

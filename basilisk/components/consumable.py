@@ -63,7 +63,7 @@ class Projectile(Consumable):
     def __init__(self,damage=1):
         self.damage = damage
         if damage > 4:
-            descriptor = "large"
+            descriptor = "large "
         elif damage > 2:
             descriptor = ""
         else:
