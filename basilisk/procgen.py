@@ -421,11 +421,11 @@ def place_entities(
     monster_points = 0
     factor = dungeon.floor_number+1
 
-    if random.random() > 0.3 or dungeon.floor_number == 1:
+    if random.random() > 0.3:
         monster_points += factor
-        if random.random() > 0.3:
+        if random.random() > 0.3 or dungeon.floor_number < 4:
             monster_points *= factor
-            if random.random() > 0.3:
+            if random.random() > 0.3 or dungeon.floor_number < 3:
                 monster_points += factor
 
     if room.is_vault:

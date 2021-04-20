@@ -225,8 +225,12 @@ class Actor(Entity):
             self.char = str(char_num)
 
     def corpse(self) -> None:
-        if random.random() > (int(self.char) + self.move_speed + 1)*0.1:
+        my_factor = (int(self.char) + self.move_speed + 1)*0.1
+
+        # 0.16 + (0.64 * factor) = chance of corpsing
+        if (random.random() > my_factor and random.random() > 0.2) or random.random() > 0.8:
             return
+
         my_drops = []
         for i in self.gamemap.item_factories:
             factor = Item.letters()[i.char]

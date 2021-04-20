@@ -30,7 +30,7 @@ def new_game() -> Engine:
     room_min_size = 7
     max_rooms = 100
 
-    max_monsters_per_room = 4
+    max_monsters_per_room = 5
     max_items_per_room = 1
 
     player = copy.deepcopy(entity_factories.player)

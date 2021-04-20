@@ -57,7 +57,7 @@ class BaseAI(Action):
                 cost[entity.x, entity.y] += path_cost
 
         # Create a graph from the cost array and pass that graph to a new pathfinder.
-        graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3)
+        graph = tcod.path.SimpleGraph(cost=cost, cardinal=3, diagonal=4)
         pathfinder = tcod.path.Pathfinder(graph)
 
         pathfinder.add_root((self.entity.x, self.entity.y))  # Start position.
