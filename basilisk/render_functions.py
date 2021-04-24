@@ -77,7 +77,7 @@ def render_status(console: Console, location: Tuple[int,int], statuses: List) ->
         console.print(
             x=x,
             y=y+s,
-            string=f"{status.label.upper()} {str(status.modified_duration)}",
+            string=f"{status.label.upper()} {str(status.duration)}",
             fg=status.color
         )
     console.print(x,y+7,"      (c)ontrols",color.grey)

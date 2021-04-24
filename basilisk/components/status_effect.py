@@ -15,17 +15,17 @@ class StatusEffect(BaseComponent):
 	color = color.grey
 
 	def __init__(self, duration: int, target):
-		self.duration = duration
 		self.parent = target
+		self.duration = duration+self.duration_mod
 		self.apply()
 
 	@property
-	def modified_duration(self):
-		return self.duration + self.engine.player.MIND
+	def duration_mod(self):
+		return self.engine.player.MIND
 
 	def decrement(self):
 		self.duration -= 1
-		if self.modified_duration < 1:
+		if self.duration < 1:
 			self.remove()
 
 	def apply(self):
@@ -40,8 +40,8 @@ class StatusEffect(BaseComponent):
 
 class BadStatusEffect(StatusEffect):
 	@property
-	def modified_duration(self):
-		return self.duration - self.engine.player.MIND
+	def duration_mod(self):
+		return 0 - self.engine.player.MIND
 
 
 class FreeSpit(StatusEffect):

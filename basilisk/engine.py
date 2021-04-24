@@ -12,6 +12,7 @@ from basilisk import exceptions, render_functions
 from basilisk.message_log import MessageLog
 from basilisk.components.status_effect import PetrifEyes
 import basilisk.color as color
+from basilisk.components.ai import Constricted
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor
@@ -45,7 +46,11 @@ class Engine:
         
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
-                if any(isinstance(s,PetrifEyes) for s in self.player.statuses) and self.game_map.visible[entity.x,entity.y]:
+                if (
+                    any(isinstance(s,PetrifEyes) for s in self.player.statuses) and 
+                    self.game_map.visible[entity.x,entity.y] and 
+                    not isinstance(entity.ai, Constricted)
+                ):
                     continue
                 try:
                     entity.ai.perform()
