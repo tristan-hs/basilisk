@@ -42,12 +42,12 @@ class Engine:
     # field of smell: detect presence of enemies
     @property
     def fos_radius(self):
-        return 1 + self.player.NOSE
+        return 0 + self.player.NOSE * 2
 
     # field of identity: detect enemy identity
     @property
     def foi_radius(self):
-        return max(0, -1 + self.player.NOSE)
+        return 0 + self.player.NOSE
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
@@ -111,7 +111,7 @@ class Engine:
 
         actor = self.game_map.get_actor_at_location(*self.mouse_location)
         self.game_map.print_enemy_fov(console, actor)
-        self.game_map.print_intent(console, actor, True)
+        self.game_map.print_intent(console, actor)
 
         if self.show_instructions:
             render_functions.render_instructions(

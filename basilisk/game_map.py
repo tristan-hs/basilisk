@@ -59,6 +59,18 @@ class GameMap:
     def items(self) -> Iterator[Item]:
         yield from (entity for entity in self.entities if isinstance(entity, Item))
 
+
+    def smellable(self,entity: Entity, super_smell:bool=False):
+        dx = entity.x-self.engine.player.x
+        dy = entity.y-self.engine.player.y
+        distance = max(abs(dx),abs(dy))
+
+        if super_smell:
+            return distance <= self.engine.foi_radius
+        else:
+            return distance <= self.engine.fos_radius
+
+
     def make_mapped(self):
         for i,row in enumerate(self.mapped):
             for j, tile in enumerate(row):
@@ -136,6 +148,9 @@ class GameMap:
                 )
 
     def print_enemy_fom(self, console: Console, entity: Actor):
+        if not self.visible[entity.x,entity.y] and not self.smellable(entity, True):
+            return
+
         fom = compute_fov(
             self.tiles["transparent"],
             (entity.x,entity.y),
@@ -145,13 +160,14 @@ class GameMap:
 
         for x,row in enumerate(fom):
             for y,cel in enumerate(row):
-                if cel and self.visible[x,y]:
+                if cel and self.visible[x,y] and (x != entity.x or y != entity.y):
                     console.tiles_rgb[x,y]['bg'] = color.highlighted_fom
 
     def print_enemy_fov(self, console: Console, entity: Actor):
         if (
             entity is self.engine.player or
-            not isinstance(entity, Actor)
+            not isinstance(entity, Actor) or
+            (not self.visible[entity.x,entity.y] and not self.smellable(entity, True))
         ):
             return
 
@@ -164,8 +180,9 @@ class GameMap:
 
         for x,row in enumerate(fov):
             for y,cel in enumerate(row):
-                if cel and self.visible[x,y]:
+                if cel and self.visible[x,y] and (x != entity.x or y != entity.y):
                     console.tiles_rgb[x,y]['bg'] = color.highlighted_fov
+                    console.tiles_rgb[x,y]['fg'] = (40,40,40)
                     #console.print(x=x,y=y,string=" ",bg=color.highlighted_fov)
 
 
@@ -196,7 +213,19 @@ class GameMap:
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
                 fg = color.player if entity in self.engine.player.inventory.items else entity.color
-                bg = color.enemy_bg if isinstance(entity, Actor) and entity is not self.engine.player else None
+                if isinstance(entity, Actor) and entity is not self.engine.player: 
+                    fov = compute_fov(
+                        self.tiles["transparent"],
+                        (entity.x, entity.y),
+                        radius=8,
+                        light_walls=False
+                    )
+                    if fov[self.engine.player.x, self.engine.player.y]:
+                        bg = color.enemy_bg
+                    else:
+                        bg = None
+                else:
+                    bg = None
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=fg, bg=bg
                 )
@@ -215,6 +244,17 @@ class GameMap:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.grey
                 )
+
+            elif self.smellable(entity, True) and isinstance(entity, Actor):
+                console.print(
+                    x=entity.x, y=entity.y, string=entity.char, fg=entity.color, bg=color.grey
+                )
+
+            elif self.smellable(entity) and isinstance(entity, Actor):
+                console.print(
+                    x=entity.x, y=entity.y, string='?', fg=color.yellow, bg=color.grey
+                )
+
 
 class GameWorld:
     """

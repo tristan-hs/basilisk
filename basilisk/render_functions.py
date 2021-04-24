@@ -120,7 +120,16 @@ def render_names_at_mouse_location(
     if not engine.game_map.in_bounds(mouse_x, mouse_y):
         return
 
-    entities = [e for e in engine.game_map.entities if e.x == mouse_x and e.y == mouse_y and (engine.game_map.visible[mouse_x, mouse_y] or e.render_order == RenderOrder.ITEM)]
+    entities = [
+        e for e in engine.game_map.entities if 
+            e.x == mouse_x and 
+            e.y == mouse_y and 
+            (
+                engine.game_map.visible[mouse_x, mouse_y] or 
+                (engine.game_map.explored[mouse_x, mouse_y] and e.render_order == RenderOrder.ITEM) or
+                engine.game_map.smellable(e, True)
+            )
+        ]
 
     if len(entities) < 1:
         if engine.word_mode:
