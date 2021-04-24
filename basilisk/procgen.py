@@ -355,6 +355,7 @@ def generate_dungeon(
         if len(rooms) == 0:
             dungeon.tiles[room.inner] = tile_types.floor
             player.place(*room.center, dungeon)
+            dungeon.upstairs_location = room.center
             for item in player.inventory.items:
                 item.blocks_movement = False
                 item.place(*room.center, dungeon)
@@ -448,7 +449,8 @@ def place_entities(
         x = random.randint(room.x1 + 1, room.x2-1)
         y = random.randint(room.y1+1, room.y2-1)
 
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+        # nothing else is there and the space is out of fov of the stairs
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and max(abs(dungeon.upstairs_location[0]-x),abs(dungeon.upstairs_location[1]-y)) > 9:
             monster.spawn(dungeon,x,y)
             monster_points -= calc_mp(monster)
             monsters += 1

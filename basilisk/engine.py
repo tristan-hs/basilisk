@@ -52,6 +52,9 @@ class Engine:
                 except exceptions.Impossible:
                     pass  # Ignore impossible action exceptions from AI.
 
+            if not self.player.is_alive:
+                break
+
         if not self.player.can_move():
             self.message_log.add_message(f"Oof! You're trapped!", color.red)
             self.player.die()
