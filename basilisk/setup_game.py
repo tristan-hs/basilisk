@@ -75,15 +75,8 @@ class MainMenu(input_handlers.BaseEventHandler):
         console.draw_semigraphics(background_image, 0, 0)
 
         console.print(
-            console.width // 2,
-            console.height // 2 - 4,
-            "BASILISK",
-            fg=color.snake_green,
-            alignment=tcod.CENTER,
-        )
-        console.print(
-            console.width // 2,
-            console.height - 2,
+            console.width - 16,
+            console.height - 3,
             "by -taq",
             fg=color.purple,
             alignment=tcod.CENTER,
@@ -94,7 +87,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             ["[N] Play a new game", "[C] Continue last game", "[Q] Quit"]
         ):
             console.print(
-                console.width // 2,
+                console.width // 2 - 4,
                 console.height // 2 - 2 + i,
                 text.ljust(menu_width),
                 fg=color.white,
