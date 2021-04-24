@@ -42,8 +42,8 @@ MAPPED = np.array((ord("░"), (0,0,0), (82,62,30)), dtype=graphic_dt)
 floor = new_tile(
     walkable=True,
     transparent=True,
-    dark=(ord(" "), (255, 255, 255), (5,5,5)),
-    light=(ord(" "), (255, 255, 255), (10,10,10)),
+    dark=(ord(" "), (50,50,50), (7,7,7)),
+    light=(ord("."), (25,25,25), (10,10,10)),
 )
 wall = new_tile(
     walkable=False,

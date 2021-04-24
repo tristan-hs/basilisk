@@ -138,7 +138,8 @@ class MeleeAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity and self.entity is not self.engine.player:
-            return MeleeAction(self.entity, self.dx, self.dy).perform()
+            if self.blocking_entity is self.engine.player or self.blocking_entity in self.engine.player.inventory.items:
+                return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         return MovementAction(self.entity, self.dx, self.dy).perform()
 
