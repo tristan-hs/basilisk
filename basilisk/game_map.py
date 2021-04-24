@@ -11,6 +11,7 @@ from basilisk.entity import Actor, Item
 from basilisk.actions import ActionWithDirection
 from basilisk.render_functions import DIRECTIONS, D_ARROWS
 from basilisk.components.status_effect import ThirdEyeBlind
+from basilisk.components.ai import Statue
 
 if TYPE_CHECKING:
     from basilisk.engine import Engine
@@ -169,6 +170,11 @@ class GameMap:
                 )
 
             elif isinstance(entity, Item) and self.explored[entity.x, entity.y]:
+                console.print(
+                    x=entity.x, y=entity.y, string=entity.char, fg=color.grey
+                )
+
+            elif isinstance(entity, Actor) and self.explored[entity.x, entity.y] and isinstance(entity.ai, Statue):
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.grey
                 )
