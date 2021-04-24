@@ -76,6 +76,22 @@ class Entity:
     @property
     def description(self) -> str:
         return self._description
+
+    @property
+    def BILE(self) -> int:
+        return 0
+
+    @property
+    def MIND(self) -> int:
+        return 0
+
+    @property
+    def NOSE(self) -> int:
+        return 0
+
+    @property
+    def TAIL(self) -> int:
+        return 0
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -230,7 +246,7 @@ class Actor(Entity):
         self.engine.message_log.add_message(f"You constrict the {self.name}!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)
         self.color = Color.statue
-        char_num = int(self.char)-1
+        char_num = int(self.char)- (1 + self.engine.player.TAIL)
         if char_num < 0:
             self.die()
         else:

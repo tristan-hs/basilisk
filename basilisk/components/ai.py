@@ -153,7 +153,7 @@ class Constricted(BaseAI):
 
     def perform(self) -> None:
         if self.entity.is_next_to_player():
-            new_char = int(self.entity.base_char)-self.entity.how_next_to_player()
+            new_char = int(self.entity.base_char)-self.entity.how_next_to_player()-self.engine.player.TAIL
             if new_char < 0:
                 self.entity.die()
                 return

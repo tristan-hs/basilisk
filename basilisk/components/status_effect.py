@@ -19,9 +19,13 @@ class StatusEffect(BaseComponent):
 		self.parent = target
 		self.apply()
 
+	@property
+	def modified_duration(self):
+		return self.duration + self.engine.player.MIND
+
 	def decrement(self):
 		self.duration -= 1
-		if self.duration == 0:
+		if self.modified_duration < 1:
 			self.remove()
 
 	def apply(self):
@@ -34,6 +38,11 @@ class StatusEffect(BaseComponent):
 	def strengthen(self, strength: int=10):
 		self.duration += strength
 
+class BadStatusEffect(StatusEffect):
+	@property
+	def modified_duration(self):
+		return self.duration - self.engine.player.MIND
+
 
 class FreeSpit(StatusEffect):
 	label="salivating"
@@ -42,7 +51,7 @@ class FreeSpit(StatusEffect):
 
 	def apply(self):
 		super().apply()
-		self.engine.message_log.add_message("All you spit replenishes.", color.snake_green)
+		self.engine.message_log.add_message("All your spit replenishes.", color.snake_green)
 
 	def strengthen(self):
 		super().strengthen(3)
@@ -63,7 +72,7 @@ class PetrifEyes(StatusEffect):
 		self.engine.message_log.add_message("You feel your gaze grow stronger.", color.yellow)
 
 
-class Choking(StatusEffect):
+class Choking(BadStatusEffect):
 	label = "choking"
 	description = "can't spit"
 	color = color.tongue
@@ -77,7 +86,7 @@ class Choking(StatusEffect):
 		self.engine.message_log.add_message("Your throat is feeling even worse!", color.red)
 
 
-class ThirdEyeBlind(StatusEffect):
+class ThirdEyeBlind(BadStatusEffect):
 	label ="future blind"
 	description = "can't see intents"
 	color = color.red

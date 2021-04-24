@@ -70,6 +70,10 @@ class Projectile(Consumable):
             descriptor = "small "    
         self.description = f"launch a {descriptor}projectile"
 
+    @property
+    def modified_damage(self):
+        return self.damage + self.engine.player.BILE
+
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
         return SingleProjectileAttackHandler(
@@ -83,9 +87,9 @@ class Projectile(Consumable):
         target = action.target_actor
 
         self.engine.message_log.add_message(
-                f"{target.name} takes {self.damage} damage!", color.offwhite
+                f"{target.name} takes {self.modified_damage} damage!", color.offwhite
             )
-        target.take_damage(self.damage)
+        target.take_damage(self.modified_damage)
         self.consume()
 
     def consume(self) -> None:
@@ -327,9 +331,9 @@ class LightningDamageConsumable(Projectile):
 
         if target:
             self.engine.message_log.add_message(
-                f"Lightning smites the {target.name} for {self.damage} damage!", color.offwhite,
+                f"Lightning smites the {target.name} for {self.modified_damage} damage!", color.offwhite,
             )
-            target.take_damage(self.damage)
+            target.take_damage(self.modified_damage)
         else:
             self.engine.message_log.add_message(f"Lightning strikes the ground nearby.", color.offwhite)
 
@@ -366,9 +370,9 @@ class FireballDamageConsumable(Projectile):
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The explosion engulfs the {actor.name}! It takes {self.damage} damage!", color.offwhite,
+                    f"The explosion engulfs the {actor.name}! It takes {self.modified_damage} damage!", color.offwhite,
                 )
-                actor.take_damage(self.damage)
+                actor.take_damage(self.modified_damage)
                 targets_hit = True
 
         if not targets_hit:
