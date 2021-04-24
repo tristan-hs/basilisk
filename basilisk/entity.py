@@ -149,7 +149,7 @@ class Entity:
         for d in DIRECTIONS:
             if self.gamemap.get_actor_at_location(d[0]+self.x,d[1]+self.y) is self.engine.player:
                 how += 1
-            if self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.engine.player.inventory.items:
+            elif self.gamemap.get_item_at_location(d[0]+self.x,d[1]+self.y) in self.engine.player.inventory.items:
                 how += 1
         return how
 
