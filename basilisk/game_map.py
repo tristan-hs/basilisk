@@ -106,6 +106,31 @@ class GameMap:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
 
+    def print_intent(self, console: Console, entity: Actor, highlight: bool = False):
+        if (
+            any(isinstance(s,ThirdEyeBlind) for s in self.engine.player.statuses) or 
+            not self.engine.word_mode or
+            entity is self.engine.player or
+            not isinstance(entity, Actor) or
+            not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
+        ):
+            return
+
+        x, y = entity.xy
+        bgcolor = color.intent_bg if not highlight else color.highlighted_intent_bg
+        for intent in entity.ai.intent:
+            x += intent.dx
+            y += intent.dy
+            if self.visible[entity.x, entity.y] or self.visible[x, y]:
+                console.print(
+                    x=x,
+                    y=y,
+                    string=D_ARROWS[DIRECTIONS.index((intent.dx,intent.dy))],
+                    fg=color.intent,
+                    bg=bgcolor
+                )
+
+
     def render(self, console: Console) -> None:
         """
         Renders the map.
@@ -125,27 +150,8 @@ class GameMap:
             self.entities, key=lambda x: x.render_order.value
         )
 
-        # display enemy intents on floor
-        if not any(isinstance(s,ThirdEyeBlind) for s in self.engine.player.statuses):
-            for entity in entities_sorted_for_rendering:
-                if (
-                    self.engine.word_mode and
-                    not entity is self.engine.player and
-                    isinstance(entity, Actor) and 
-                    any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
-                ):
-                    x, y = entity.xy
-                    for intent in entity.ai.intent:
-                        x += intent.dx
-                        y += intent.dy
-                        if self.visible[entity.x, entity.y] or self.visible[x, y]:
-                            console.print(
-                                x=x,
-                                y=y,
-                                string=D_ARROWS[DIRECTIONS.index((intent.dx,intent.dy))],
-                                fg=color.intent,
-                                bg=color.intent_bg
-                            )
+        for entity in entities_sorted_for_rendering:
+            self.print_intent(console, entity)          
 
         # display entities
         for entity in entities_sorted_for_rendering:

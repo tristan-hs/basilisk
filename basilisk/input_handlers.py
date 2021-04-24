@@ -14,6 +14,7 @@ from basilisk.actions import (
     WaitAction,
     PickupAction,
 )
+from basilisk.render_functions import DIRECTIONS, D_ARROWS
 
 if TYPE_CHECKING:
     from basilisk.engine import Engine
@@ -561,6 +562,9 @@ class SelectIndexHandler(AskUserEventHandler):
         x, y = self.engine.mouse_location
         console.tiles_rgb["bg"][x, y] = color.white
         console.tiles_rgb["fg"][x, y] = color.black
+
+        actor = self.engine.game_map.get_actor_at_location(x,y)
+        self.engine.game_map.print_intent(console, actor, True)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         """Check for key movement or confirmation keys."""
