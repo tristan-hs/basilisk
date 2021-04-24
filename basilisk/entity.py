@@ -207,6 +207,18 @@ class Actor(Entity):
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
 
+    def can_move(self):
+        # Make sure player can move, otherwise die    
+        for direction in DIRECTIONS:
+            tile = self.x + direction[0], self.y + direction[1]
+            if self.engine.game_map.tile_is_walkable(*tile):
+                return True
+
+        if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
+            return True
+
+        return False
+
 
     def on_turn(self) -> None:
         for status in self.statuses:

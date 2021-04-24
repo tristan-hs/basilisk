@@ -11,6 +11,7 @@ from tcod.map import compute_fov
 from basilisk import exceptions, render_functions
 from basilisk.message_log import MessageLog
 from basilisk.components.status_effect import PetrifEyes
+import basilisk.color as color
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor
@@ -48,7 +49,12 @@ class Engine:
                         entity.ai.perform()
                     except exceptions.Impossible:
                         pass  # Ignore impossible action exceptions from AI.
-        self.turn_count += 1
+
+        if not self.player.can_move():
+            self.message_log.add_message(f"Oof! You're trapped!", color.red)
+            self.player.die()
+
+        self.turn_count += 1        
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

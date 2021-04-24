@@ -155,18 +155,7 @@ class MovementAction(ActionWithDirection):
                 PickupAction(self.entity).perform()
             for enemy in self.entity.get_adjacent_actors():
                 enemy.constrict()
-        
-        # Make sure player can move, otherwise die    
-        for direction in DIRECTIONS:
-            tile = self.engine.player.x + direction[0], self.engine.player.y + direction[1]
-            if self.engine.game_map.tile_is_walkable(*tile):
-                return None
 
-        if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
-            return None
-        
-        self.engine.message_log.add_message(f"Oof! You're trapped!", color.red)
-        self.engine.player.die()
 
 class WaitAction(Action):
     def perform(self) -> None:
