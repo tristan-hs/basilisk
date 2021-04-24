@@ -89,6 +89,9 @@ class Engine:
             console=console, x=0, y=41, engine=self
         )
 
+        actor = self.game_map.get_actor_at_location(*self.mouse_location)
+        self.game_map.print_intent(console, actor, True)
+
         if self.show_instructions:
             render_functions.render_instructions(
                 console=console,
