@@ -42,13 +42,15 @@ class Engine:
 
     def handle_enemy_turns(self) -> None:
         self.player.on_turn()
-        if not any(isinstance(s,PetrifEyes) for s in self.player.statuses):
-            for entity in set(self.game_map.actors) - {self.player}:
-                if entity.ai:
-                    try:
-                        entity.ai.perform()
-                    except exceptions.Impossible:
-                        pass  # Ignore impossible action exceptions from AI.
+        
+        for entity in set(self.game_map.actors) - {self.player}:
+            if entity.ai:
+                if any(isinstance(s,PetrifEyes) for s in self.player.statuses) and self.game_map.visible[entity.x,entity.y]:
+                    continue
+                try:
+                    entity.ai.perform()
+                except exceptions.Impossible:
+                    pass  # Ignore impossible action exceptions from AI.
 
         if not self.player.can_move():
             self.message_log.add_message(f"Oof! You're trapped!", color.red)

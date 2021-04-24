@@ -265,7 +265,7 @@ bulky = Item(
 
 c_segments = [
     fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,petrif_eyes,bulky
-    #bulky
+    #petrif_eyes
 ]
 c_segments2 = [
     fireball, familiar, confusion, changeling, electric, reversal, insightful, petrif_eyes
