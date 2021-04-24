@@ -34,6 +34,21 @@ class Engine:
         self.show_instructions = False
         self.boss_killed = False
 
+    # field of view
+    @property
+    def fov_radius(self):
+        return 8 + self.player.NOSE
+
+    # field of smell: detect presence of enemies
+    @property
+    def fos_radius(self):
+        return 1 + self.player.NOSE
+
+    # field of identity: detect enemy identity
+    @property
+    def foi_radius(self):
+        return max(0, -1 + self.player.NOSE)
+
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
             self.word_mode = False
@@ -71,7 +86,7 @@ class Engine:
         self.game_map.visible[:] = compute_fov(
             self.game_map.tiles["transparent"],
             (self.player.x, self.player.y),
-            radius=8,
+            radius=self.fov_radius,
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
@@ -95,6 +110,7 @@ class Engine:
         )
 
         actor = self.game_map.get_actor_at_location(*self.mouse_location)
+        self.game_map.print_enemy_fov(console, actor)
         self.game_map.print_intent(console, actor, True)
 
         if self.show_instructions:

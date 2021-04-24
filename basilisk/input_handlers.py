@@ -107,6 +107,7 @@ class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
 class EventHandler(BaseEventHandler):
     def __init__(self, engine: Engine):
         self.engine = engine
+        engine.mouse_location = 0,0
 
     def handle_events(self, event: tcod.event.Event) -> BaseEventHandler:
         """Handle events for input handlers with an engine."""

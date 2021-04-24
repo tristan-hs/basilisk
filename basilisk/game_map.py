@@ -4,6 +4,7 @@ from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
+from tcod.map import compute_fov
 import random
 
 from basilisk import color, tile_types
@@ -109,12 +110,15 @@ class GameMap:
 
     def print_intent(self, console: Console, entity: Actor, highlight: bool = False):
         if (
-            any(isinstance(s,ThirdEyeBlind) for s in self.engine.player.statuses) or 
-            not self.engine.word_mode or
+            any(isinstance(s,ThirdEyeBlind) for s in self.engine.player.statuses) or
             entity is self.engine.player or
             not isinstance(entity, Actor) or
             not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
         ):
+            return
+
+        if not self.engine.word_mode:
+            self.print_enemy_fom(console,entity)
             return
 
         x, y = entity.xy
@@ -130,6 +134,39 @@ class GameMap:
                     fg=color.intent,
                     bg=bgcolor
                 )
+
+    def print_enemy_fom(self, console: Console, entity: Actor):
+        fom = compute_fov(
+            self.tiles["transparent"],
+            (entity.x,entity.y),
+            radius=entity.move_speed,
+            light_walls=False
+        )
+
+        for x,row in enumerate(fom):
+            for y,cel in enumerate(row):
+                if cel and self.visible[x,y]:
+                    console.tiles_rgb[x,y]['bg'] = color.highlighted_fom
+
+    def print_enemy_fov(self, console: Console, entity: Actor):
+        if (
+            entity is self.engine.player or
+            not isinstance(entity, Actor)
+        ):
+            return
+
+        fov = compute_fov(
+            self.tiles["transparent"],
+            (entity.x, entity.y),
+            radius=8,
+            light_walls=False
+        )
+
+        for x,row in enumerate(fov):
+            for y,cel in enumerate(row):
+                if cel and self.visible[x,y]:
+                    console.tiles_rgb[x,y]['bg'] = color.highlighted_fov
+                    #console.print(x=x,y=y,string=" ",bg=color.highlighted_fov)
 
 
     def render(self, console: Console) -> None:

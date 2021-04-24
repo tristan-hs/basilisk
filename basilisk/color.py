@@ -45,6 +45,8 @@ green = (0,200,0)
 intent = (10,10,10)
 intent_bg = (200,0,0)
 highlighted_intent_bg = (200,200,0)
+highlighted_fov = (0,50,50)
+highlighted_fom = (50,50,0)
 
 player = (0,200,0)
 player_dark = (0,100,0)
