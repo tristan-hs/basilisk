@@ -79,19 +79,25 @@ class Entity:
 
     @property
     def BILE(self) -> int:
-        return 0
+        return self.get_stat("BILE")
 
     @property
     def MIND(self) -> int:
-        return 0
+        return self.get_stat("MIND")
 
     @property
     def NOSE(self) -> int:
-        return 0
+        return self.get_stat("NOSE")
 
     @property
     def TAIL(self) -> int:
-        return 0
+        return self.get_stat("TAIL")
+
+    def get_stat(self, stat: str):
+        if not self.engine.word_mode:
+            return 0
+
+        return len([i for i in self.inventory.items if i.stat == stat and i.identified])
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -240,6 +246,8 @@ class Actor(Entity):
         for status in self.statuses:
             status.decrement()
 
+        print(' '.join([i.stat for i in self.inventory.items if i.stat]))
+
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
@@ -320,6 +328,7 @@ class Item(Entity):
         char: str = '?',
         description: str = '???',
         rarity: Optional[str] = None,
+        stat: str
     ):
         super().__init__(
             x=x,
@@ -339,6 +348,7 @@ class Item(Entity):
         self._identified = False
         self._color = color
         self.rarity = rarity
+        self.stat = stat
 
     @property
     def label(self):

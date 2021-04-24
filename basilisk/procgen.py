@@ -276,7 +276,8 @@ def generate_item_identities():
                 name=i.name,
                 edible=copy.deepcopy(i.edible),
                 spitable=copy.deepcopy(i.spitable),
-                rarity=i.rarity
+                rarity=i.rarity,
+                stat=i.stat
             )
             item.edible.parent = item.spitable.parent = item
             item.char = char

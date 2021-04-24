@@ -145,15 +145,17 @@ vowel_segment = Item(
     name="vowel",
     edible=consumable.NothingConsumable(),
     spitable=consumable.Projectile(damage=1),
+    stat=None
 )
 
 fireball = Item(
     item_type='c',
-    color=color.fire,
+    color=color.reversal,
     name="explosive",
     edible=consumable.ChokingConsumable(),
     spitable=consumable.FireballDamageConsumable(damage=2, radius=1),
-    rarity='c'
+    rarity='c',
+    stat='BILE'
 )
 
 confusion = Item(
@@ -162,110 +164,122 @@ confusion = Item(
     name="confusing",
     edible=consumable.ChokingConsumable(),
     spitable=consumable.ConfusionConsumable(number_of_turns=10),
-    rarity='u'
+    rarity='u',
+    stat='MIND'
 )
 
 changeling = Item(
     item_type='c',
-    color=color.mind,
+    color=color.electric,
     name="shifting",
     edible=consumable.ChangelingConsumable(),
     spitable=consumable.Projectile(damage=2),
-    rarity='u'
+    rarity='u',
+    stat='TAIL'
 )
 
 electric = Item(
     item_type='c',
-    color=color.electric,
+    color=color.reversal,
     name="electric",
     edible=consumable.ConsumingConsumable(),
     spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=8),
-    rarity='u'
+    rarity='u',
+    stat='BILE'
 )
 
 reversal = Item(
     item_type='c',
-    color=color.reversal,
+    color=color.electric,
     name="backwards",
     edible=consumable.ReversingConsumable(),
     spitable=consumable.Projectile(damage=2),
-    rarity='u'
+    rarity='u',
+    stat='TAIL'
 )
 
 familiar = Item(
     item_type='c',
-    color=color.mind,
+    color=color.tongue,
     name="familiar",
     edible=consumable.IdentifyingConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='c'
+    rarity='c',
+    stat='NOSE'
 )
 
 mapping = Item(
     item_type='c',
-    color=color.mind,
+    color=color.tongue,
     name="crinkly",
     edible=consumable.MappingConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='u'
+    rarity='u',
+    stat='NOSE'
 )
 
 insightful = Item(
     item_type='c',
-    color=color.mind,
+    color=color.electric,
     name="insightful",
     edible=consumable.RearrangingConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='u'
+    rarity='u',
+    stat='TAIL'
 )
 
 warped = Item(
     item_type='c',
-    color=color.mind,
+    color=color.reversal,
     name="warped",
     edible=consumable.ConsumingConsumable(),
     spitable=consumable.Projectile(damage=7),
-    rarity='r'
+    rarity='r',
+    stat='BILE'
 )
 
 forked = Item(
     item_type='c',
-    color=color.tongue,
+    color=color.reversal,
     name="forked",
     edible=consumable.ChokingConsumable(),
     spitable=consumable.Projectile(damage=3),
-    rarity='c'
+    rarity='c',
+    stat='BILE'
 )
 
 y_segment = Item(
     item_type='y',
-    color=color.unidentified,
+    color=color.tongue,
     name="mYsterious",
     edible=consumable.NothingConsumable(),
-    spitable=consumable.Projectile(damage=2)
+    spitable=consumable.Projectile(damage=2),
+    stat='NOSE'
 )
 
 petrif_eyes = Item(
     item_type='c',
-    color=color.cyan,
+    color=color.mind,
     name="eye-covered",
     edible=consumable.PetrifEyesConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='r'
+    rarity='r',
+    stat='MIND'
 )
 
 bulky = Item(
     item_type='c',
-    color=color.tongue,
+    color=color.mind,
     name="bulky",
     edible=consumable.FreeSpitConsumable(),
     spitable=consumable.Projectile(damage=5),
-    rarity='r'
+    rarity='r',
+    stat='MIND'
 )
 
 c_segments = [
-    #fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,petrif_eyes,bulky
-    petrif_eyes,bulky
+    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,petrif_eyes,bulky
+    #petrif_eyes,bulky
 ]
 c_segments2 = [
     fireball, familiar, confusion, changeling, electric, reversal, insightful, petrif_eyes

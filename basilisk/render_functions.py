@@ -152,6 +152,15 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
 
     x, y = 75, sy - adj + r - f_height
 
+
+    if word_mode:
+        console.print(x=x,y=5,string=f"{player.BILE}\n\n{player.MIND}\n\n{player.NOSE}\n\n{player.TAIL}")
+        console.print(x=x,y=4,string="BILE",fg=color.reversal)
+        console.print(x=x,y=6,string="MIND",fg=color.mind)
+        console.print(x=x,y=8,string="NOSE",fg=color.tongue)
+        console.print(x=x,y=10,string="TAIL",fg=color.electric)
+
+
     console.print(x=x,y=y,string="WORD║",fg=c)
     y=y+f_height
     console.print(x=x,y=y,string='╠',fg=c)
