@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Tuple, TYPE_CHECKING
 
+import random
+
 from basilisk import color
 from basilisk.message_log import MessageLog
 from basilisk.render_order import RenderOrder
@@ -80,6 +82,36 @@ def render_status(console: Console, location: Tuple[int,int], statuses: List) ->
         )
     console.print(x,y+7,"      (c)ontrols",color.grey)
 
+
+def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
+    player = engine.player
+
+    colors = [
+        color.tongue,
+        color.snake_green, 
+        color.green,
+        color.goblin,
+        color.reversal,
+        color.statue,
+        color.player_dark,
+        color.grey,
+        (75,125,0),
+        color.mind,
+        color.electric
+    ] + [color.reversal] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.NOSE + [color.electric] * player.TAIL 
+    random.Random(engine.turn_count).shuffle(colors)
+    for i,c in enumerate("WORD MODE"):
+        console.print(x=x+i,y=y,string=c,fg=colors.pop())
+
+    scores = "      "+"\n      ".join([str(s) for s in [player.BILE,player.MIND,player.NOSE,player.TAIL]])
+    console.print(x=x,y=y+2,string=scores, fg=color.offwhite)
+
+    console.print(x=x,y=y+2,string="BILE:",fg=color.reversal)
+    console.print(x=x,y=y+3,string="MIND:",fg=color.mind)
+    console.print(x=x,y=y+4,string="NOSE:",fg=color.tongue)
+    console.print(x=x,y=y+5,string="TAIL:",fg=color.electric)
+
+
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine
 ) -> None:
@@ -91,6 +123,8 @@ def render_names_at_mouse_location(
     entities = [e for e in engine.game_map.entities if e.x == mouse_x and e.y == mouse_y and (engine.game_map.visible[mouse_x, mouse_y] or e.render_order == RenderOrder.ITEM)]
 
     if len(entities) < 1:
+        if engine.word_mode:
+            render_stats_in_inspect_box(console, x, y, engine)
         return
 
     if len(entities) == 1:
@@ -151,15 +185,6 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
     )
 
     x, y = 75, sy - adj + r - f_height
-
-
-    if word_mode:
-        console.print(x=x,y=5,string=f"{player.BILE}\n\n{player.MIND}\n\n{player.NOSE}\n\n{player.TAIL}")
-        console.print(x=x,y=4,string="BILE",fg=color.reversal)
-        console.print(x=x,y=6,string="MIND",fg=color.mind)
-        console.print(x=x,y=8,string="NOSE",fg=color.tongue)
-        console.print(x=x,y=10,string="TAIL",fg=color.electric)
-
 
     console.print(x=x,y=y,string="WORD║",fg=c)
     y=y+f_height

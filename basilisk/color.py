@@ -70,6 +70,6 @@ unidentified = (200,200,200)
 
 fire = (225,100,100)
 mind = (200,40,170)
-electric = (0,100,200)
+electric = (50,125,250)
 reversal = (50,100,25)
 tongue = (255,173,201)
