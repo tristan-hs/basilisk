@@ -246,8 +246,6 @@ class Actor(Entity):
         for status in self.statuses:
             status.decrement()
 
-        print(' '.join([i.stat for i in self.inventory.items if i.stat]))
-
     def constrict(self) -> None:
         if isinstance(self.ai, Constricted):
             return
