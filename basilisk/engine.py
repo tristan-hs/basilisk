@@ -10,7 +10,7 @@ from tcod.map import compute_fov
 
 from basilisk import exceptions, render_functions
 from basilisk.message_log import MessageLog
-from basilisk.components.status_effect import PetrifEyes
+from basilisk.components.status_effect import PetrifEyes, Petrified
 import basilisk.color as color
 from basilisk.components.ai import Constricted
 
@@ -66,6 +66,12 @@ class Engine:
                     self.game_map.visible[entity.x,entity.y] and 
                     not isinstance(entity.ai, Constricted)
                 ):
+                    continue
+                if (
+                    any(isinstance(s,Petrified) for s in entity.statuses) and
+                    not isinstance(entity.ai, Constricted)
+                ):
+                    entity.on_turn()
                     continue
                 try:
                     entity.ai.perform()

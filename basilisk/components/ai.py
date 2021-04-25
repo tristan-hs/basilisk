@@ -37,6 +37,7 @@ class BaseAI(Action):
             except Impossible:
                 pass
         self._intent = None
+        self.entity.on_turn()
 
     def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10) -> List[Tuple[int, int]]:
         """Compute and return a path to the target position.

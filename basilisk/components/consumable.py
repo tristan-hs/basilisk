@@ -17,7 +17,7 @@ from basilisk.input_handlers import (
     InventoryIdentifyHandler,
     InventoryRearrangeHandler
 )
-from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit
+from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit, Petrified
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor, Item
@@ -259,6 +259,33 @@ class ThirdEyeBlindConsumable(Consumable):
         self.engine.message_log.add_message("The segment dissolves in the air, leaving a shroud of temporal ambiguity.")
         self.apply_status(action, ThirdEyeBlind)
         self.consume()
+
+
+class PetrifyEnemyConsumable(Projectile):
+    description = "petrify an enemy"
+
+    def __init__(self, duration: int=10):
+        self.duration = duration
+
+    def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+
+        self.engine.message_log.add_message("Select a target.", color.cyan)
+        return SingleRangedAttackHandler(self.engine, callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy))
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = action.target_actor
+
+        if not self.engine.game_map.visible[action.target_xy]:
+            raise Impossible("You cannot target an area that you cannot see.")
+        if not target:
+            raise Impossible("You must select an enemy to target.")
+        if target is consumer:
+            raise Impossible("You cannot confuse yourself!")
+
+        self.apply_status(action, Petrified)
 
 
 class ConfusionConsumable(Projectile):

@@ -223,7 +223,7 @@ petrified = Item(
     color=color.mind,
     name='petrified',
     edible=consumable.NothingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.PetrifyEnemyConsumable(),
     rarity='c',
     stat='MIND'
 )
@@ -370,6 +370,7 @@ sensitive = Item(
 
 
 c_segments = [
-    volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
+    #volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
+    petrified
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

@@ -44,6 +44,26 @@ class BadStatusEffect(StatusEffect):
 		return 0 - self.engine.player.MIND
 
 
+class EnemyStatusEffect(StatusEffect):
+	def remove(self):
+		self.parent.statuses.remove(self)
+		self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.label}.", color.yellow)
+
+
+class Petrified(EnemyStatusEffect):
+	label="petrified"
+	description="can't move"
+	color=color.grey
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message(f"The {self.parent.name} turns to stone!", color.offwhite)
+
+	def strengthen(self):
+		super().strengthen(3)
+		self.engine.message_log.add_message(f"The {self.parent.name} hardens!", color.offwhite)
+
+
 class FreeSpit(StatusEffect):
 	label="salivating"
 	description="spit segments without consuming them"
