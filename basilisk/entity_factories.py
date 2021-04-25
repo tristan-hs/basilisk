@@ -145,7 +145,8 @@ vowel_segment = Item(
     name="vowel",
     edible=consumable.StatBoostConsumable(1),
     spitable=consumable.Projectile(damage=1),
-    stat=None
+    stat=None,
+    flavor="Rusted scrap and compost from the dungeon floor."
 )
 
 crown_segment = Item(
@@ -175,7 +176,8 @@ volatile = Item(
     edible=consumable.StatBoostConsumable(3,'BILE'),
     spitable=consumable.FireballDamageConsumable(damage=2, radius=3),
     rarity='c',
-    stat='BILE'
+    stat='BILE',
+    flavor='The metal heart of some ancient titan, leaking acrid pus.'
 )
 
 forceful = Item(
@@ -276,7 +278,8 @@ musclebound = Item(
     edible=consumable.StatBoostConsumable(2,'TAIL'),
     spitable=consumable.Projectile(damage=3),
     rarity='c',
-    stat='TAIL'
+    stat='TAIL',
+    flavor="Dense, rippling cords of flesh, wound together like a ball of yarn."
 )
 
 annoying = Item(
@@ -326,7 +329,8 @@ learned = Item(
     edible=consumable.IdentifyingConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
     rarity='c',
-    stat='TONG'
+    stat='TONG',
+    flavor="A heap of brains twitching in unity; it whispers secrets as you travel"
 )
 
 longue = Item(
