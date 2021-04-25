@@ -125,15 +125,15 @@ enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,de
 enemy_sets = [
 [statue,    goblin,     jackelope,  goblin,     goblin],
 [statue,    goblin,     jackelope,  jackelope,  ogre],
-[goblin,    ogre,       jackelope,  lich,       lich],
+[goblin,    ogre,       jackelope,  lich,       lich, statue],
 
-[ogre,      dragon,     titan,      lich,       lich],
-[lich,      dragon,     titan,      lich,       elder],
-[lich,      titan,      demon,      lich,       elder],
+[ogre,      dragon,     titan,      lich,       lich, statue],
+[lich,      dragon,     titan,      lich,       elder, statue],
+[lich,      titan,      demon,      lich,       elder, statue],
 
-[lich,      titan,      demon,      war_god,    elder],
-[elder,     demon,      demon,      war_god,    war_god],
-[elder,     elder,      elder,      war_god,    decider],
+[lich,      titan,      demon,      war_god,    elder, statue],
+[elder,     demon,      demon,      war_god,    war_god, statue],
+[elder,     elder,      elder,      war_god,    decider, statue],
 
 [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider],
 [decider,elder,war_god]
