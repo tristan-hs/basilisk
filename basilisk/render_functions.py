@@ -91,25 +91,25 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
         color.snake_green, 
         color.green,
         color.goblin,
-        color.reversal,
+        color.tail,
         color.statue,
         color.player_dark,
         color.grey,
         (75,125,0),
         color.mind,
-        color.electric
-    ] + [color.reversal] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.NOSE + [color.electric] * player.TAIL 
+        color.bile
+    ] + [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
     random.Random(engine.turn_count).shuffle(colors)
     for i,c in enumerate("WORD MODE"):
         console.print(x=x+i,y=y,string=c,fg=colors.pop())
 
-    scores = "      "+"\n      ".join([str(s) for s in [player.BILE,player.MIND,player.NOSE,player.TAIL]])
+    scores = "      "+"\n      ".join([str(s) for s in [player.BILE,player.MIND,player.TONG,player.TAIL]])
     console.print(x=x,y=y+2,string=scores, fg=color.offwhite)
 
-    console.print(x=x,y=y+2,string="BILE:",fg=color.reversal)
+    console.print(x=x,y=y+2,string="BILE:",fg=color.bile)
     console.print(x=x,y=y+3,string="MIND:",fg=color.mind)
-    console.print(x=x,y=y+4,string="NOSE:",fg=color.tongue)
-    console.print(x=x,y=y+5,string="TAIL:",fg=color.electric)
+    console.print(x=x,y=y+4,string="TONG:",fg=color.tongue)
+    console.print(x=x,y=y+5,string="TAIL:",fg=color.tail)
 
 
 def render_names_at_mouse_location(

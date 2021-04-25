@@ -86,8 +86,8 @@ class Entity:
         return self.get_stat("MIND")
 
     @property
-    def NOSE(self) -> int:
-        return self.get_stat("NOSE")
+    def TONG(self) -> int:
+        return self.get_stat("TONG")
 
     @property
     def TAIL(self) -> int:
@@ -377,7 +377,7 @@ class Item(Entity):
         if not self.identified and self.item_type != 'y':
             return Color.unidentified
         if self.item_type == 'y' and random.random() > 0.5:
-            return random.choice([Color.electric, Color.tongue, Color.electric, Color.reversal, Color.fire, Color.vowel])
+            return random.choice([Color.bile, Color.tongue, Color.mind, Color.tail, Color.vowel])
         return self._color
 
     @property

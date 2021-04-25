@@ -148,104 +148,14 @@ vowel_segment = Item(
     stat=None
 )
 
-fireball = Item(
-    item_type='c',
-    color=color.reversal,
-    name="explosive",
-    edible=consumable.ChokingConsumable(),
-    spitable=consumable.FireballDamageConsumable(damage=2, radius=1),
-    rarity='c',
-    stat='BILE'
-)
-
-confusion = Item(
-    item_type='c',
-    color=color.mind,
-    name="confusing",
-    edible=consumable.ChokingConsumable(),
-    spitable=consumable.ConfusionConsumable(number_of_turns=10),
-    rarity='u',
-    stat='MIND'
-)
-
-changeling = Item(
-    item_type='c',
-    color=color.electric,
-    name="shifting",
-    edible=consumable.ChangelingConsumable(),
-    spitable=consumable.Projectile(damage=2),
-    rarity='u',
-    stat='TAIL'
-)
-
-electric = Item(
-    item_type='c',
-    color=color.reversal,
-    name="electric",
-    edible=consumable.ConsumingConsumable(),
-    spitable=consumable.LightningDamageConsumable(damage=4,maximum_range=8),
-    rarity='u',
-    stat='BILE'
-)
-
-reversal = Item(
-    item_type='c',
-    color=color.electric,
-    name="backwards",
-    edible=consumable.ReversingConsumable(),
-    spitable=consumable.Projectile(damage=2),
-    rarity='u',
-    stat='TAIL'
-)
-
-familiar = Item(
-    item_type='c',
-    color=color.tongue,
-    name="familiar",
-    edible=consumable.IdentifyingConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='c',
-    stat='NOSE'
-)
-
-mapping = Item(
-    item_type='c',
-    color=color.tongue,
-    name="crinkly",
-    edible=consumable.MappingConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='u',
-    stat='NOSE'
-)
-
-insightful = Item(
-    item_type='c',
-    color=color.electric,
-    name="insightful",
-    edible=consumable.RearrangingConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='u',
-    stat='TAIL'
-)
-
-warped = Item(
-    item_type='c',
-    color=color.reversal,
-    name="warped",
-    edible=consumable.ConsumingConsumable(),
-    spitable=consumable.Projectile(damage=7),
-    rarity='r',
-    stat='BILE'
-)
-
-forked = Item(
-    item_type='c',
-    color=color.reversal,
-    name="forked",
-    edible=consumable.ChokingConsumable(),
-    spitable=consumable.Projectile(damage=3),
-    rarity='c',
-    stat='BILE'
+crown_segment = Item(
+    item_type='o',
+    color=color.purple,
+    name='crown',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='a',
+    stat=None
 )
 
 y_segment = Item(
@@ -254,34 +164,212 @@ y_segment = Item(
     name="mYsterious",
     edible=consumable.NothingConsumable(),
     spitable=consumable.Projectile(damage=2),
-    stat='NOSE'
+    stat=None
 )
 
-petrif_eyes = Item(
+
+volatile = Item(
     item_type='c',
-    color=color.mind,
-    name="eye-covered",
-    edible=consumable.PetrifEyesConsumable(),
-    spitable=consumable.ThirdEyeBlindConsumable(),
-    rarity='r',
-    stat='MIND'
+    color=color.bile,
+    name='volatile',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.FireballDamageConsumable(damage=2, radius=3),
+    rarity='c',
+    stat='BILE'
 )
 
-bulky = Item(
+forceful = Item(
     item_type='c',
-    color=color.mind,
-    name="bulky",
+    color=color.bile,
+    name='forceful',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='BILE'
+)
+
+drilling = Item(
+    item_type='c',
+    color=color.bile,
+    name='drilling',
+    edible=consumable.ChokingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='BILE'
+)
+
+prolific = Item(
+    item_type='c',
+    color=color.bile,
+    name='prolific',
     edible=consumable.FreeSpitConsumable(),
-    spitable=consumable.Projectile(damage=5),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='BILE'
+)
+
+acidic = Item(
+    item_type='c',
+    color=color.bile,
+    name='acidic',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='r',
+    stat='BILE'
+)
+
+petrified = Item(
+    item_type='c',
+    color=color.mind,
+    name='petrified',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='c',
+    stat='MIND'
+)
+
+ghostly = Item(
+    item_type='c',
+    color=color.mind,
+    name='ghostly',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='MIND'
+)
+
+cursed = Item(
+    item_type='c',
+    color=color.mind,
+    name='cursed',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='MIND'
+)
+
+calcified = Item(
+    item_type='c',
+    color=color.mind,
+    name='calcified',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
     rarity='r',
     stat='MIND'
 )
+
+wrinkled = Item(
+    item_type='c',
+    color=color.mind,
+    name='wrinkled',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='r',
+    stat='MIND'
+)
+
+musclebound = Item(
+    item_type='c',
+    color=color.tail,
+    name='musclebound',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.Projectile(damage=3),
+    rarity='c',
+    stat='TAIL'
+)
+
+annoying = Item(
+    item_type='c',
+    color=color.tail,
+    name='annoying',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='TAIL'
+)
+
+backward = Item(
+    item_type='c',
+    color=color.tail,
+    name='backward',
+    edible=consumable.ReversingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='TAIL'
+)
+
+pure = Item(
+    item_type='c',
+    color=color.tail,
+    name='pure',
+    edible=consumable.RearrangingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='TAIL'
+)
+
+growing = Item(
+    item_type='c',
+    color=color.tail,
+    name='growing',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='r',
+    stat='TAIL'
+)
+
+learned = Item(
+    item_type='c',
+    color=color.tongue,
+    name='learned',
+    edible=consumable.IdentifyingConsumable(),
+    spitable=consumable.ThirdEyeBlindConsumable(),
+    rarity='c',
+    stat='TONG'
+)
+
+longue = Item(
+    item_type='c',
+    color=color.tongue,
+    name='long',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='c',
+    stat='TONG'
+)
+
+inquisitive = Item(
+    item_type='c',
+    color=color.tongue,
+    name='inquisitive',
+    edible=consumable.MappingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='TONG'
+)
+
+hungry = Item(
+    item_type='c',
+    color=color.tongue,
+    name='hungry',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='u',
+    stat='TONG'
+)
+
+sensitive = Item(
+    item_type='c',
+    color=color.tongue,
+    name='sensitive',
+    edible=consumable.NothingConsumable(),
+    spitable=consumable.NothingConsumable(),
+    rarity='r',
+    stat='TONG'
+)
+
 
 c_segments = [
-    fireball,confusion,changeling,electric,reversal,familiar,mapping,insightful,warped,forked,petrif_eyes,bulky
-    #mapping,familiar
-]
-c_segments2 = [
-    fireball, familiar, confusion, changeling, electric, reversal, insightful, petrif_eyes
+    volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

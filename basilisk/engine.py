@@ -37,17 +37,17 @@ class Engine:
     # field of view
     @property
     def fov_radius(self):
-        return 8 + self.player.NOSE
+        return 8 + self.player.TONG
 
     # field of smell: detect presence of enemies
     @property
     def fos_radius(self):
-        return 0 + self.player.NOSE * 2
+        return 0 + self.player.TONG * 2
 
     # field of identity: detect enemy identity
     @property
     def foi_radius(self):
-        return 0 + self.player.NOSE
+        return 0 + self.player.TONG
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:

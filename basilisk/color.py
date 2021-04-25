@@ -36,6 +36,13 @@ green = (0,200,0)
 # red overrides everything
 # segment colors prominent
 
+# STATS
+
+bile = (50,125,250)
+mind = (200,40,170)
+tail = (50,100,25)
+tongue = (255,173,201)
+
 
 
 
@@ -70,8 +77,3 @@ corpse = (191, 0, 0)
 vowel = (0,200,200)
 unidentified = (200,200,200)
 
-fire = (225,100,100)
-mind = (200,40,170)
-electric = (50,125,250)
-reversal = (50,100,25)
-tongue = (255,173,201)
