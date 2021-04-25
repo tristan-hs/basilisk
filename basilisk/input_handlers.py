@@ -15,6 +15,7 @@ from basilisk.actions import (
     PickupAction,
 )
 from basilisk.render_functions import DIRECTIONS, D_ARROWS
+from basilisk.components.status_effect import PetrifiedSnake
 
 if TYPE_CHECKING:
     from basilisk.engine import Engine
@@ -137,6 +138,9 @@ class EventHandler(BaseEventHandler):
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.grey)
             return False  # Skip enemy turn on exceptions.
+
+        while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
+            self.engine.handle_enemy_turns()
 
         self.engine.handle_enemy_turns()
 

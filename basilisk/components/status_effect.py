@@ -64,6 +64,20 @@ class Petrified(EnemyStatusEffect):
 		self.engine.message_log.add_message(f"The {self.parent.name} hardens!", color.offwhite)
 
 
+class PetrifiedSnake(EnemyStatusEffect):
+	label="petrified"
+	description="can't move"
+	color=color.grey
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message("You turn to stone!", color.red)
+
+	def strengthen(self):
+		super().strengthen(3)
+		self.engine.message_log.add_message("You harden!", color.red)
+
+
 class FreeSpit(StatusEffect):
 	label="salivating"
 	description="spit segments without consuming them"

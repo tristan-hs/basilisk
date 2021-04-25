@@ -17,7 +17,7 @@ from basilisk.input_handlers import (
     InventoryIdentifyHandler,
     InventoryRearrangeHandler
 )
-from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit, Petrified
+from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit, Petrified, PetrifiedSnake
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor, Item
@@ -261,11 +261,16 @@ class ThirdEyeBlindConsumable(Consumable):
         self.consume()
 
 
+class PetrifyConsumable(Consumable):
+    description = "petrify thyself"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("The taste of earth and bone permeates your being.")
+        self.apply_status(action, PetrifiedSnake, 3)
+        self.consume()
+
 class PetrifyEnemyConsumable(Projectile):
     description = "petrify an enemy"
-
-    def __init__(self, duration: int=10):
-        self.duration = duration
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         if not self.parent.identified:
