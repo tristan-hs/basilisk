@@ -33,10 +33,12 @@ class StatusEffect(BaseComponent):
 
 	def remove(self):
 		self.parent.statuses.remove(self)
-		self.engine.message_log.add_message(f"You are no longer {self.label}.", color.yellow)
+		if self.label:
+			self.engine.message_log.add_message(f"You are no longer {self.label}.", color.yellow)
 
 	def strengthen(self, strength: int=10):
 		self.duration += strength
+
 
 class BadStatusEffect(StatusEffect):
 	@property
@@ -48,6 +50,23 @@ class EnemyStatusEffect(StatusEffect):
 	def remove(self):
 		self.parent.statuses.remove(self)
 		self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.label}.", color.yellow)
+
+
+class _StatBoost(StatusEffect):
+	label = None
+	description = None
+	color = None
+
+
+class StatBoost(_StatBoost):
+	def __init__(self, duration: int, target, stat, amount):
+		self.amount = amount
+		self.stat = stat
+		super().__init__(duration, target)
+
+		for status in self.parent.statuses:
+			if isinstance(status, _StatBoost) and status.stat == stat:
+				status.duration = self.duration = max(status.duration, self.duration)
 
 
 class Petrified(EnemyStatusEffect):

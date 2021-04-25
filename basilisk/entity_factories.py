@@ -143,7 +143,7 @@ vowel_segment = Item(
     item_type='v',
     color=color.vowel,
     name="vowel",
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(1),
     spitable=consumable.Projectile(damage=1),
     stat=None
 )
@@ -172,7 +172,7 @@ volatile = Item(
     item_type='c',
     color=color.bile,
     name='volatile',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(3,'BILE'),
     spitable=consumable.FireballDamageConsumable(damage=2, radius=3),
     rarity='c',
     stat='BILE'
@@ -273,7 +273,7 @@ musclebound = Item(
     item_type='c',
     color=color.tail,
     name='musclebound',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(2,'TAIL'),
     spitable=consumable.Projectile(damage=3),
     rarity='c',
     stat='TAIL'
@@ -333,7 +333,7 @@ longue = Item(
     item_type='c',
     color=color.tongue,
     name='long',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(3,'TONG'),
     spitable=consumable.NothingConsumable(),
     rarity='c',
     stat='TONG'
@@ -372,6 +372,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #petrified
+    #volatile,musclebound,longue
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

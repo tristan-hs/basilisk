@@ -74,6 +74,8 @@ def render_instructions(console: Console, location: Tuple[int,int]) -> None:
 def render_status(console: Console, location: Tuple[int,int], statuses: List) -> None:
     x, y = location
     for s,status in enumerate(statuses):
+        if not status.label:
+            continue
         console.print(
             x=x,
             y=y+s,

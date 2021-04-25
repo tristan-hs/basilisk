@@ -17,7 +17,7 @@ from basilisk.input_handlers import (
     InventoryIdentifyHandler,
     InventoryRearrangeHandler
 )
-from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit, Petrified, PetrifiedSnake
+from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit, Petrified, PetrifiedSnake, StatBoost
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor, Item
@@ -97,6 +97,17 @@ class Projectile(Consumable):
             return
 
         super().consume()
+
+
+class StatBoostConsumable(Consumable):
+    def __init__(self, amount, stat=None):
+        self.stat = stat if stat else random.choice(['BILE','MIND','TAIL','TONG'])
+        self.amount = amount
+        self.description = f"increases {stat} by {amount}"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        StatBoost(10, action.target_actor, self.stat, self.amount)
+        self.consume()
 
 
 class FreeSpitConsumable(Consumable):

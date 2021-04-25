@@ -11,6 +11,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
+from basilisk.components.status_effect import StatBoost
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -94,10 +95,10 @@ class Entity:
         return self.get_stat("TAIL")
 
     def get_stat(self, stat: str):
-        if not self.engine.word_mode:
-            return 0
+        word_mode_boost = len([i for i in self.inventory.items if i.stat == stat and i.identified]) if self.engine.word_mode else 0
+        status_boost = sum([s.amount for s in self.statuses if isinstance(s, StatBoost) and s.stat == stat])
 
-        return len([i for i in self.inventory.items if i.stat == stat and i.identified])
+        return word_mode_boost + status_boost
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -326,7 +327,8 @@ class Item(Entity):
         char: str = '?',
         description: str = '???',
         rarity: Optional[str] = None,
-        stat: str
+        stat: str,
+        flavor: str = None
     ):
         super().__init__(
             x=x,
@@ -347,6 +349,7 @@ class Item(Entity):
         self._color = color
         self.rarity = rarity
         self.stat = stat
+        self.flavor = flavor
 
     @property
     def label(self):
