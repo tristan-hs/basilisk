@@ -657,8 +657,8 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
             return None
         for px,py in self.path_to_target:
             if (
-                (self.engine.game_map.get_actor_at_location(px,py) and self.seeking == "actor") or
-                (self.engine.game_map.get_item_at_location(px,py) and self.seeking == "item") or 
+                (self.engine.game_map.get_actor_at_location(px,py) and self.seeking in ["actor","anything"]) or
+                (self.engine.game_map.get_item_at_location(px,py) and self.seeking in ["item","anything"]) or 
                 self.seeking == "anything"
             ):
                 return self.callback((px,py))
