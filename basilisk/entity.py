@@ -109,6 +109,9 @@ class Entity:
 
     def get_stat(self, stat: str):
         return self.get_base_stat(stat) + self.get_word_mode_boost(stat) + self.get_status_boost(stat)
+
+    def get_stat_boost_duration(self, stat: str):
+        return [s for s in self.statuses if isinstance(s, StatBoost) and s.stat == stat][0].duration
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""

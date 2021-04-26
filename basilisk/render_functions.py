@@ -116,10 +116,19 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
 
             console.print(x=x+j,y=y+2+i,string=c,fg=fg,bg=bg)
 
-        i = 4
-        while i < player.stats[stat] and i < 18:
-            console.print(x=x+i,y=y+2+i,string='+',fg=color.stats[stat])
-            i+=1
+        k = 4
+        while k < player.stats[stat] and k < 14:
+            c = '+'
+            if stat == 'TONG':
+                if k == 4:
+                    c = 'U'
+                if k == 5:
+                    c = 'E'
+            console.print(x=x+k,y=y+2+i,string=c,fg=color.stats[stat])
+            k+=1
+
+        if player.get_status_boost(stat) > 0:
+            console.print(x=x+k,y=y+2+i,string=f"({player.get_stat_boost_duration(stat)})",fg=color.boosted_stats[stat])
 
 
 def render_names_at_mouse_location(
