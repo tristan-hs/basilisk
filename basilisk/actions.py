@@ -61,7 +61,11 @@ class ItemAction(Action):
         if not target_xy:
             target_xy = entity.x, entity.y
         self.target_xy = target_xy
-        self.target_item = target_item
+        self._target_item = target_item
+
+    @property
+    def target_item(self) -> Optional[Item]:
+        return self._target_item
 
     @property
     def target_actor(self) -> Optional[Actor]:
@@ -74,11 +78,16 @@ class ItemAction(Action):
         self.item.edible.activate(self)
 
 class ThrowItem(ItemAction):
-    def perform(self) -> None:
-        at = f" at the {self.target_actor.name}" if self.target_actor and self.target_actor is not self.engine.player else ''        
+    def perform(self, at="actor") -> None:
+        target = self.target_actor if at == "actor" else self.target_item
+        at = f" at the {target.name}" if target and target is not self.engine.player else ''        
         self.engine.message_log.add_message(f"You spit the ? segment{at}.", color.offwhite, self.item.label, self.item.color)
         
         self.item.spitable.activate(self)
+
+    @property
+    def target_item(self) -> Optional[Item]:
+        return self.engine.game_map.get_item_at_location(*self.target_xy)
 
 
 class ActionWithDirection(Action):

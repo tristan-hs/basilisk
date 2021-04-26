@@ -340,9 +340,10 @@ inquisitive = Item(
     color=color.tongue,
     name='inquisitive',
     edible=consumable.MappingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.IdentifyingProjectile(),
     rarity='u',
-    stat='TONG'
+    stat='TONG',
+    flavor="As close as you'll' come to looking in a mirror; when you see it, you see it knows you"
 )
 
 hungry = Item(
@@ -368,6 +369,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #pure
+    #inquisitive
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

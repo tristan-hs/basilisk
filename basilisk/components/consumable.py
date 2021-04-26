@@ -76,9 +76,11 @@ class Projectile(Consumable):
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
+        seeking = "anything" if self.parent.identified else "actor"
         return SingleProjectileAttackHandler(
             self.engine,
-            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy)
+            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
+            seeking=seeking
         )
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -229,7 +231,7 @@ class ChangelingConsumable(Consumable):
 
 
 class IdentifyingConsumable(Consumable):
-    description = "identify another segment"
+    description = "identify a segment on your tail"
 
     @property
     def can_identify(self):
@@ -252,6 +254,31 @@ class IdentifyingConsumable(Consumable):
         item = action.target_item
         if not item:
             self.engine.message_log.add_message("You feel nostalgic.", color.grey)
+            return
+
+        self.engine.message_log.add_message(f"You identified the {item.char}.", color.offwhite)
+        item.identified = True
+
+
+class IdentifyingProjectile(Projectile):
+    description = "identify a segment on the ground"
+
+    def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+        if not self.parent.identified:
+            super().get_throw_action(consumer)
+
+        self.engine.message_log.add_message("Select a target item.", color.cyan)
+        return SingleRangedAttackHandler(
+            self.engine,
+            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy)
+        )
+
+
+    def activate(self, action:action.ItemAction) -> None:
+        self.consume()
+        item = action.target_item
+        if not item:
+            self.engine.message_log.add_message("The segment shatters uselessly on the ground.", color.grey)
             return
 
         self.engine.message_log.add_message(f"You identified the {item.char}.", color.offwhite)

@@ -627,10 +627,11 @@ class SingleRangedAttackHandler(SelectIndexHandler):
 
 class SingleProjectileAttackHandler(SelectIndexHandler):
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]]
+        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything"
     ):
         super().__init__(engine)
         self.callback = callback
+        self.seeking = seeking
 
     @property
     def path_to_target(self):
@@ -655,7 +656,11 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
         if not self.path_to_target:
             return None
         for px,py in self.path_to_target:
-            if self.engine.game_map.get_actor_at_location(px,py):
+            if (
+                (self.engine.game_map.get_actor_at_location(px,py) and self.seeking == "actor") or
+                (self.engine.game_map.get_item_at_location(px,py) and self.seeking == "item") or 
+                self.seeking == "anything"
+            ):
                 return self.callback((px,py))
 
 class AreaRangedAttackHandler(SelectIndexHandler):
