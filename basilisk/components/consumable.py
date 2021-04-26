@@ -365,6 +365,7 @@ class PetrifyEnemyConsumable(Projectile):
             raise Impossible("You cannot confuse yourself!")
 
         self.apply_status(action, Petrified)
+        self.consume()
 
 
 class ConfusionConsumable(Projectile):
