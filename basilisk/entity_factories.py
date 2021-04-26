@@ -361,14 +361,15 @@ sensitive = Item(
     color=color.tongue,
     name='sensitive',
     edible=consumable.StatBoostConsumable(1,'TONG',True),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.ClingyConsumable(),
     rarity='r',
-    stat='TONG'
+    stat='TONG',
+    flavor="This soft orb oozes appreciation at the slightest acknowledgement."
 )
 
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #calcified
+    #sensitive
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

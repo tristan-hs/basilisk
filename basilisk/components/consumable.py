@@ -368,6 +368,41 @@ class PetrifyEnemyConsumable(Projectile):
         self.consume()
 
 
+class ClingyConsumable(Projectile):
+    description = ":("
+
+    def activate(self, action: actions.ItemAction) -> None:
+        inv = self.parent.gamemap.engine.player.inventory.items
+        index = inv.index(self.parent)
+        xy = self.parent.xy
+
+        if index == 0:
+            self.plop(action)
+            return
+
+        other_index = index-1
+        other_item = inv[other_index]
+
+        inv[other_index] = self.parent
+        inv[index] = other_item
+
+        self.parent.place(*other_item.xy)
+        other_item.place(*xy)
+
+        self.parent.solidify()
+
+        self.engine.message_log.add_message("The segment clings and whines, only moving forward a little bit.")
+
+    def plop(self, action: actions.ItemAction):
+        xy = self.parent.xy
+        space = self.engine.player.ai.get_path_to(*action.target_xy,0)[0]
+        self.parent.desolidify()
+        self.parent.place(*space)
+        self.engine.player.snake(xy)
+
+
+
+
 class ConfusionConsumable(Projectile):
     description = "confuse an enemy"
 
