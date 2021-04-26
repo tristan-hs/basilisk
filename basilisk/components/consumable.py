@@ -76,7 +76,7 @@ class Projectile(Consumable):
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
-        seeking = "anything" if self.parent.identified else "actor"
+        seeking = "anything" if not self.parent.identified else "actor"
         return SingleProjectileAttackHandler(
             self.engine,
             callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
