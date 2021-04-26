@@ -53,6 +53,7 @@ class Entity:
         self.render_order = render_order
         self._description=description
         self.rarity = rarity
+        self.base_stats = {"BILE":0,"MIND":0,"TAIL":0,"TONG":0}
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -98,9 +99,6 @@ class Entity:
     def stats(self) -> int:
         return {"BILE":self.BILE,"MIND":self.MIND,"TONG":self.TONG,"TAIL":self.TAIL}
 
-    def get_base_stat(self, stat:str):
-        return 0
-
     def get_word_mode_boost(self, stat:str):
         return len([i for i in self.inventory.items if i.stat == stat and i.identified]) if self.engine.word_mode else 0
 
@@ -108,7 +106,7 @@ class Entity:
         return sum([s.amount for s in self.statuses if isinstance(s, StatBoost) and s.stat == stat])
 
     def get_stat(self, stat: str):
-        return self.get_base_stat(stat) + self.get_word_mode_boost(stat) + self.get_status_boost(stat)
+        return self.base_stats[stat] + self.get_word_mode_boost(stat) + self.get_status_boost(stat)
 
     def get_stat_boost_duration(self, stat: str):
         return [s for s in self.statuses if isinstance(s, StatBoost) and s.stat == stat][0].duration

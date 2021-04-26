@@ -100,13 +100,28 @@ class Projectile(Consumable):
 
 
 class StatBoostConsumable(Consumable):
-    def __init__(self, amount, stat=None):
-        self.stat = stat if stat else random.choice(['BILE','MIND','TAIL','TONG'])
+    messages = {
+        "BILE":"A more dangerous ? rises in your throat.",
+        "MIND":"Time's weave floods the creases of your ?.",
+        "TAIL":"Your ? thrashes with a new strength.",
+        "TONG":"Your ? whips the air with increased sensitivity."
+    }
+
+    def __init__(self, amount, stat=None, permanent=False):
+        self.stat = stat if stat else "a stat"
         self.amount = amount
-        self.description = f"increases {self.stat} by {amount}"
+        forever = " permanently" if permanent else ""
+        self.description = f"increases {self.stat} by {amount}{forever}"
+        self.permanent = permanent
 
     def activate(self, action: actions.ItemAction) -> None:
-        StatBoost(10, action.target_actor, self.stat, self.amount)
+        stat = self.stat if self.stat != "a stat" else random.choice(['BILE','MIND','TAIL','TONG'])
+        stat_str = "TONGUE" if stat == "TONG" else stat
+        self.engine.message_log.add_message(self.messages[stat], color.grey, stat_str, color.stats[stat])
+        if self.permanent:
+            action.target_actor.base_stats[self.stat] += self.amount
+        else:
+            StatBoost(10, action.target_actor, stat, self.amount)
         self.consume()
 
 

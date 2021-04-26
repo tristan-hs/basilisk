@@ -214,7 +214,7 @@ acidic = Item(
     item_type='c',
     color=color.bile,
     name='acidic',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(1,'BILE',True),
     spitable=consumable.NothingConsumable(),
     rarity='r',
     stat='BILE'
@@ -316,7 +316,7 @@ growing = Item(
     item_type='c',
     color=color.tail,
     name='growing',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(1,'TAIL',True),
     spitable=consumable.NothingConsumable(),
     rarity='r',
     stat='TAIL'
@@ -367,7 +367,7 @@ sensitive = Item(
     item_type='c',
     color=color.tongue,
     name='sensitive',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.StatBoostConsumable(1,'TONG',True),
     spitable=consumable.NothingConsumable(),
     rarity='r',
     stat='TONG'
@@ -376,6 +376,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #volatile,musclebound,longue
+    #sensitive,growing,acidic
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

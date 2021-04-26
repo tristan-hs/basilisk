@@ -124,6 +124,7 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
                     c = 'U'
                 if k == 5:
                     c = 'E'
+            stat_color = color.stats[stat] if k >= player.stats[stat] or k < player.stats[stat] - player.get_status_boost(stat) else color.boosted_stats[stat]
             console.print(x=x+k,y=y+2+i,string=c,fg=color.stats[stat])
             k+=1
 

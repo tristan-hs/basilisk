@@ -47,7 +47,7 @@ stats={"BILE":bile,"MIND":mind,"TAIL":tail,"TONG":tongue}
 
 b_bile = (150,200,250)
 b_mind = (200,120,185)
-b_tail = (75,100,62)
+b_tail = (75,150,62)
 b_tongue = (255,213,226)
 
 boosted_stats = {"BILE":b_bile,"MIND":b_mind,"TAIL":b_tail,"TONG":b_tongue}
