@@ -27,6 +27,9 @@ class BaseAI(Action):
         self.decide()
         return self._intent
 
+    def clear_intent(self):
+        self._intent = None
+
     def decide(self) -> Optional[Action]:
         raise NotImplementedError()
 

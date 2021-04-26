@@ -11,7 +11,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
-from basilisk.components.status_effect import StatBoost
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -235,6 +235,23 @@ class Actor(Entity):
         self.statuses = []
         self.drop_tier = drop_tier
         self.is_boss = is_boss
+
+    @property
+    def color(self):
+        if (
+            any( isinstance(s,Petrified) for s in self.statuses ) or
+            ( 
+                any( isinstance(s,PetrifEyes) for s in self.engine.player.statuses ) and
+                not self is self.engine.player
+            )
+        ):
+            return Color.grey
+
+        return self._color
+
+    @color.setter
+    def color(self, new_val):
+        self._color = new_val
 
     @property
     def is_alive(self) -> bool:

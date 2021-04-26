@@ -76,6 +76,7 @@ class Petrified(EnemyStatusEffect):
 
 	def apply(self):
 		super().apply()
+		self.parent.ai.clear_intent()
 		self.engine.message_log.add_message(f"The {self.parent.name} turns to stone!", color.offwhite)
 
 	def strengthen(self):

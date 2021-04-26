@@ -11,7 +11,7 @@ from basilisk import color, tile_types
 from basilisk.entity import Actor, Item
 from basilisk.actions import ActionWithDirection
 from basilisk.render_functions import DIRECTIONS, D_ARROWS
-from basilisk.components.status_effect import ThirdEyeBlind
+from basilisk.components.status_effect import ThirdEyeBlind, Petrified, PetrifEyes
 from basilisk.components.ai import Statue
 
 if TYPE_CHECKING:
@@ -125,7 +125,12 @@ class GameMap:
             any(isinstance(s,ThirdEyeBlind) for s in self.engine.player.statuses) or
             entity is self.engine.player or
             not isinstance(entity, Actor) or
-            not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent)
+            any(isinstance(s,Petrified) for s in entity.statuses) or
+            not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent) or
+            (
+                any(isinstance(s,PetrifEyes) for s in self.engine.player.statuses) and
+                self.visible[entity.x,entity.y]
+            )
         ):
             return
 

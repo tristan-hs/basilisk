@@ -57,8 +57,6 @@ class Engine:
         self.word_mode = p_word in open(utils.get_resource("words.txt")).read().splitlines()
 
     def handle_enemy_turns(self) -> None:
-        self.player.on_turn()
-        
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
                 if (
@@ -66,11 +64,13 @@ class Engine:
                     self.game_map.visible[entity.x,entity.y] and 
                     not isinstance(entity.ai, Constricted)
                 ):
+                    entity.ai.clear_intent()
                     continue
                 if (
                     any(isinstance(s,Petrified) for s in entity.statuses) and
                     not isinstance(entity.ai, Constricted)
                 ):
+                    entity.ai.clear_intent()
                     entity.on_turn()
                     continue
                 try:
@@ -85,6 +85,7 @@ class Engine:
             self.message_log.add_message(f"Oof! You're trapped!", color.red)
             self.player.die()
 
+        self.player.on_turn()
         self.turn_count += 1        
 
     def update_fov(self) -> None:
