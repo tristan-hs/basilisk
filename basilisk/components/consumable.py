@@ -103,7 +103,7 @@ class StatBoostConsumable(Consumable):
     def __init__(self, amount, stat=None):
         self.stat = stat if stat else random.choice(['BILE','MIND','TAIL','TONG'])
         self.amount = amount
-        self.description = f"increases {stat} by {amount}"
+        self.description = f"increases {self.stat} by {amount}"
 
     def activate(self, action: actions.ItemAction) -> None:
         StatBoost(10, action.target_actor, self.stat, self.amount)

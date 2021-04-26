@@ -88,30 +88,38 @@ def render_status(console: Console, location: Tuple[int,int], statuses: List) ->
 def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
     player = engine.player
 
-    colors = [
-        color.tongue,
-        color.snake_green, 
-        color.green,
-        color.goblin,
-        color.tail,
-        color.statue,
-        color.player_dark,
-        color.grey,
-        (75,125,0),
-        color.mind,
-        color.bile
-    ] + [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
-    random.Random(engine.turn_count).shuffle(colors)
-    for i,c in enumerate("WORD MODE"):
-        console.print(x=x+i,y=y,string=c,fg=colors.pop())
+    if engine.word_mode:
+        colors = [
+            color.tongue,
+            color.snake_green, 
+            color.green,
+            color.goblin,
+            color.tail,
+            color.statue,
+            color.player_dark,
+            color.grey,
+            (75,125,0),
+            color.mind,
+            color.bile
+        ] + [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
+        random.Random(engine.turn_count).shuffle(colors)
+        for i,c in enumerate("WORD MODE"):
+            console.print(x=x+i,y=y,string=c,fg=colors.pop())
 
-    scores = "      "+"\n      ".join([str(s) for s in [player.BILE,player.MIND,player.TONG,player.TAIL]])
-    console.print(x=x,y=y+2,string=scores, fg=color.offwhite)
+    for i,stat in enumerate(["BILE","MIND","TONG","TAIL"]):
+        for j,c in enumerate(stat):
 
-    console.print(x=x,y=y+2,string="BILE:",fg=color.bile)
-    console.print(x=x,y=y+3,string="MIND:",fg=color.mind)
-    console.print(x=x,y=y+4,string="TONG:",fg=color.tongue)
-    console.print(x=x,y=y+5,string="TAIL:",fg=color.tail)
+            stat_color = color.stats[stat] if j >= player.stats[stat] or j < player.stats[stat] - player.get_status_boost(stat) else color.boosted_stats[stat]
+
+            bg = color.black
+            fg = stat_color if player.stats[stat] > j else color.grey
+
+            console.print(x=x+j,y=y+2+i,string=c,fg=fg,bg=bg)
+
+        i = 4
+        while i < player.stats[stat] and i < 18:
+            console.print(x=x+i,y=y+2+i,string='+',fg=color.stats[stat])
+            i+=1
 
 
 def render_names_at_mouse_location(
@@ -134,8 +142,7 @@ def render_names_at_mouse_location(
         ]
 
     if len(entities) < 1:
-        if engine.word_mode:
-            render_stats_in_inspect_box(console, x, y, engine)
+        render_stats_in_inspect_box(console, x, y, engine)
         return
 
     if len(entities) == 1:

@@ -94,11 +94,21 @@ class Entity:
     def TAIL(self) -> int:
         return self.get_stat("TAIL")
 
-    def get_stat(self, stat: str):
-        word_mode_boost = len([i for i in self.inventory.items if i.stat == stat and i.identified]) if self.engine.word_mode else 0
-        status_boost = sum([s.amount for s in self.statuses if isinstance(s, StatBoost) and s.stat == stat])
+    @property
+    def stats(self) -> int:
+        return {"BILE":self.BILE,"MIND":self.MIND,"TONG":self.TONG,"TAIL":self.TAIL}
 
-        return word_mode_boost + status_boost
+    def get_base_stat(self, stat:str):
+        return 0
+
+    def get_word_mode_boost(self, stat:str):
+        return len([i for i in self.inventory.items if i.stat == stat and i.identified]) if self.engine.word_mode else 0
+
+    def get_status_boost(self, stat:str):
+        return sum([s.amount for s in self.statuses if isinstance(s, StatBoost) and s.stat == stat])
+
+    def get_stat(self, stat: str):
+        return self.get_base_stat(stat) + self.get_word_mode_boost(stat) + self.get_status_boost(stat)
     
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
