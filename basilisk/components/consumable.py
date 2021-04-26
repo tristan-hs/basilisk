@@ -150,6 +150,16 @@ class ChokingConsumable(Consumable):
         self.consume()
 
 
+class DroppingConsumable(Consumable):
+    description = "drop everything"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("As you eject the segment you realize it had become your lynchpin.")
+        self.consume()
+        self.engine.message_log.add_message("You fall apart!", color.red)
+        self.engine.player.unsnake(0)
+
+
 class ConsumingConsumable(Consumable):
     description = "lose weight"
 

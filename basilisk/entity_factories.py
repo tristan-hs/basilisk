@@ -298,9 +298,10 @@ pure = Item(
     color=color.tail,
     name='pure',
     edible=consumable.RearrangingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.DroppingConsumable(),
     rarity='u',
-    stat='TAIL'
+    stat='TAIL',
+    flavor="Each perfect facet grants a new dimension of clarity."
 )
 
 growing = Item(
@@ -367,6 +368,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #sensitive,growing,acidic
+    #pure
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
