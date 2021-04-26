@@ -255,6 +255,8 @@ def generate_item_identities():
 
     letters_weighted = []
     for k,v in letters.items():
+        if k == 'y':
+            continue
         letters_weighted += [k]*v
 
     all_items = []
@@ -285,7 +287,10 @@ def generate_item_identities():
             letters_weighted = [l for l in letters_weighted if l != item.char]
 
             if len(letters_weighted) == 0:
-                break
+                if not any(i.char == 'y' for i in all_items):
+                    letters_weighted = ['y']
+                else:
+                    break
 
     return all_items
 
@@ -464,8 +469,6 @@ def place_entities(
     if room.is_vault:
         item_points += random.randint(1,factor)
         factory_set = dungeon.item_factories
-    elif random.random() > 0.9:
-        factory_set = [entity_factories.y_segment]
     else:
         factory_set = [entity_factories.vowel_segment]
 

@@ -202,11 +202,12 @@ class ReversingConsumable(Consumable):
 
 
 class ChangelingConsumable(Consumable):
-    description = "transform this"
+    description = "???"
 
     def activate(self, action: actions.ItemAction) -> None:
         # add new item to snake
         items = action.entity.inventory.items
+        changeset = self.gamemap.item_factories
         new_i = random.choice(self.gamemap.item_factories).spawn(self.parent.gamemap,self.parent.x,self.parent.y)
         new_i.parent = action.entity
         items.insert(items.index(self.parent), new_i)
@@ -294,6 +295,16 @@ class PetrifyConsumable(Consumable):
         self.engine.message_log.add_message("The taste of earth and bone permeates your being.")
         self.apply_status(action, PetrifiedSnake, 3)
         self.consume()
+
+
+class RandomProjectile(Projectile):
+    description = "???"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        effect = copy.deepcopy(random.choice(self.gamemap.item_factories).spitable)
+        self.parent.spitable = effect
+        self.parent.spitable.activate(action)
+
 
 class PetrifyEnemyConsumable(Projectile):
     description = "petrify an enemy"

@@ -159,15 +159,6 @@ crown_segment = Item(
     stat=None
 )
 
-y_segment = Item(
-    item_type='y',
-    color=color.tongue,
-    name="mYsterious",
-    edible=consumable.NothingConsumable(),
-    spitable=consumable.Projectile(damage=2),
-    stat=None
-)
-
 
 volatile = Item(
     item_type='c',
@@ -255,7 +246,7 @@ calcified = Item(
     item_type='c',
     color=color.mind,
     name='calcified',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.PetrifEyesConsumable(),
     spitable=consumable.NothingConsumable(),
     rarity='r',
     stat='MIND'
