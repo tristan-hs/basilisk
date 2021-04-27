@@ -269,7 +269,7 @@ class IdentifyingProjectile(Projectile):
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         if not self.parent.identified:
-            super().get_throw_action(consumer)
+            return super().get_throw_action(consumer)
 
         self.engine.message_log.add_message("Select a target item.", color.cyan)
         return SingleRangedAttackHandler(
