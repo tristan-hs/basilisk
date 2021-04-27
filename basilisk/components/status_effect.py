@@ -68,6 +68,28 @@ class StatBoost(_StatBoost):
 				status.duration = self.duration = max(status.duration, self.duration)
 
 
+class Leaking(EnemyStatusEffect):
+	label="crumbling"
+	description="bits are falling off"
+	color=color.bile
+
+	def decrement(self):
+		self.parent.take_damage(1)
+		v = self.engine.game_map.vowel.spawn(self.engine.game_map,*self.parent.xy)
+		n = 'n' if v.char in ['y','u'] else ''
+		self.engine.message_log.add_message(f"The {self.parent.name} sheds a{n} ?!", color.grey, v.char, v.color)
+		super().decrement()
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message(f"The {self.parent.name} starts shedding pieces!", color.offwhite)
+
+	def strengthen(self):
+		super().strengthen(3)
+		self.engine.message_log.add_message(f"The {self.parent.name} will crumble for even longer.", color.offwhite)
+
+
+
 class Shielded(StatusEffect):
 	label="shielded"
 	description="invulnerable"

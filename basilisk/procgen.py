@@ -313,7 +313,7 @@ def generate_dungeon(
 
     entities = set(player.inventory.items)
     entities.update([player])
-    dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items)
+    dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items, vowel=entity_factories.vowel_segment)
 
     rooms: List[RectangularRoom] = []
     vaults: List[RectangularRoom] = []

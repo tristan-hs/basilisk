@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, engine: Engine, width: int, height: int, floor_number: int, items: Iterable, entities: Iterable[Entity] = ()
+        self, engine: Engine, width: int, height: int, floor_number: int, items: Iterable, entities: Iterable[Entity] = (), vowel = None
     ):
         self.engine = engine
         self.width, self.height = width, height
@@ -41,6 +41,7 @@ class GameMap:
         self.downstairs_location = (0, 0)
         self.floor_number = floor_number
         self.item_factories = items
+        self.vowel = vowel
 
     @property
     def actors(self) -> Iterable[Actor]:

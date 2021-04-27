@@ -196,9 +196,10 @@ prolific = Item(
     color=color.bile,
     name='prolific',
     edible=consumable.FreeSpitConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.LeakingProjectile(),
     rarity='u',
-    stat='BILE'
+    stat='BILE',
+    flavor='A sloshing grey ooze whose tendrils stretch for whatevery may fuel its growth.'
 )
 
 acidic = Item(
@@ -371,6 +372,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #calcified
+    #prolific
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

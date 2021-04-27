@@ -106,6 +106,35 @@ class Projectile(Consumable):
         super().consume()
 
 
+class LeakingProjectile(Projectile):
+    description = "make an enemy fall to pieces"
+
+    def __init__(self):
+        pass
+
+    def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+
+        self.engine.message_log.add_message("Select a target.", color.cyan)
+        return SingleRangedAttackHandler(self.engine, callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy))
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = action.target_actor
+
+        if not self.engine.game_map.visible[action.target_xy]:
+            raise Impossible("You cannot target an area that you cannot see.")
+        if not target:
+            self.engine.message_log.add_message("Nothing happens.",color.grey)
+        if target is consumer:
+            raise Impossible("You cannot confuse yourself!")
+
+        if target:
+            self.apply_status(action, Leaking)
+        self.consume()
+
+
 class ShieldingConsumable(Consumable):
     description = "shrug off the next hit you take"
 
@@ -376,8 +405,6 @@ class PetrifyEnemyConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            print("Nothing happens: "+str(action.target_xy))
-            print("Self: "+str(consumer.xy))
             self.engine.message_log.add_message("Nothing happens.",color.grey)
         if target is consumer:
             raise Impossible("You cannot confuse yourself!")
