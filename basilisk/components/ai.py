@@ -42,18 +42,20 @@ class BaseAI(Action):
         self._intent = None
         self.entity.on_turn()
 
-    def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10) -> List[Tuple[int, int]]:
+    def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10, walkable=True) -> List[Tuple[int, int]]:
         """Compute and return a path to the target position.
 
         If there is no valid path then returns an empty list.
         """
         # Copy the walkable array.
 
-        cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
+        gm = self.entity.gamemap
+        tiles = gm.tiles["walkable"] if walkable else np.full((gm.width,gm.height),fill_value=1,order="F")
+        cost = np.array(tiles, dtype=np.int8)
 
-        for entity in self.entity.gamemap.entities:
+        for entity in gm.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
-            if entity.blocks_movement and cost[entity.x, entity.y] and (entity.x != dest_x or entity.y != dest_y):
+            if entity.blocks_movement and cost[entity.x, entity.y]:
                 # Add to the cost of a blocked position.
                 # A lower number means more enemies will crowd behind each other in
                 # hallways.  A higher number means enemies will take longer paths in
