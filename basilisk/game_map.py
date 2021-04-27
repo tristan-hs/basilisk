@@ -217,7 +217,13 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
-                fg = color.player if entity in self.engine.player.inventory.items else entity.color
+                if entity in self.engine.player.inventory.items:
+                    if self.engine.player.is_shielded:
+                        fg=color.grey
+                    else:
+                        fg=color.player
+                else:
+                    fg=entity.color
                 if isinstance(entity, Actor) and entity is not self.engine.player: 
                     fov = compute_fov(
                         self.tiles["transparent"],

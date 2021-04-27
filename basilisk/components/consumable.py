@@ -17,7 +17,8 @@ from basilisk.input_handlers import (
     InventoryIdentifyHandler,
     InventoryRearrangeHandler
 )
-from basilisk.components.status_effect import ThirdEyeBlind, Choking, PetrifEyes, FreeSpit, Petrified, PetrifiedSnake, StatBoost
+from basilisk.components.status_effect import *
+
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor, Item
@@ -103,6 +104,14 @@ class Projectile(Consumable):
             return
 
         super().consume()
+
+
+class ShieldingConsumable(Consumable):
+    description = "shrug off the next hit you take"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.apply_status(action,Shielded,1)
+        self.consume()
 
 
 class StatBoostConsumable(Consumable):

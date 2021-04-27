@@ -57,7 +57,6 @@ class _StatBoost(StatusEffect):
 	description = None
 	color = None
 
-
 class StatBoost(_StatBoost):
 	def __init__(self, duration: int, target, stat, amount):
 		self.amount = amount
@@ -67,6 +66,25 @@ class StatBoost(_StatBoost):
 		for status in self.parent.statuses:
 			if isinstance(status, _StatBoost) and status.stat == stat:
 				status.duration = self.duration = max(status.duration, self.duration)
+
+
+class Shielded(StatusEffect):
+	label="shielded"
+	description="invulnerable"
+	color=color.grey
+
+	def decrement(self, on_turn=True):
+		if on_turn:
+			return
+		self.duration -= 1
+		if self.duration < 1:
+			self.engine.message_log.add_message("Your stone coating crumbles.", color.yellow)
+			self.remove()
+		else:
+			self.engine.message_log.add_message("Your stone coating deflects the attack.", color.grey)
+
+	def strengthen(self):
+		super().strengthen(1)
 
 
 class Petrified(EnemyStatusEffect):

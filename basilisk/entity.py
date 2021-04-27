@@ -11,7 +11,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
-from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -240,6 +240,7 @@ class Actor(Entity):
     def color(self):
         if (
             any( isinstance(s,Petrified) for s in self.statuses ) or
+            self.is_shielded or
             ( 
                 any( isinstance(s,PetrifEyes) for s in self.engine.player.statuses ) and
                 not self is self.engine.player
@@ -257,6 +258,13 @@ class Actor(Entity):
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
+
+    @property
+    def is_shielded(self) -> bool:
+        return any(isinstance(s, Shielded) for s in self.statuses)
+
+    def hit_shield(self):
+        [s for s in self.statuses if isinstance(s, Shielded)][0].decrement(False)
 
     def can_move(self):
         # Make sure player can move, otherwise die    
@@ -338,6 +346,9 @@ class Actor(Entity):
                 return
             self.base_char = str(new_c)
         else:
+            if self.is_shielded:
+                self.hit_shield()
+                return
             self.die()
 
 class Item(Entity):
@@ -478,6 +489,11 @@ class Item(Entity):
 
     def take_damage(self, amount: int):
         player = self.gamemap.engine.player
+
+        if player.is_shielded:
+            player.hit_shield()
+            return
+
         if self in player.inventory.items:
             i = player.inventory.items.index(self)
             self.engine.message_log.add_message(f"Your ? segment breaks apart!", Color.dark_red, self.label, self.color)

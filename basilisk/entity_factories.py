@@ -246,10 +246,11 @@ calcified = Item(
     item_type='c',
     color=color.mind,
     name='calcified',
-    edible=consumable.PetrifEyesConsumable(),
-    spitable=consumable.NothingConsumable(),
+    edible=consumable.ShieldingConsumable(),
+    spitable=consumable.PetrifEyesConsumable(),
     rarity='r',
-    stat='MIND'
+    stat='MIND',
+    flavor="As you move you hear it chewing bone and gravel."
 )
 
 wrinkled = Item(
@@ -370,6 +371,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #inquisitive
+    #calcified
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
