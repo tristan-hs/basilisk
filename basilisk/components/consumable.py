@@ -88,10 +88,14 @@ class Projectile(Consumable):
         consumer = action.entity
         target = action.target_actor
 
-        self.engine.message_log.add_message(
-                f"{target.name} takes {self.modified_damage} damage!", color.offwhite
+        if target:
+            self.engine.message_log.add_message(
+                    f"{target.name} takes {self.modified_damage} damage!", color.offwhite
             )
-        target.take_damage(self.modified_damage)
+            target.take_damage(self.modified_damage)
+        else:
+            self.engine.message_log.add_message("Nothing happens.", color.grey)
+
         self.consume()
 
     def consume(self) -> None:
@@ -346,6 +350,9 @@ class RandomProjectile(Projectile):
 class PetrifyEnemyConsumable(Projectile):
     description = "petrify an enemy"
 
+    def __init__(self):
+        pass
+
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         if not self.parent.identified:
             return super().get_throw_action(consumer)
@@ -360,11 +367,14 @@ class PetrifyEnemyConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            raise Impossible("You must select an enemy to target.")
+            print("Nothing happens: "+str(action.target_xy))
+            print("Self: "+str(consumer.xy))
+            self.engine.message_log.add_message("Nothing happens.",color.grey)
         if target is consumer:
             raise Impossible("You cannot confuse yourself!")
 
-        self.apply_status(action, Petrified)
+        if target:
+            self.apply_status(action, Petrified)
         self.consume()
 
 
@@ -428,17 +438,18 @@ class ConfusionConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            raise Impossible("You must select an enemy to target.")
+            self.engine.message_log.add_message("Nothing happens.",color.grey)
         if target is consumer:
             raise Impossible("You cannot confuse yourself!")
 
-        self.engine.message_log.add_message(
-            f"The eyes of the {target.name} glaze over as it stumbles about",
-            color.offwhite,
-        )
-        target.ai = basilisk.components.ai.ConfusedEnemy(
-            entity=target, previous_ai=target.ai, turns_remaining=self.number_of_turns,
-        )
+        if target:
+            self.engine.message_log.add_message(
+                f"The eyes of the {target.name} glaze over as it stumbles about",
+                color.offwhite,
+            )
+            target.ai = basilisk.components.ai.ConfusedEnemy(
+                entity=target, previous_ai=target.ai, turns_remaining=self.number_of_turns,
+            )
         self.consume()
 
 

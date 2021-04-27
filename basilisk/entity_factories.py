@@ -164,7 +164,7 @@ volatile = Item(
     item_type='c',
     color=color.bile,
     name='volatile',
-    edible=consumable.StatBoostConsumable(3,'BILE'),
+    edible=consumable.StatBoostConsumable(2,'BILE'),
     spitable=consumable.FireballDamageConsumable(damage=2, radius=3),
     rarity='c',
     stat='BILE',
@@ -370,6 +370,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #sensitive
+    #petrified
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

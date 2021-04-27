@@ -659,7 +659,7 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
             if (
                 (self.engine.game_map.get_actor_at_location(px,py) and self.seeking in ["actor","anything"]) or
                 (self.engine.game_map.get_item_at_location(px,py) and self.seeking in ["item","anything"]) or 
-                self.seeking == "anything"
+                (self.seeking == "anything" and (px,py) == self.path_to_target[-1])
             ):
                 return self.callback((px,py))
 
