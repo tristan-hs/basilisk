@@ -186,9 +186,10 @@ drilling = Item(
     color=color.bile,
     name='drilling',
     edible=consumable.ChokingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.DrillingProjectile(2),
     rarity='u',
-    stat='BILE'
+    stat='BILE',
+    flavor='A spiraling metal coil that glimmers with ambition.'
 )
 
 prolific = Item(
@@ -373,6 +374,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #cursed
+    #drilling
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

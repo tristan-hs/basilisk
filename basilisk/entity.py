@@ -490,15 +490,15 @@ class Item(Entity):
     def take_damage(self, amount: int):
         player = self.gamemap.engine.player
 
-        if player.is_shielded:
-            player.hit_shield()
-            return
-
         if self in player.inventory.items:
+            if player.is_shielded:
+                player.hit_shield()
+                return
             i = player.inventory.items.index(self)
             self.engine.message_log.add_message(f"Your ? segment breaks apart!", Color.dark_red, self.label, self.color)
             self.consume()
             self.engine.player.unsnake(i)
-
-
+        
+        else:
+            self.gamemap.entities.remove(self)
 

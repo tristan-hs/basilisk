@@ -13,11 +13,13 @@ from basilisk.input_handlers import (
     ActionOrHandler,
     AreaRangedAttackHandler,
     SingleRangedAttackHandler,
+    SingleDrillingProjectileAttackHandler,
     SingleProjectileAttackHandler,
     InventoryIdentifyHandler,
     InventoryRearrangeHandler
 )
 from basilisk.components.status_effect import *
+import basilisk.tile_types as tile_types
 
 
 if TYPE_CHECKING:
@@ -104,6 +106,42 @@ class Projectile(Consumable):
             return
 
         super().consume()
+
+
+class DrillingProjectile(Projectile):
+    description = "pierce the dungeons"
+
+    def __init__(self, damage=1):
+        self.damage = damage
+
+    def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+        else:
+            self.engine.message_log.add_message("Select a target tile.", color.cyan)
+            return SingleDrillingProjectileAttackHandler(
+                self.engine,
+                callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
+                walkable=False
+            )
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        walkable = not self.identified
+        path = self.engine.player.ai.get_path_to(*action.target_xy,0,walkable)
+        gm = self.engine.game_map
+
+        for tile in path:
+            actor = gm.get_actor_at_location(*tile)
+            if actor and actor is not consumer:
+                actor.take_damage(self.modified_damage)
+                self.engine.message_log.add_message(f"It drills through the ?!", color.grey, actor.name, actor.color)
+
+            if not gm.tiles['walkable'][tile[0],tile[1]]:
+                gm.tiles[tile[0],tile[1]] = tile_types.floor
+                self.engine.message_log.add_message("It drills through the dungeon wall!", color.grey)
+
+        self.consume()
 
 
 class LeakingProjectile(Projectile):

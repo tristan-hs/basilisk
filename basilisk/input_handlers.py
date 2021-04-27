@@ -627,18 +627,19 @@ class SingleRangedAttackHandler(SelectIndexHandler):
 
 class SingleProjectileAttackHandler(SelectIndexHandler):
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything"
+        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything", walkable=True
     ):
         super().__init__(engine)
         self.callback = callback
         self.seeking = seeking
+        self.walkable=walkable
 
     @property
     def path_to_target(self):
         x,y = self.engine.mouse_location
-        if not self.engine.game_map.visible[x,y]:
+        if self.walkable and not self.engine.game_map.visible[x,y]:
             return None
-        return self.engine.player.ai.get_path_to(x,y,0)
+        return self.engine.player.ai.get_path_to(x,y,0,self.walkable)
 
     def on_render(self, console: tcod.Console)->None:
         # render the line
@@ -662,6 +663,16 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
                 (self.seeking == "anything" and (px,py) == self.path_to_target[-1])
             ):
                 return self.callback((px,py))
+
+
+class SingleDrillingProjectileAttackHandler(SingleProjectileAttackHandler):
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        if not self.path_to_target:
+            return None
+        i = min(len(self.path_to_target)-1, self.engine.fov_radius)
+        return self.callback(self.path_to_target[i])
+
+
 
 class AreaRangedAttackHandler(SelectIndexHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""
