@@ -237,10 +237,11 @@ cursed = Item(
     item_type='c',
     color=color.mind,
     name='cursed',
-    edible=consumable.NothingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    edible=consumable.NotConsumable(),
+    spitable=consumable.NotConsumable(),
     rarity='u',
-    stat='MIND'
+    stat='MIND',
+    flavor="lol get rekt"
 )
 
 calcified = Item(
@@ -372,6 +373,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #prolific
+    #cursed
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

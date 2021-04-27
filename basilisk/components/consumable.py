@@ -143,6 +143,15 @@ class ShieldingConsumable(Consumable):
         self.consume()
 
 
+class NotConsumable(Consumable):
+    description = "know futility"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("The segment refuses your command!", color.mind)
+        if not self.parent.identified:
+            self.parent.identified = True
+
+
 class StatBoostConsumable(Consumable):
     messages = {
         "BILE":"A more dangerous ? rises in your throat.",
