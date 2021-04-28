@@ -253,6 +253,30 @@ class PhasingConsumable(Consumable):
         self.apply_status(action,Phasing,4)
         self.consume()
 
+class PhasingProjectile(Projectile):
+    description = "temporarily derealize an enemy"
+
+    def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+
+        self.engine.message_log.add_message("Select a target.", color.cyan)
+        return SingleRangedAttackHandler(self.engine, callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy))
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = action.target_actor
+
+        if not self.engine.game_map.visible[action.target_xy]:
+            raise Impossible("You cannot target an area that you cannot see.")
+        if not target:
+            self.engine.message_log.add_message("Nothing happens.",color.grey)
+        if target is consumer:
+            raise Impossible("You can't spit it at yourself!")
+
+        if target:
+            self.apply_status(action, PhasedOut)
+        self.consume()
 
 class NotConsumable(Consumable):
     description = "know futility"
@@ -527,7 +551,7 @@ class PetrifyEnemyConsumable(Projectile):
         if not target:
             self.engine.message_log.add_message("Nothing happens.",color.grey)
         if target is consumer:
-            raise Impossible("You cannot confuse yourself!")
+            raise Impossible("You can't spit it at yourself!")
 
         if target:
             self.apply_status(action, Petrified)

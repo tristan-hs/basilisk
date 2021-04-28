@@ -229,9 +229,10 @@ ghostly = Item(
     color=color.mind,
     name='ghostly',
     edible=consumable.PhasingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.PhasingProjectile(),
     rarity='u',
-    stat='MIND'
+    stat='MIND',
+    flavor="This cloud of ethereal resin tempts you with the comfort of the void."
 )
 
 cursed = Item(
@@ -379,7 +380,7 @@ sensitive = Item(
 
 
 c_segments = [
-    #volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    ghostly
+    volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
+    #ghostly
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

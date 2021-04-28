@@ -11,7 +11,7 @@ from basilisk import color, tile_types
 from basilisk.entity import Actor, Item
 from basilisk.actions import ActionWithDirection
 from basilisk.render_functions import DIRECTIONS, D_ARROWS
-from basilisk.components.status_effect import ThirdEyeBlind, Petrified, PetrifEyes
+from basilisk.components.status_effect import ThirdEyeBlind, Petrified, PetrifEyes, PhasedOut
 from basilisk.components.ai import Statue
 
 if TYPE_CHECKING:
@@ -96,7 +96,7 @@ class GameMap:
 
     def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
         for actor in self.actors:
-            if actor.x == x and actor.y == y:
+            if actor.x == x and actor.y == y and not actor.is_phased_out:
                 return actor
 
         return None
@@ -127,6 +127,7 @@ class GameMap:
             entity is self.engine.player or
             not isinstance(entity, Actor) or
             any(isinstance(s,Petrified) for s in entity.statuses) or
+            any(isinstance(s,PhasedOut) for s in entity.statuses) or
             not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent) or
             (
                 any(isinstance(s,PetrifEyes) for s in self.engine.player.statuses) and
@@ -234,7 +235,9 @@ class GameMap:
                         radius=8,
                         light_walls=False
                     )
-                    if fov[self.engine.player.x, self.engine.player.y]:
+                    if entity.is_phased_out:
+                        bg = color.purple
+                    elif fov[self.engine.player.x, self.engine.player.y]:
                         bg = color.enemy_bg
                     else:
                         bg = None
@@ -244,22 +247,26 @@ class GameMap:
                     x=entity.x, y=entity.y, string=entity.char, fg=fg, bg=bg
                 )
 
+            # or are player items
             elif entity in self.engine.player.inventory.items:
                 fg = color.player_dark if self.tiles["walkable"][entity.x,entity.y] else color.purple
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.player_dark
                 )
 
+            # or other items the player's seen
             elif isinstance(entity, Item) and self.explored[entity.x, entity.y]:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.grey
                 )
 
+            # or statues
             elif isinstance(entity, Actor) and self.explored[entity.x, entity.y] and isinstance(entity.ai, Statue):
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.grey
                 )
 
+            # or in FOS
             elif self.smellable(entity, True) and isinstance(entity, Actor):
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=entity.color, bg=color.grey

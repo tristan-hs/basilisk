@@ -33,8 +33,10 @@ class StatusEffect(BaseComponent):
 
 	def remove(self):
 		self.parent.statuses.remove(self)
-		if self.label:
+		if self.label and self.parent is self.engine.player:
 			self.engine.message_log.add_message(f"You are no longer {self.label}.", color.yellow)
+		elif self.label:
+			self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.label}.", color.yellow)
 
 	def strengthen(self, strength: int=10):
 		self.duration += strength
@@ -47,9 +49,7 @@ class BadStatusEffect(StatusEffect):
 
 
 class EnemyStatusEffect(StatusEffect):
-	def remove(self):
-		self.parent.statuses.remove(self)
-		self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.label}.", color.yellow)
+	pass
 
 
 class _StatBoost(StatusEffect):
@@ -73,8 +73,39 @@ class Phasing(StatusEffect):
 	description="can go through walls"
 	color=color.purple
 
+	def apply(self):
+		super().apply()
+		msg = "Your vibrations attune to the stone."
+		self.engine.message_log.add_message(msg, color.offwhite)
+
 	def strengthen(self):
 		super().strengthen(3)
+		msg = "Your particles continue to whir." if self.parent is self.engine.player else f"The {self.parent.name}'s particles continue to whir."
+		self.engine.message_log.add_message(msg, color.offwhite)
+
+
+class PhasedOut(StatusEffect):
+	label="phased out"
+	description="gone for now"
+	color=color.purple
+
+	def apply(self):
+		super().apply()
+		self.parent.ai.clear_intent()
+		msg = f"The {self.parent.name} phases out of existence -- for now."
+		self.engine.message_log.add_message(msg, color.offwhite)
+		self.parent.blocks_movement = False
+
+	def remove(self):
+		super().remove()
+		conflict = self.engine.game_map.get_blocking_entity_at_location(*self.parent.xy)
+
+		if conflict:
+			msg = f"The {self.parent.label} and {conflict.label} merge into one grotesque but inviable specimen."
+			self.engine.message_log.add_message(msg, color.grey)
+			self.parent.die()
+			conflict.die()
+		self.parent.blocks_movement = True
 
 
 
@@ -117,6 +148,11 @@ class Shielded(StatusEffect):
 
 	def strengthen(self):
 		super().strengthen(1)
+		self.engine.message_log.add_message("Your stone coating hardens.", color.offwhite)
+
+	def apply(self):
+		super().apply()
+		self.engine.message_log.add_message("Your scales form a protective stone coating.", color.offwhite)
 
 
 class Petrified(EnemyStatusEffect):

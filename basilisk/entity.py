@@ -11,7 +11,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
-from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -61,6 +61,15 @@ class Entity:
             parent.entities.add(self)
 
     @property
+    def char(self):
+        val = self._char if not self.is_phased_out else ' '
+        return self._char
+
+    @char.setter
+    def char(self,new_val):
+        self._char = new_val
+
+    @property
     def gamemap(self) -> GameMap:
         return self.parent.gamemap
 
@@ -99,6 +108,10 @@ class Entity:
     @property
     def stats(self) -> int:
         return {"BILE":self.BILE,"MIND":self.MIND,"TONG":self.TONG,"TAIL":self.TAIL}
+
+    @property
+    def is_phased_out(self) -> bool:
+        return any(isinstance(s,PhasedOut) for s in self.statuses)
 
     def get_word_mode_boost(self, stat:str):
         return len([i for i in self.inventory.items if i.stat == stat and i.identified]) if self.engine.word_mode else 0
@@ -509,4 +522,7 @@ class Item(Entity):
         
         else:
             self.gamemap.entities.remove(self)
+
+    def die(self):
+        self.take_damage(1)
 

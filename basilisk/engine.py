@@ -10,7 +10,7 @@ from tcod.map import compute_fov
 
 from basilisk import exceptions, render_functions
 from basilisk.message_log import MessageLog
-from basilisk.components.status_effect import PetrifEyes, Petrified
+from basilisk.components.status_effect import PetrifEyes, Petrified, PhasedOut
 import basilisk.color as color
 from basilisk.components.ai import Constricted
 
@@ -67,7 +67,10 @@ class Engine:
                     entity.ai.clear_intent()
                     continue
                 if (
-                    any(isinstance(s,Petrified) for s in entity.statuses) and
+                    (
+                        any(isinstance(s,Petrified) for s in entity.statuses) or
+                        any(isinstance(s,PhasedOut) for s in entity.statuses)
+                    ) and
                     not isinstance(entity.ai, Constricted)
                 ):
                     entity.ai.clear_intent()
