@@ -246,6 +246,14 @@ class ShieldingConsumable(Consumable):
         self.consume()
 
 
+class PhasingConsumable(Consumable):
+    description = "phase through walls"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.apply_status(action,Phasing,4)
+        self.consume()
+
+
 class NotConsumable(Consumable):
     description = "know futility"
 

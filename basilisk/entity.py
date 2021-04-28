@@ -11,7 +11,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
-from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -53,6 +53,7 @@ class Entity:
         self.render_order = render_order
         self._description=description
         self.rarity = rarity
+        self.statuses=[]
         self.base_stats = {"BILE":0,"MIND":0,"TAIL":0,"TONG":0}
         if parent:
             # If parent isn't provided now then it will be set later.
@@ -248,6 +249,9 @@ class Actor(Entity):
         ):
             return Color.grey
 
+        if not self.engine.game_map.tiles["walkable"][self.x,self.y]:
+            return Color.purple
+
         return self._color
 
     @color.setter
@@ -263,6 +267,10 @@ class Actor(Entity):
     def is_shielded(self) -> bool:
         return any(isinstance(s, Shielded) for s in self.statuses)
 
+    @property
+    def is_phasing(self) -> bool:
+        return any(isinstance(s,Phasing) for s in self.statuses)
+
     def hit_shield(self):
         [s for s in self.statuses if isinstance(s, Shielded)][0].decrement(False)
 
@@ -270,7 +278,7 @@ class Actor(Entity):
         # Make sure player can move, otherwise die    
         for direction in DIRECTIONS:
             tile = self.x + direction[0], self.y + direction[1]
-            if self.engine.game_map.tile_is_walkable(*tile):
+            if ( self.engine.game_map.tile_is_walkable(*tile, self.is_phasing) ):
                 return True
 
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:

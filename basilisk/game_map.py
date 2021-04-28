@@ -108,10 +108,10 @@ class GameMap:
 
         return None
 
-    def tile_is_walkable(self, x: int, y: int) -> bool:
+    def tile_is_walkable(self, x: int, y: int, phasing: bool = False) -> bool:
         if not self.in_bounds(x, y):
             return False
-        if not self.tiles["walkable"][x, y]:
+        if not self.tiles["walkable"][x, y] and not phasing:
             return False
         if self.get_blocking_entity_at_location(x, y):
             return False
@@ -219,7 +219,9 @@ class GameMap:
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
                 if entity in self.engine.player.inventory.items:
-                    if self.engine.player.is_shielded:
+                    if not self.tiles["walkable"][entity.x,entity.y]:
+                        fg=color.purple
+                    elif self.engine.player.is_shielded:
                         fg=color.grey
                     else:
                         fg=color.player
@@ -243,6 +245,7 @@ class GameMap:
                 )
 
             elif entity in self.engine.player.inventory.items:
+                fg = color.player_dark if self.tiles["walkable"][entity.x,entity.y] else color.purple
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.player_dark
                 )

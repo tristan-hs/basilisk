@@ -81,12 +81,13 @@ class Engine:
             if not self.player.is_alive:
                 break
 
+        self.player.on_turn()
+
         if not self.player.can_move():
             self.message_log.add_message(f"Oof! You're trapped!", color.red)
             self.player.die()
-
-        self.player.on_turn()
-        self.turn_count += 1        
+        
+        self.turn_count += 1       
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

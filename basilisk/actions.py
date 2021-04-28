@@ -4,6 +4,7 @@ from typing import Optional, Tuple, TYPE_CHECKING
 
 from basilisk.render_functions import DIRECTIONS
 from basilisk import color, exceptions
+from basilisk.components.status_effect import Phasing
 
 if TYPE_CHECKING:
     from basilisk.engine import Engine
@@ -154,7 +155,7 @@ class BumpAction(ActionWithDirection):
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
-        if not self.engine.game_map.tile_is_walkable(*self.dest_xy):
+        if not self.engine.game_map.tile_is_walkable(*self.dest_xy) and not any(isinstance(s, Phasing) for s in self.entity.statuses):
             raise exceptions.Impossible("That way is blocked.")
 
         self.entity.move(self.dx, self.dy)

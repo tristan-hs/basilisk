@@ -68,6 +68,16 @@ class StatBoost(_StatBoost):
 				status.duration = self.duration = max(status.duration, self.duration)
 
 
+class Phasing(StatusEffect):
+	label="phasing"
+	description="can go through walls"
+	color=color.purple
+
+	def strengthen(self):
+		super().strengthen(3)
+
+
+
 class Leaking(EnemyStatusEffect):
 	label="crumbling"
 	description="bits are falling off"
