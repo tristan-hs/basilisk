@@ -627,12 +627,13 @@ class SingleRangedAttackHandler(SelectIndexHandler):
 
 class SingleProjectileAttackHandler(SelectIndexHandler):
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything", walkable=True
+        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything", walkable=True, thru_tail=True
     ):
         super().__init__(engine)
         self.callback = callback
         self.seeking = seeking
         self.walkable=walkable
+        self.thru_tail = thru_tail
 
     @property
     def path_to_target(self):
@@ -640,6 +641,13 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
         if self.walkable and not self.engine.game_map.visible[x,y]:
             return None
         return self.engine.player.ai.get_path_to(x,y,0,self.walkable)
+
+    def ends_projectile_path(self, px, py):
+        return (
+            (self.engine.game_map.get_actor_at_location(px,py) and self.seeking in ["actor","anything"]) or
+            (self.seeking == "anything" and (px,py) == self.path_to_target[-1]) or
+            (not self.thru_tail and self.engine.game_map.get_blocking_entity_at_location(px,py))
+        )
 
     def on_render(self, console: tcod.Console)->None:
         # render the line
@@ -651,17 +659,15 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
         for px,py in self.path_to_target:
             console.tiles_rgb["bg"][px, py] = color.white
             console.tiles_rgb["fg"][px, py] = color.black
+            if self.ends_projectile_path(px,py):
+                break
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         # select based on the line
         if not self.path_to_target:
             return None
         for px,py in self.path_to_target:
-            if (
-                (self.engine.game_map.get_actor_at_location(px,py) and self.seeking in ["actor","anything"]) or
-                (self.engine.game_map.get_item_at_location(px,py) and self.seeking in ["item","anything"]) or 
-                (self.seeking == "anything" and (px,py) == self.path_to_target[-1])
-            ):
+            if self.ends_projectile_path(px,py):
                 return self.callback((px,py))
 
 

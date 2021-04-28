@@ -292,9 +292,14 @@ backward = Item(
     color=color.tail,
     name='backward',
     edible=consumable.ReversingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.SpittingConsumable(),
     rarity='u',
-    stat='TAIL'
+    stat='TAIL',
+    flavor=random.choice([
+        "O, stone, be not so.",
+        "At evil's eyes walks I, Lisa. By Basilisk Laws, eyes live. Ta!",
+        "*Nod*, I did loot a ogre, ergo a tool did I don."
+    ])
 )
 
 pure = Item(
@@ -374,6 +379,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #drilling
+    #backward
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

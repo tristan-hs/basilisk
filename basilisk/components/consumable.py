@@ -77,13 +77,14 @@ class Projectile(Consumable):
     def modified_damage(self):
         return self.damage + self.engine.player.BILE
 
-    def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+    def get_throw_action(self, consumer: Actor, thru_tail=True) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
         seeking = "anything" if not self.parent.identified else "actor"
         return SingleProjectileAttackHandler(
             self.engine,
             callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
-            seeking=seeking
+            seeking=seeking,
+            thru_tail = thru_tail
         )
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -106,6 +107,39 @@ class Projectile(Consumable):
             return
 
         super().consume()
+
+
+class SpittingConsumable(Projectile):
+    description = "get spat"
+
+    def __init__(self):
+        pass
+
+    def get_throw_action(self, consumer: Actor):
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+
+        return super().get_throw_action(consumer, thru_tail=False)
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        path = consumer.ai.get_path_to(*action.target_xy,0)
+
+        for tile in path:
+            if not self.engine.game_map.tile_is_walkable(*tile):
+                break
+            dx = tile[0] - consumer.x
+            dy = tile[1] - consumer.y
+            consumer.move(dx,dy)
+
+        self.engine.message_log.add_message("Scratch that. It spits you!")
+        self.consume()
+
+        for enemy in consumer.get_adjacent_actors():
+            enemy.constrict()
+        if action.target_item:
+                PickupAction(consumer).perform()
+
 
 
 class DrillingProjectile(Projectile):

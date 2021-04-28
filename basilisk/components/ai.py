@@ -55,7 +55,7 @@ class BaseAI(Action):
 
         for entity in gm.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
-            if entity.blocks_movement and cost[entity.x, entity.y]:
+            if entity.blocks_movement and cost[entity.x, entity.y] and (entity.x != dest_x or entity.y != dest_y):
                 # Add to the cost of a blocked position.
                 # A lower number means more enemies will crowd behind each other in
                 # hallways.  A higher number means enemies will take longer paths in
