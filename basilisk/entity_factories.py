@@ -339,9 +339,10 @@ longue = Item(
     color=color.tongue,
     name='long',
     edible=consumable.StatBoostConsumable(3,'TONG'),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.HookshotProjectile(),
     rarity='c',
-    stat='TONG'
+    stat='TONG',
+    flavor="A coil of wet pink flesh branching off into prehensile tendrils."
 )
 
 inquisitive = Item(
@@ -379,6 +380,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #backward
+    #longue
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

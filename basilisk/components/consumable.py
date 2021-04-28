@@ -79,7 +79,7 @@ class Projectile(Consumable):
 
     def get_throw_action(self, consumer: Actor, thru_tail=True) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
-        seeking = "anything" if not self.parent.identified else "actor"
+        seeking = "anything" #if not self.parent.identified else "actor"
         return SingleProjectileAttackHandler(
             self.engine,
             callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
@@ -139,6 +139,37 @@ class SpittingConsumable(Projectile):
             enemy.constrict()
         if action.target_item:
                 PickupAction(consumer).perform()
+
+
+class HookshotProjectile(Projectile):
+    description = "hookshot an enemy or item"
+
+    def __init__(self):
+        pass
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = None
+
+        if action.target_actor and action.target_actor is not consumer:
+            target = action.target_actor
+            tile = consumer.ai.get_path_to(*action.target_xy,0)[0]
+            target.place(*tile)
+            target.constrict()
+
+        if not target and action.target_item and action.target_item not in consumer.inventory.items:
+            target = action.target_item
+            tile = consumer.xy
+            target.place(*tile)
+            actions.PickupAction(consumer).perform()
+
+        if target:
+            self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
+        else:
+            self.engine.message_log.add_message("Nothing happens.")
+
+        self.consume()
+
 
 
 
