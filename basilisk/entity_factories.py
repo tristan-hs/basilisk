@@ -176,7 +176,7 @@ forceful = Item(
     color=color.bile,
     name='forceful',
     edible=consumable.NothingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.KnockbackProjectile(),
     rarity='u',
     stat='BILE'
 )
@@ -381,6 +381,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #ghostly
+    #forceful
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

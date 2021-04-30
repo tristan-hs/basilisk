@@ -171,6 +171,37 @@ class HookshotProjectile(Projectile):
         self.consume()
 
 
+class KnockbackProjectile(Projectile):
+    description = "push back an enemy"
+
+    def __init__(self,damage=2):
+        self.damage = damage
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = action.target_actor
+
+        if target:
+            push_path = self.engine.player.ai.get_path_past(target.x,target.y,0)
+            pushed = False
+            destination = None
+            for i,tile in enumerate(push_path):
+                if not self.engine.game_map.tile_is_walkable(*tile) or i+1 > self.modified_damage:
+                    break
+                pushed = True
+                destination = tile
+
+            if pushed:
+                target.place(*destination)
+                self.engine.message_log.add_message(f"The {target.name} is slammed backward.")
+
+            else:
+                self.engine.message_log.add_message(f"The {target.name} couldn't be pushed.")
+        else:
+            self.engine.message_log.add_message("Nothing happens.")
+
+        self.consume()
+
 
 
 class DrillingProjectile(Projectile):
