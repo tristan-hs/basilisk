@@ -138,7 +138,7 @@ class SpittingConsumable(Projectile):
         for enemy in consumer.get_adjacent_actors():
             enemy.constrict()
         if action.target_item:
-                PickupAction(consumer).perform()
+            PickupAction(consumer).perform()
 
 
 class HookshotProjectile(Projectile):

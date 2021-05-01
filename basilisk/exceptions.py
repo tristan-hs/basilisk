@@ -6,3 +6,7 @@ class Impossible(Exception):
 
 class QuitWithoutSaving(SystemExit):
     """Can be raised to exit the game without automatically saving."""
+
+
+class UnorderedPickup(Exception):
+	""" Raise to order pickups before picking them up """

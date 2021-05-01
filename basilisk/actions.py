@@ -36,21 +36,27 @@ class Action:
 class PickupAction(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
 
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor, ordered: bool=False):
         super().__init__(entity)
+        self.ordered = ordered
+
+    @property
+    def items_to_pickup(self):
+        return [i for i in self.engine.game_map.items if i.xy == self.entity.xy and i not in self.entity.inventory.items]
 
     def perform(self) -> None:
-        actor_location_x = self.entity.x
-        actor_location_y = self.entity.y
-        inventory = self.entity.inventory
+        if len(self.items_to_pickup) > 1 and not self.ordered:
+            raise exceptions.UnorderedPickup("unordered item pickup")
 
-        for item in self.engine.game_map.items:
-            if actor_location_x == item.x and actor_location_y == item.y and len(inventory.items) < 26:
-                item.parent = self.entity.inventory
-                inventory.items.append(item)
-                self.engine.check_word_mode()
-                segment = "" if len(item.label) == 1 else " segment"
-                self.engine.message_log.add_message(f"You pick up the ?{segment}.", color.offwhite, item.label, item.color)
+        for item in self.items_to_pickup:
+            if len(self.engine.player.inventory.items) >= 26:
+                raise exceptions.Impossible("Inventory full.")
+
+            item.parent = self.entity.inventory
+            item.parent.items.append(item)
+            self.engine.check_word_mode()
+            segment = "" if len(item.label) == 1 else " segment"
+            self.engine.message_log.add_message(f"You pick up the ?{segment}.", color.offwhite, item.label, item.color)
 
 
 class ItemAction(Action):
@@ -161,10 +167,10 @@ class MovementAction(ActionWithDirection):
         self.entity.move(self.dx, self.dy)
 
         if self.entity is self.engine.player:
-            if self.target_item:
-                PickupAction(self.entity).perform()
             for enemy in self.entity.get_adjacent_actors():
                 enemy.constrict()
+            if self.target_item:
+                return PickupAction(self.entity).perform()
 
 
 class WaitAction(Action):

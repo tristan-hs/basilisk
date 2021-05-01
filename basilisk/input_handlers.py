@@ -115,7 +115,10 @@ class EventHandler(BaseEventHandler):
         action_or_state = self.dispatch(event)
         if isinstance(action_or_state, BaseEventHandler):
             return action_or_state
-        if self.handle_action(action_or_state):
+        handled_action = self.handle_action(action_or_state)
+        if isinstance(handled_action, BaseEventHandler):
+            return handled_action
+        elif handled_action:
             # A valid action was performed.
             if not self.engine.player.is_alive:
                 # The player was killed sometime during or after the action.
@@ -138,6 +141,8 @@ class EventHandler(BaseEventHandler):
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.grey)
             return False  # Skip enemy turn on exceptions.
+        except exceptions.UnorderedPickup as exc:
+            return OrderPickupHandler(self.engine)
 
         while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
             self.engine.handle_enemy_turns()
@@ -541,15 +546,37 @@ class InventoryRearrangeHandler(InventoryEventHandler):
             self.cursor = len(self.items)-1
 
         if len(self.items) == 0:
-            new_order = self.selected_items + [self.rearranger]
+            return self.on_final_item_selected()
 
-            poses = [i.xy for i in self.all_items]
-            for s, segment in enumerate(new_order):
-                new_order[s].place(*poses[s])
+    def on_final_item_selected(self):
+        new_order = self.selected_items + [self.rearranger]
 
-            self.engine.player.inventory.items = new_order
+        poses = [i.xy for i in self.all_items]
+        for s, segment in enumerate(new_order):
+            new_order[s].place(*poses[s])
 
-            return actions.ItemAction(self.engine.player, self.rearranger)
+        self.engine.player.inventory.items = new_order
+
+        return actions.ItemAction(self.engine.player, self.rearranger)
+
+
+class OrderPickupHandler(InventoryRearrangeHandler):
+    def __init__(self,engine):
+        super().__init__(engine,None)
+        self.selected_items = engine.player.inventory.items
+        self.items = [i for i in self.engine.game_map.items if i.xy == engine.player.xy and not i in engine.player.inventory.items]
+        self.inventory_length = len(self.items)
+
+    def on_exit(self):
+        pass
+
+    def on_final_item_selected(self):
+        for i in self.selected_items:
+            if i in self.engine.player.inventory.items:
+                continue
+            self.engine.game_map.items.remove(i)
+            self.engine.game_map.items.append(i)
+        return actions.PickupAction(self.engine.player, True)
 
 
 class SelectIndexHandler(AskUserEventHandler):
