@@ -561,9 +561,11 @@ class InventoryRearrangeHandler(InventoryEventHandler):
 
 
 class OrderPickupHandler(InventoryRearrangeHandler):
+    TITLE="Choose pickup order"
+
     def __init__(self,engine):
         super().__init__(engine,None)
-        self.selected_items = engine.player.inventory.items
+        self.selected_items = engine.player.inventory.items[:]
         self.items = [i for i in self.engine.game_map.items if i.xy == engine.player.xy and not i in engine.player.inventory.items]
         self.inventory_length = len(self.items)
 
@@ -571,12 +573,12 @@ class OrderPickupHandler(InventoryRearrangeHandler):
         pass
 
     def on_final_item_selected(self):
+        items = []
         for i in self.selected_items:
             if i in self.engine.player.inventory.items:
                 continue
-            self.engine.game_map.items.remove(i)
-            self.engine.game_map.items.append(i)
-        return actions.PickupAction(self.engine.player, True)
+            items.append(i)
+        return actions.PickupAction(self.engine.player, items)
 
 
 class SelectIndexHandler(AskUserEventHandler):

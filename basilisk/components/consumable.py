@@ -138,7 +138,28 @@ class SpittingConsumable(Projectile):
         for enemy in consumer.get_adjacent_actors():
             enemy.constrict()
         if action.target_item:
-            PickupAction(consumer).perform()
+            actions.PickupAction(consumer).perform()
+
+
+class VacuumConsumable(Consumable):
+    description="swallow all visible items"
+
+    def activate(self, action: actions.ItemAction) -> None:
+        to_swallow = [
+            i for i in self.engine.game_map.items if 
+                self.engine.game_map.visible[i.x,i.y] and 
+                i not in self.engine.player.inventory.items
+        ]
+
+        if len(to_swallow) < 1:
+            self.engine.message_log.add_message("Your stomach growls.")
+
+        self.consume()
+
+        if len(to_swallow) > 0:
+            for i in to_swallow:
+                i.place(*action.entity.xy)
+            actions.PickupAction(action.entity).perform()
 
 
 class HookshotProjectile(Projectile):

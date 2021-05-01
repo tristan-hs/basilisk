@@ -36,19 +36,21 @@ class Action:
 class PickupAction(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
 
-    def __init__(self, entity: Actor, ordered: bool=False):
+    def __init__(self, entity: Actor, items=None):
         super().__init__(entity)
-        self.ordered = ordered
+        self.items = items
 
     @property
-    def items_to_pickup(self):
+    def items_here(self):
         return [i for i in self.engine.game_map.items if i.xy == self.entity.xy and i not in self.entity.inventory.items]
 
     def perform(self) -> None:
-        if len(self.items_to_pickup) > 1 and not self.ordered:
+        if len(self.items_here) > 1 and not self.items:
             raise exceptions.UnorderedPickup("unordered item pickup")
 
-        for item in self.items_to_pickup:
+        items = self.items if self.items else self.items_here
+
+        for item in items:
             if len(self.engine.player.inventory.items) >= 26:
                 raise exceptions.Impossible("Inventory full.")
 
