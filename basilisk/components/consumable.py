@@ -153,13 +153,38 @@ class VacuumConsumable(Consumable):
 
         if len(to_swallow) < 1:
             self.engine.message_log.add_message("Your stomach growls.")
+            self.consume()
+            return
+
+        self.engine.message_log.add_message("The resulting void attracts all nearby items!")
+        self.consume()
+        for i in to_swallow:
+            i.place(*action.entity.xy)
+        actions.PickupAction(action.entity).perform()
+
+
+class VacuumProjectile(Consumable):
+    description="destroy all visible items"
+
+    def __init__(self):
+        pass
+
+    def activate(self, action: actions.ItemAction) -> None:
+        to_destroy = [
+            i for i in self.engine.game_map.items if
+            self.engine.game_map.visible[i.x,i.y] and
+            i not in self.engine.player.inventory.items
+        ]
+
+        if len(to_destroy) < 1:
+            self.engine.message_log.add_message("It whines loudly before popping out of existence.", color.grey)
+
+        if len(to_destroy) > 0:
+            self.engine.message_log.add_message("It cackles gleefully and disappears along with all nearby items.")
+            for i in to_destroy:
+                i.die()
 
         self.consume()
-
-        if len(to_swallow) > 0:
-            for i in to_swallow:
-                i.place(*action.entity.xy)
-            actions.PickupAction(action.entity).perform()
 
 
 class HookshotProjectile(Projectile):

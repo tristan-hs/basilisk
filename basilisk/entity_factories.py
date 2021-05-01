@@ -355,7 +355,7 @@ inquisitive = Item(
     spitable=consumable.IdentifyingProjectile(),
     rarity='u',
     stat='TONG',
-    flavor="As close as you'll' come to looking in a mirror; when you see it, you see it knows you"
+    flavor="As close as you'll come to looking in a mirror; understanding is opaque in every eye."
 )
 
 hungry = Item(
@@ -363,9 +363,10 @@ hungry = Item(
     color=color.tongue,
     name='hungry',
     edible=consumable.VacuumConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.VacuumProjectile(),
     rarity='u',
-    stat='TONG'
+    stat='TONG',
+    flavor="Each facet holds a slathering maw. They cry to be fed."
 )
 
 sensitive = Item(
@@ -381,7 +382,7 @@ sensitive = Item(
 
 
 c_segments = [
-    volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #hungry
+    #volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
+    hungry
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
