@@ -175,10 +175,11 @@ forceful = Item(
     item_type='c',
     color=color.bile,
     name='forceful',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.KnockbackConsumable(),
     spitable=consumable.KnockbackProjectile(),
     rarity='u',
-    stat='BILE'
+    stat='BILE',
+    flavor='Your touch is repelled by an aura of repulsion.'
 )
 
 drilling = Item(

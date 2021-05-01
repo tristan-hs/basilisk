@@ -166,7 +166,7 @@ class HookshotProjectile(Projectile):
         if target:
             self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
         else:
-            self.engine.message_log.add_message("Nothing happens.")
+            self.engine.message_log.add_message("The projectile flops to the dungeon floor.")
 
         self.consume()
 
@@ -198,9 +198,46 @@ class KnockbackProjectile(Projectile):
             else:
                 self.engine.message_log.add_message(f"The {target.name} couldn't be pushed.")
         else:
-            self.engine.message_log.add_message("Nothing happens.")
+            self.engine.message_log.add_message("The forceful projectile dissipates in the air.")
 
         self.consume()
+
+
+class KnockbackConsumable(Consumable):
+    description = "push back all adjacent enemies"
+
+    def __init__(self,damage=2):
+        self.damage=damage
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer=action.entity
+        pushed = self.knockback_from_segment(consumer,consumer)
+        for i in consumer.inventory.items:
+            if self.knockback_from_segment(i,consumer):
+                pushed = True
+        if not pushed:
+            self.engine.message_log.add_message("The dust on the dungeon floor is swept away from you.")
+
+    def knockback_from_segment(self,segment,consumer) -> None:
+        pushed = False
+        for actor in segment.get_adjacent_actors():
+            if actor is consumer:
+                continue
+            d = (actor.x-segment.x,actor.y-segment.y)
+            destination = None
+
+            for i in range(self.damage):
+                new_tile = (actor.x+d[0],actor.y+d[1]) if i == 0 else (destination[0]+d[0],destination[1]+d[1])
+                if self.engine.game_map.tile_is_walkable(*new_tile):
+                    destination = new_tile
+                else:
+                    break
+
+            if destination:
+                pushed = True
+                actor.place(*destination)
+                self.engine.message_log.add_message(f"The {actor.name} is slammed backward.")
+        return pushed
 
 
 
@@ -260,7 +297,7 @@ class LeakingProjectile(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            self.engine.message_log.add_message("Nothing happens.",color.grey)
+            self.engine.message_log.add_message("The projectile splatters across the dungeon floor.",color.grey)
         if target is consumer:
             raise Impossible("You cannot confuse yourself!")
 
@@ -301,7 +338,7 @@ class PhasingProjectile(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            self.engine.message_log.add_message("Nothing happens.",color.grey)
+            self.engine.message_log.add_message("A hole appears in the dungeon floor then disappears a moment later.",color.grey)
         if target is consumer:
             raise Impossible("You can't spit it at yourself!")
 
@@ -580,7 +617,7 @@ class PetrifyEnemyConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            self.engine.message_log.add_message("Nothing happens.",color.grey)
+            self.engine.message_log.add_message("The projectile breaks apart on the dungoen floor.",color.grey)
         if target is consumer:
             raise Impossible("You can't spit it at yourself!")
 
@@ -649,7 +686,7 @@ class ConfusionConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            self.engine.message_log.add_message("Nothing happens.",color.grey)
+            self.engine.message_log.add_message("The projectile dissipates in the air.",color.grey)
         if target is consumer:
             raise Impossible("You cannot confuse yourself!")
 
