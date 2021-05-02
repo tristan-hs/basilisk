@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 import random
+import math
 
 from basilisk import actions, color
 
@@ -110,6 +111,39 @@ class Projectile(Consumable):
         super().consume()
 
 
+class EntanglingConsumable(Projectile):
+    description = "make a stretch of ground snake-only"
+
+    def __init__(self):
+        self.radius = 3
+
+    def get_throw_action(self, consumer: Actor):
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+
+        self.engine.message_log.add_message("Select a target location.", color.cyan)
+        return AreaRangedAttackHandler(
+            self.engine,
+            radius=self.radius,
+            callback=lambda xy: actions.ThrowItem(consumer,self.parent,xy)
+        )
+
+    def activate(self, action: actions.ItemAction) -> None:
+        x,y = action.target_xy
+
+        if not self.engine.game_map.visible[(x,y)]:
+            raise Impossible("You cannot target an area that you cannot see.")
+
+        for xi in range(x-self.radius,x+self.radius+1):
+            for yi in range(y-self.radius,y+self.radius+1):
+                if math.sqrt((xi-x) ** 2 + (yi-y) ** 2) <= self.radius and self.engine.game_map.tile_is_walkable(xi,yi):
+                    self.engine.game_map.tiles[(xi,yi)] = tile_types.snake_only
+
+        self.engine.message_log.add_message("The area fills with stalagtites and stalagmites. You're uniquely equipped to traverse it.")
+
+        self.consume()
+
+
 class SpittingConsumable(Projectile):
     description = "get spat"
 
@@ -127,7 +161,7 @@ class SpittingConsumable(Projectile):
         path = consumer.ai.get_path_to(*action.target_xy,0)
 
         for tile in path:
-            if not self.engine.game_map.tile_is_walkable(*tile):
+            if not self.engine.game_map.tile_is_snakeable(*tile, consumer.is_phasing):
                 break
             dx = tile[0] - consumer.x
             dy = tile[1] - consumer.y

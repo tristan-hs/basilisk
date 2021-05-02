@@ -321,9 +321,10 @@ growing = Item(
     color=color.tail,
     name='growing',
     edible=consumable.StatBoostConsumable(1,'TAIL',True),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.EntanglingConsumable(),
     rarity='r',
-    stat='TAIL'
+    stat='TAIL',
+    flavor="Its creeping tendrils plant flowers where you pass."
 )
 
 learned = Item(
@@ -384,6 +385,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #acidic
+    #growing
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

@@ -161,18 +161,25 @@ class BumpAction(ActionWithDirection):
 
         return MovementAction(self.entity, self.dx, self.dy).perform()
 
+
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
-        if not self.engine.game_map.tile_is_walkable(*self.dest_xy) and not any(isinstance(s, Phasing) for s in self.entity.statuses):
-            raise exceptions.Impossible("That way is blocked.")
-
-        self.entity.move(self.dx, self.dy)
-
         if self.entity is self.engine.player:
+            if not self.engine.game_map.tile_is_snakeable(*self.dest_xy, any(isinstance(s, Phasing) for s in self.entity.statuses)):
+                raise exceptions.Impossible("That wasy is blocked.")
+
+            self.entity.move(self.dx,self.dy)
+
             for enemy in self.entity.get_adjacent_actors():
                 enemy.constrict()
             if self.target_item:
                 return PickupAction(self.entity).perform()
+
+        else:
+            if not self.engine.game_map.tile_is_walkable(*self.dest_xy):
+                raise exceptions.Impossible("That wasy is blocked.")
+
+            self.entity.move(self.dx,self.dy)
 
 
 class WaitAction(Action):

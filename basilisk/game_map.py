@@ -117,6 +117,15 @@ class GameMap:
             return False
         return True
 
+    def tile_is_snakeable(self, x: int, y: int, phasing: bool = False) -> bool:
+        if not self.in_bounds(x, y):
+            return False
+        if not self.tiles["snakeable"][x, y] and not phasing:
+            return False
+        if self.get_blocking_entity_at_location(x,y):
+            return False
+        return True
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height

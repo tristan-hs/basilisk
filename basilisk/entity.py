@@ -291,7 +291,7 @@ class Actor(Entity):
         # Make sure player can move, otherwise die    
         for direction in DIRECTIONS:
             tile = self.x + direction[0], self.y + direction[1]
-            if ( self.engine.game_map.tile_is_walkable(*tile, self.is_phasing) ):
+            if ( self.engine.game_map.tile_is_walkable(*tile, self.is_phasing) ) or (self is self.engine.player and self.engine.game_map.tile_is_snakeable(*tile,self.is_phasing)):
                 return True
 
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.downstairs_location:
