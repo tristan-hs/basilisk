@@ -29,6 +29,10 @@ if TYPE_CHECKING:
 class Consumable(BaseComponent):
     parent: Item
 
+    @property
+    def modified_damage(self):
+        return self.damage + self.engine.player.BILE
+
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
         return actions.ThrowItem(consumer, self.parent)
@@ -73,9 +77,6 @@ class Projectile(Consumable):
             descriptor = "small "    
         self.description = f"launch a {descriptor}projectile"
 
-    @property
-    def modified_damage(self):
-        return self.damage + self.engine.player.BILE
 
     def get_throw_action(self, consumer: Actor, thru_tail=True) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
@@ -349,6 +350,27 @@ class LeakingProjectile(Projectile):
 
         if target:
             self.apply_status(action, Leaking)
+        self.consume()
+
+
+class DamageAllConsumable(Consumable):
+    description = "deal damage to all enemies"
+
+    def __init__(self,damage=1):
+        self.damage = damage
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+
+        actors = [a for a in self.engine.game_map.actors if self.engine.game_map.visible[a.x,a.y] and a is not self.engine.player]
+
+        if len(actors) > 0:
+            self.engine.message_log.add_message("You shower an acid rain on your opponents!")
+            for a in actors:
+                a.take_damage(self.modified_damage)
+        else:
+            self.engine.message_log.add_message("You shower an acid rain on the dungeon to no discernable effect.",self.grey)
+
         self.consume()
 
 

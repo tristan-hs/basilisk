@@ -209,9 +209,10 @@ acidic = Item(
     color=color.bile,
     name='acidic',
     edible=consumable.StatBoostConsumable(1,'BILE',True),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.DamageAllConsumable(damage=1),
     rarity='r',
-    stat='BILE'
+    stat='BILE',
+    flavor='Carved from the fangs of your predecessor, this segment still drips with their legendary venom.'
 )
 
 petrified = Item(
@@ -382,7 +383,7 @@ sensitive = Item(
 
 
 c_segments = [
-    #volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    hungry
+    volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
+    #acidic
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
