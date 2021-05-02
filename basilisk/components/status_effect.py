@@ -117,7 +117,7 @@ class Leaking(EnemyStatusEffect):
 	def decrement(self):
 		self.parent.take_damage(1)
 		v = self.engine.game_map.vowel.spawn(self.engine.game_map,*self.parent.xy)
-		n = 'n' if v.char in ['y','u'] else ''
+		n = 'n' if v.char not in ['y','u'] else ''
 		self.engine.message_log.add_message(f"The {self.parent.name} sheds a{n} ?!", color.grey, v.char, v.color)
 		super().decrement()
 
