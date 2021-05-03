@@ -166,7 +166,7 @@ class MovementAction(ActionWithDirection):
     def perform(self) -> None:
         if self.entity is self.engine.player:
             if not self.engine.game_map.tile_is_snakeable(*self.dest_xy, any(isinstance(s, Phasing) for s in self.entity.statuses)):
-                raise exceptions.Impossible("That wasy is blocked.")
+                raise exceptions.Impossible("That way is blocked.")
 
             self.entity.move(self.dx,self.dy)
 
@@ -177,7 +177,7 @@ class MovementAction(ActionWithDirection):
 
         else:
             if not self.engine.game_map.tile_is_walkable(*self.dest_xy):
-                raise exceptions.Impossible("That wasy is blocked.")
+                raise exceptions.Impossible("That way is blocked.")
 
             self.entity.move(self.dx,self.dy)
 

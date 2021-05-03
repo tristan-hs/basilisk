@@ -141,6 +141,12 @@ class HostileEnemy(BaseAI):
                 d_to_t = d_to_i
                 target = i
 
+        for entity in self.engine.game_map.entities:
+            if entity.name == "Decoy" and fov[entity.x,entity.y]:
+                target = entity
+                d_to_t = self.distance_to(*entity.xy)
+
+
         return (target, d_to_t)
 
 

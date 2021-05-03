@@ -305,7 +305,7 @@ class Actor(Entity):
             status.decrement()
 
     def constrict(self) -> None:
-        if isinstance(self.ai, Constricted):
+        if isinstance(self.ai, Constricted) or self.name == "Decoy":
             return
         self.engine.message_log.add_message(f"You constrict the {self.name}!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)
@@ -317,6 +317,9 @@ class Actor(Entity):
             self.char = str(char_num)
 
     def corpse(self) -> None:
+        if self.name == "Decoy":
+            return
+
         my_factor = (int(self.char) + self.move_speed + 1)*0.1
 
         # 0.16 + (0.64 * factor) = chance of corpsing

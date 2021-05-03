@@ -68,6 +68,19 @@ class StatBoost(_StatBoost):
 				status.duration = self.duration = max(status.duration, self.duration)
 
 
+class Doomed(StatusEffect):
+	label="doomed"
+	description="will die"
+	color=color.red
+
+	def remove(self):
+		self.parent.die()
+
+	@property
+	def duration_mod(self):
+		return 0
+
+
 class Phasing(StatusEffect):
 	label="phasing"
 	description="can go through walls"

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, engine: Engine, width: int, height: int, floor_number: int, items: Iterable, entities: Iterable[Entity] = (), vowel = None
+        self, engine: Engine, width: int, height: int, floor_number: int, items: Iterable, entities: Iterable[Entity] = (), vowel = None, decoy = None
     ):
         self.engine = engine
         self.width, self.height = width, height
@@ -42,6 +42,7 @@ class GameMap:
         self.floor_number = floor_number
         self.item_factories = items
         self.vowel = vowel
+        self.decoy = decoy
 
     @property
     def actors(self) -> Iterable[Actor]:
@@ -246,7 +247,7 @@ class GameMap:
                     )
                     if entity.is_phased_out:
                         bg = color.purple
-                    elif fov[self.engine.player.x, self.engine.player.y]:
+                    elif fov[self.engine.player.x, self.engine.player.y] and entity.name != "Decoy":
                         bg = color.enemy_bg
                     else:
                         bg = None

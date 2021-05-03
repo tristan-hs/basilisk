@@ -111,6 +111,33 @@ class Projectile(Consumable):
         super().consume()
 
 
+class DecoyConsumable(Projectile):
+    description = "spawn a decoy"
+
+    def __init__(self):
+        pass
+
+    def activate(self, action: actions.ItemAction) -> None:
+        x,y = action.target_xy
+
+        if not self.engine.game_map.tile_is_walkable(x,y):
+            path = self.engine.player.ai.get_path_to(x,y,0)
+            tiles = []
+            for tile in path:
+                if self.engine.game_map.tile_is_walkable(*tile):
+                    tiles.append(tile)
+            if len(tiles) > 0:
+                x,y = tiles[-1]
+            else:
+                self.engine.message_log.add_message("With no room to swing its elbows, it burrows into the ground.", color.grey)
+                self.consume()
+                return
+
+        d = self.engine.game_map.decoy.spawn(self.engine.game_map,x,y)
+        Doomed(10,d)
+        self.consume()
+
+
 class EntanglingConsumable(Projectile):
     description = "make a stretch of ground snake-only"
 

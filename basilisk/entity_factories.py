@@ -121,6 +121,16 @@ final_boss = Actor(
     is_boss=True
 )
 
+decoy = Actor(
+    char="!",
+    color=color.player,
+    name="Decoy",
+    ai_cls=ai.Statue,
+    move_speed=0,
+    description="Distracts enemies",
+    drop_tier='c'
+)
+
 enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]
 enemy_sets = [
 [statue,    goblin,     jackelope,  goblin,     goblin],
@@ -179,7 +189,7 @@ forceful = Item(
     spitable=consumable.KnockbackProjectile(),
     rarity='u',
     stat='BILE',
-    flavor='Your touch is repelled by an aura of repulsion.'
+    flavor='Your touch is stayed by an aura of repulsion.'
 )
 
 drilling = Item(
@@ -285,9 +295,10 @@ annoying = Item(
     color=color.tail,
     name='annoying',
     edible=consumable.ConsumingConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.DecoyConsumable(),
     rarity='u',
-    stat='TAIL'
+    stat='TAIL',
+    flavor=">:P"
 )
 
 backward = Item(
@@ -385,6 +396,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #growing
+    #annoying
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
