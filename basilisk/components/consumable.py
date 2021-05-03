@@ -143,11 +143,11 @@ class TimeReverseConsumable(Consumable):
     description = "wrinkle time"
 
     def __init__(self):
-        self.turns = 4
+        self.turns = 5
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("You feel intense deja-vu.")
-        self.engine.turn_back_time(4,self.parent)
+        self.engine.turn_back_time(self.turns,self.parent)
 
 
 class EntanglingConsumable(Projectile):
