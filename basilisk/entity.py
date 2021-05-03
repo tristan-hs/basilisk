@@ -358,6 +358,8 @@ class Actor(Entity):
         self.engine.message_log.add_message(death_message, death_message_color)
 
     def take_damage(self, amount: int) -> None:
+        if self.name == "Decoy":
+            return
         if self is not self.engine.player:
             new_c = int(self.char)-amount
             if new_c < 0:
