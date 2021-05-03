@@ -428,7 +428,7 @@ class DrillingProjectile(Projectile):
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
-        walkable = not self.identified
+        walkable = not self.parent.identified
         path = self.engine.player.ai.get_path_to(*action.target_xy,0,walkable)
         gm = self.engine.game_map
 
