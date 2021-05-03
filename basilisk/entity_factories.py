@@ -273,7 +273,7 @@ wrinkled = Item(
     item_type='c',
     color=color.mind,
     name='wrinkled',
-    edible=consumable.NothingConsumable(),
+    edible=consumable.TimeReverseConsumable(),
     spitable=consumable.NothingConsumable(),
     rarity='r',
     stat='MIND'
@@ -396,6 +396,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #annoying
+    #wrinkled
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

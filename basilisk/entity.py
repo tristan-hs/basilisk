@@ -131,6 +131,7 @@ class Entity:
         clone.x = x
         clone.y = y
         clone.parent = gamemap
+        clone.id = gamemap.next_id
         clone.preSpawn()
         gamemap.entities.add(clone)
         return clone
@@ -510,7 +511,8 @@ class Item(Entity):
     def consume(self):
         self.identified = True
         self.gamemap.entities.remove(self)
-        self.engine.player.inventory.items.remove(self)
+        if self in self.engine.player.inventory.items:
+            self.engine.player.inventory.items.remove(self)
         self.engine.check_word_mode()
 
     def take_damage(self, amount: int):

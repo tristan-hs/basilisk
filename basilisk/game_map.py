@@ -43,6 +43,7 @@ class GameMap:
         self.item_factories = items
         self.vowel = vowel
         self.decoy = decoy
+        self._next_id = 0
 
     @property
     def actors(self) -> Iterable[Actor]:
@@ -60,6 +61,11 @@ class GameMap:
     @property
     def items(self) -> Iterator[Item]:
         yield from (entity for entity in self.entities if isinstance(entity, Item))
+
+    @property
+    def next_id(self):
+        self._next_id += 1
+        return self._next_id
 
 
     def smellable(self,entity: Entity, super_smell:bool=False):

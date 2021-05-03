@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import lzma
 import pickle
+import glob
+import os
 
 from typing import TYPE_CHECKING
 
@@ -49,6 +51,28 @@ class Engine:
     def foi_radius(self):
         return 0 + self.player.TONG
 
+    def turn_back_time(self, turns, turner):
+        turn = self.turn_count - turns
+        with open(f"snapshot_{turn}.sav", "rb") as f:
+            engine = pickle.loads(lzma.decompress(f.read()))
+        assert isinstance(engine, Engine)
+        self.game_map = engine.game_map
+        self.game_map.engine = self
+        self.player = engine.player
+
+        for i in self.game_map.entities:
+            if i.id == turner.id:
+                i.edible.consume()
+                return
+
+    def save_turn_snapshot(self):
+        self.save_as(f"snapshot_{self.turn_count}.sav")
+        snapshots = glob.glob("snapshot_*.sav")
+        for s in snapshots:
+            turn = s[9:s.index('.')]
+            if int(turn) < self.turn_count-4:
+                os.remove(s)
+
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
             self.word_mode = False
@@ -90,7 +114,8 @@ class Engine:
             self.message_log.add_message(f"Oof! You're trapped!", color.red)
             self.player.die()
         
-        self.turn_count += 1       
+        self.turn_count += 1
+        self.save_turn_snapshot()   
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

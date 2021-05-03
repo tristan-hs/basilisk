@@ -133,9 +133,21 @@ class DecoyConsumable(Projectile):
                 self.consume()
                 return
 
+        self.engine.message_log.add_message("It begins taunting your enemies!")
         d = self.engine.game_map.decoy.spawn(self.engine.game_map,x,y)
         Doomed(10,d)
         self.consume()
+
+
+class TimeReverseConsumable(Consumable):
+    description = "wrinkle time"
+
+    def __init__(self):
+        self.turns = 4
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.engine.message_log.add_message("You feel intense deja-vu.")
+        self.engine.turn_back_time(4,self.parent)
 
 
 class EntanglingConsumable(Projectile):

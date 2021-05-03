@@ -6,6 +6,7 @@ from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod.event
 import math
+import glob
 
 from basilisk import actions, color, exceptions
 from basilisk.actions import (
@@ -234,6 +235,9 @@ class GameOverEventHandler(EventHandler):
         """Handle exiting out of a finished game."""
         if os.path.exists(utils.get_resource("savegame.sav")):
             os.remove(utils.get_resource("savegame.sav"))  # Deletes the active save file.
+        snapshots = glob.glob("snapshot_*.sav")
+        for s in snapshots:
+            os.remove(s)
         raise exceptions.QuitWithoutSaving()  # Avoid saving a finished game.
 
     def ev_quit(self, event: tcod.event.Quit) -> None:

@@ -34,6 +34,7 @@ def new_game() -> Engine:
     max_items_per_room = 1
 
     player = copy.deepcopy(entity_factories.player)
+    player.id = 0
 
     engine = Engine(player=player)
 
