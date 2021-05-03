@@ -274,9 +274,10 @@ wrinkled = Item(
     color=color.mind,
     name='wrinkled',
     edible=consumable.TimeReverseConsumable(),
-    spitable=consumable.NothingConsumable(),
+    spitable=consumable.WormholeConsumable(),
     rarity='r',
-    stat='MIND'
+    stat='MIND',
+    flavor="A straight line is not the shortest distance between two points."
 )
 
 musclebound = Item(

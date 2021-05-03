@@ -649,11 +649,12 @@ class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
 
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]
+        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]], anywhere=False
     ):
         super().__init__(engine)
 
         self.callback = callback
+        self.anywhere = anywhere
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))

@@ -150,6 +150,54 @@ class TimeReverseConsumable(Consumable):
         self.engine.turn_back_time(self.turns,self.parent)
 
 
+class WormholeConsumable(Projectile):
+    description = "wrinkle space"
+
+    def __init__(self):
+        pass
+
+    def get_throw_action(self, consumer: Actor):
+        if not self.parent.identified:
+            return super().get_throw_action(consumer)
+        return SingleRangedAttackHandler(self.engine, lambda xy: actions.ThrowItem(consumer,self.parent,xy), True)
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+
+        wormhole = None
+        if not self.parent.identified and not self.engine.game_map.tile_is_walkable(*action.target_xy):
+            path = consumer.ai.get_path_to(*action.target_xy,0)
+
+            for tile in reversed(path):
+                if not self.engine.game_map.tile_is_walkable(*tile, consumer.is_phasing):
+                    continue
+                wormhole = tile
+                break
+        elif not self.parent.identified:
+            wormhole = action.target_xy
+
+        if self.parent.identified and self.engine.game_map.tile_is_walkable(*action.target_xy):
+            wormhole = action.target_xy
+
+        if not wormhole:
+            self.engine.message_log.add_message("Space stretches like taffy then snaps back to normalcy.")
+            self.consume()
+            return
+
+        self.engine.message_log.add_message("Space stretches like taffy and pulls you through it!")
+        self.engine.player.place(*wormhole)
+        self.consume()
+
+        for enemy in consumer.get_adjacent_actors():
+            enemy.constrict()
+        if action.target_item:
+            actions.PickupAction(consumer).perform()
+
+        # make both wormholes blocking until player's clear?
+        # display: make relevant segments blue?
+        pass
+
+
 class EntanglingConsumable(Projectile):
     description = "make a stretch of ground snake-only"
 

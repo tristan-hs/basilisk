@@ -70,7 +70,7 @@ class Engine:
         snapshots = glob.glob("snapshot_*.sav")
         for s in snapshots:
             turn = s[9:s.index('.')]
-            if int(turn) < self.turn_count-4:
+            if int(turn) < self.turn_count-10:
                 os.remove(s)
 
     def check_word_mode(self):
