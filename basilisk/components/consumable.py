@@ -957,16 +957,16 @@ class FireballDamageConsumable(Projectile):
             raise Impossible("You cannot target an area that you cannot see.")
 
         targets_hit = False
-        for actor in self.engine.game_map.actors:
-            if actor.distance(*target_xy) <= self.radius:
+        for entity in self.engine.game_map.entities[:]:
+            if entity.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The explosion engulfs the {actor.name}! It takes {self.modified_damage} damage!", color.offwhite,
+                    f"The explosion engulfs the {entity.label}! It takes {self.modified_damage} damage!", color.offwhite,
                 )
-                actor.take_damage(self.modified_damage)
+                entity.take_damage(self.modified_damage)
                 targets_hit = True
 
         if not targets_hit:
-            raise Impossible("There are no targets in the radius.")
+            self.engine.message_log.add_message("The explosion echoes through the dungeon.")
         self.consume()
 
 

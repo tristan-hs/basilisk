@@ -175,7 +175,7 @@ volatile = Item(
     color=color.bile,
     name='volatile',
     edible=consumable.StatBoostConsumable(2,'BILE'),
-    spitable=consumable.FireballDamageConsumable(damage=2, radius=3),
+    spitable=consumable.FireballDamageConsumable(damage=2, radius=2),
     rarity='c',
     stat='BILE',
     flavor='The metal heart of some ancient titan, leaking acrid pus.'
