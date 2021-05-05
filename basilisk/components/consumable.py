@@ -715,6 +715,9 @@ class IdentifyingConsumable(Consumable):
 class IdentifyingProjectile(Projectile):
     description = "identify a segment on the ground"
 
+    def __init__(self):
+        pass
+
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         if not self.parent.identified:
             return super().get_throw_action(consumer)
