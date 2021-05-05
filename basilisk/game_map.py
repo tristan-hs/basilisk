@@ -82,7 +82,7 @@ class GameMap:
     def make_mapped(self):
         for i,row in enumerate(self.mapped):
             for j, tile in enumerate(row):
-                if self.tiles[i,j] in (tile_types.floor, tile_types.door):
+                if self.tiles[i,j] not in (tile_types.wall):
                     self.mapped[i,j] = True
                 if self.tiles[i,j] == tile_types.down_stairs:
                     self.explored[i,j] = True
