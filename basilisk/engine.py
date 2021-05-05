@@ -62,7 +62,10 @@ class Engine:
 
         for i in self.game_map.entities:
             if i.id == turner.id:
-                i.edible.consume()
+                if i in self.player.inventory.items:
+                    i.edible.consume()
+                else:
+                    i.consume()
                 return
 
     def save_turn_snapshot(self):

@@ -52,6 +52,9 @@ class Consumable(BaseComponent):
     def consume(self) -> None:
         """Remove the consumed item from its containing inventory.
         Only player consumes for now."""
+        if not self.parent in self.engine.player.inventory.items:
+            self.parent.consume()
+            return
         footprint = self.parent.xy
         start_at = self.parent.gamemap.engine.player.inventory.items.index(self.parent)
         self.parent.consume()
@@ -92,11 +95,11 @@ class Projectile(Consumable):
     def activate(self, action: actions.ItemAction) -> None:
         """ Override this part"""
         consumer = action.entity
-        target = action.target_actor
+        target = action.target_actor if action.target_actor else action.target_item
 
         if target:
             self.engine.message_log.add_message(
-                    f"{target.name} takes {self.modified_damage} damage!", color.offwhite
+                    f"{target.label} takes {self.modified_damage} damage!", color.offwhite
             )
             target.take_damage(self.modified_damage)
         else:
@@ -136,6 +139,9 @@ class DecoyConsumable(Projectile):
         self.engine.message_log.add_message("It begins taunting your enemies!")
         d = self.engine.game_map.decoy.spawn(self.engine.game_map,x,y)
         Doomed(10,d)
+        for actor in self.engine.game_map.actors:
+            if actor.ai.fov[x,y]:
+                actor.ai.clear_intent()
         self.consume()
 
 
@@ -513,6 +519,9 @@ class PhasingConsumable(Consumable):
 class PhasingProjectile(Projectile):
     description = "temporarily derealize an enemy"
 
+    def __init__(self):
+        pass
+
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         if not self.parent.identified:
             return super().get_throw_action(consumer)
@@ -818,6 +827,9 @@ class PetrifyEnemyConsumable(Projectile):
 class ClingyConsumable(Projectile):
     description = ":("
 
+    def __init__(self):
+        pass
+
     def activate(self, action: actions.ItemAction) -> None:
         inv = self.parent.gamemap.engine.player.inventory.items
         index = inv.index(self.parent)
@@ -957,7 +969,7 @@ class FireballDamageConsumable(Projectile):
             raise Impossible("You cannot target an area that you cannot see.")
 
         targets_hit = False
-        for entity in self.engine.game_map.entities[:]:
+        for entity in list(self.engine.game_map.entities)[:]:
             if entity.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
                     f"The explosion engulfs the {entity.label}! It takes {self.modified_damage} damage!", color.offwhite,

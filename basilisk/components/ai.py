@@ -27,6 +27,14 @@ class BaseAI(Action):
         self.decide()
         return self._intent
 
+    @property
+    def fov(self):
+        return tcod.map.compute_fov(
+            self.engine.game_map.tiles["transparent"],
+            (self.entity.x, self.entity.y),
+            radius=8,
+        )
+
     def clear_intent(self):
         self._intent = None
 
