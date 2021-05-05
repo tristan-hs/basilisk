@@ -792,6 +792,9 @@ class PetrifyConsumable(Consumable):
 class RandomProjectile(Projectile):
     description = "???"
 
+    def __init__(self):
+        pass
+
     def activate(self, action: actions.ItemAction) -> None:
         effect = copy.deepcopy(random.choice(self.gamemap.item_factories).spitable)
         self.parent.spitable = effect

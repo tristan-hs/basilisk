@@ -46,7 +46,7 @@ class BaseAI(Action):
             try:
                 i.perform()
             except Impossible:
-                pass
+                break
         self._intent = None
         self.entity.on_turn()
 
@@ -178,12 +178,15 @@ class HostileEnemy(BaseAI):
             next_move = self.path[0:self.move_speed]
             fx, fy = x, y
             for m in next_move:
+                if not self.engine.game_map.tile_is_walkable(*m) and m != target.xy:
+                    break
                 dx = m[0]-fx
                 dy = m[1]-fy
                 self._intent.append(BumpAction(self.entity, dx, dy))
                 fx += dx
                 fy += dy
-            return
+            if len(self._intent) > 0:
+                return
 
         self._intent.append(WaitAction(self.entity))
 
