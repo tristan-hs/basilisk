@@ -119,7 +119,7 @@ class HostileEnemy(BaseAI):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = None
         self.move_speed = entity.move_speed
-        self.has_seen_player = False
+        self.last_target = None
 
     def distance_to(self, tx, ty):
         dx = tx-self.entity.x
@@ -134,51 +134,60 @@ class HostileEnemy(BaseAI):
         )
 
         target = self.engine.player if fov[self.engine.player.x,self.engine.player.y] else None
-        d_to_t = self.distance_to(*target.xy) if target else 999
+        d_to_t = len(self.get_path_to(*target.xy)) if target else 999
+        xy = target.xy if target else None
 
-        if target == None and self.has_seen_player == False:
-            return (None, None)
+        # don't do anything if no blood in the water
+        if target == None and not self.last_target:
+            return (None, None, None)
 
-        if target != None and self.has_seen_player == False:
-            self.has_seen_player = True
+        # if you see the player for the first time, enter attack mode
+        if target != None and not self.last_target:
             self.engine.message_log.add_message(f"The ? notices you!", color.offwhite, self.entity.name, self.entity.color)
 
+        # prioritize parts of the player you can see
         for i in self.engine.player.inventory.items:
-            d_to_i = self.distance_to(*i.xy)
+            d_to_i = len(self.get_path_to(*i.xy))
             if d_to_i < d_to_t and fov[i.x,i.y]:
                 d_to_t = d_to_i
                 target = i
 
+        # above all else go for a decoy
         for entity in self.engine.game_map.entities:
             if entity.name == "Decoy" and fov[entity.x,entity.y]:
                 target = entity
-                d_to_t = self.distance_to(*entity.xy)
+                d_to_t = len(self.get_path_to(*entity.xy))
 
+        # failing all that go for where you last saw a target
+        self.last_target = xy = target.xy if target else self.last_target
+        if xy and not d_to_t:
+            d_to_t = len(self.get_path_to(*xy))
 
-        return (target, d_to_t)
+        return (target, d_to_t, xy)
 
 
     def decide(self) -> Optional[Action]:
         self._intent = []
 
-        target, distance = self.pick_target()
+        target, distance, xy = self.pick_target()
         x, y = self.entity.xy
 
-        if target == None:
+        if not xy:
             self._intent.append(WaitAction(self.entity))
             return
 
         if distance <= 1:
-            self._intent.append(BumpAction(self.entity, target.x-x, target.y-y))
+            self._intent.append(BumpAction(self.entity, xy[0]-x, xy[1]-y))
             return
         
-        self.path = self.get_path_to(target.x, target.y)
+        self.path = self.get_path_to(xy[0], xy[1])
 
         if self.path:
             next_move = self.path[0:self.move_speed]
             fx, fy = x, y
             for m in next_move:
-                if not self.engine.game_map.tile_is_walkable(*m) and m != target.xy:
+                # only intend to move into non-walkables as an attack on a known target
+                if not self.engine.game_map.tile_is_walkable(*m) and (not target or m != target.xy):
                     break
                 dx = m[0]-fx
                 dy = m[1]-fy
