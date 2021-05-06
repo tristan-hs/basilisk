@@ -144,12 +144,15 @@ class GameMap:
             not isinstance(entity, Actor) or
             any(isinstance(s,Petrified) for s in entity.statuses) or
             any(isinstance(s,PhasedOut) for s in entity.statuses) or
-            not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent) or
             (
                 any(isinstance(s,PetrifEyes) for s in self.engine.player.statuses) and
                 self.visible[entity.x,entity.y]
             )
         ):
+            return
+
+        if not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent):
+            entity.ai.clear_intent()
             return
 
         if not self.engine.word_mode:

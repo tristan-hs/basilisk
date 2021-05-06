@@ -86,6 +86,10 @@ class Engine:
     def handle_enemy_turns(self) -> None:
         enemies = sorted(set(self.game_map.actors) - {self.player}, key=lambda x: x.id)
 
+        if not self.word_mode:
+            for entity in enemies:
+                entity.ai.clear_intent()
+
         for entity in enemies:
             if entity.ai:
                 if (
