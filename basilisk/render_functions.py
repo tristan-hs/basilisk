@@ -107,25 +107,33 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
             console.print(x=x+i,y=y,string=c,fg=colors.pop())
 
     for i,stat in enumerate(["BILE","MIND","TONG","TAIL"]):
+        base_amt = player.stats[stat] - player.get_status_boost(stat)
+        temp_amt = player.stats[stat]
+
         for j,c in enumerate(stat):
-
-            stat_color = color.stats[stat] if j >= player.stats[stat] or j < player.stats[stat] - player.get_status_boost(stat) else color.boosted_stats[stat]
-
-            bg = color.black
-            fg = stat_color if player.stats[stat] > j else color.grey
-
-            console.print(x=x+j,y=y+2+i,string=c,fg=fg,bg=bg)
+            if j < base_amt:
+                fg = color.stats[stat]
+            elif j < temp_amt:
+                fg = color.boosted_stats[stat]
+            else:
+                fg = color.grey
+            console.print(x=x+j,y=y+2+i,string=c,fg=fg)
 
         k = 4
-        while k < player.stats[stat] and k < 14:
+        while k < temp_amt and k < 14:
+            if k < base_amt:
+                fg = color.stats[stat]
+            elif k < temp_amt:
+                fg = color.boosted_stats[stat]
+            else:
+                fg = color.grey
             c = '+'
             if stat == 'TONG':
                 if k == 4:
                     c = 'U'
                 if k == 5:
                     c = 'E'
-            stat_color = color.stats[stat] if k >= player.stats[stat] or k < player.stats[stat] - player.get_status_boost(stat) else color.boosted_stats[stat]
-            console.print(x=x+k,y=y+2+i,string=c,fg=color.stats[stat])
+            console.print(x=x+k,y=y+2+i,string=c,fg=fg)
             k+=1
 
         if player.get_status_boost(stat) > 0:
