@@ -229,10 +229,14 @@ class EntanglingConsumable(Projectile):
 
         for xi in range(x-self.radius,x+self.radius+1):
             for yi in range(y-self.radius,y+self.radius+1):
-                if math.sqrt((xi-x) ** 2 + (yi-y) ** 2) <= self.radius and self.engine.game_map.tile_is_walkable(xi,yi):
+                if (
+                    math.sqrt((xi-x) ** 2 + (yi-y) ** 2) <= self.radius and 
+                    self.engine.game_map.tile_is_walkable(xi,yi) and
+                    not self.engine.game_map.tiles[xi,yi] in (tile_types.down_stairs)
+                ):
                     self.engine.game_map.tiles[(xi,yi)] = tile_types.snake_only
 
-        self.engine.message_log.add_message("The area fills with stalagtites and stalagmites. You're uniquely equipped to traverse it.")
+        self.engine.message_log.add_message("The area fills with terrain you are uniquely equipped to traverse.")
 
         self.consume()
 
