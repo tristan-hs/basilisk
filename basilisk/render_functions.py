@@ -169,7 +169,9 @@ def render_names_at_mouse_location(
                     break
             return
     console.print(x=x,y=y,string=entity.label,fg=entity.color)
-    console.print_box(x,y+2,20,7,entity.description,color.offwhite)
+    console.print_box(x,y+2,20,6,entity.description,color.offwhite)
+
+    console.print(x=x,y=y+8,string=f"id:{entity.id}",fg=color.offwhite)
     
 
 

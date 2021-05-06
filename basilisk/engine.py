@@ -84,7 +84,9 @@ class Engine:
         self.word_mode = p_word in open(utils.get_resource("words.txt")).read().splitlines()
 
     def handle_enemy_turns(self) -> None:
-        for entity in set(self.game_map.actors) - {self.player}:
+        enemies = sorted(set(self.game_map.actors) - {self.player}, key=lambda x: x.id)
+
+        for entity in enemies:
             if entity.ai:
                 if (
                     any(isinstance(s,PetrifEyes) for s in self.player.statuses) and 
