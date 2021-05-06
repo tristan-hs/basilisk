@@ -631,14 +631,13 @@ class ConsumingConsumable(Consumable):
             neighbours.append(items[i+1])
 
         self.consume()
-        self.engine.message_log.add_message("A spatial rift opens within you!", color.red)
 
         if neighbours:
             neighbour = random.choice(neighbours)
-            self.engine.message_log.add_message(f"The rift swallows your {neighbour.char}!", color.red)
+            self.engine.message_log.add_message(f"It swipes your {neighbour.char} and disappears!", color.red)
             neighbour.edible.consume()
         else:
-            self.engine.message_log.add_message("But it closes harmlessly.", color.grey)
+            self.engine.message_log.add_message("It makes a rude gesture and disappears.", color.grey)
 
 
 class ReversingConsumable(Consumable):
