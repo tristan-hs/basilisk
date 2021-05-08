@@ -137,11 +137,12 @@ class Engine:
         self.game_map.explored |= self.game_map.visible
 
     def render(self, console: Console) -> None:
+        # all boxes 9 high
+        # left box: 20 w (0,41)
+        # mid: 40 w (21,41)
+        # right: 18 w (62,41)
+
         self.game_map.render(console)
-
-        self.message_log.render(console=console, x=21, y=41, width=40, height=9)
-
-        # maybe put drawer contents here instead?
 
         render_functions.render_dungeon_level(
             console=console,
@@ -150,22 +151,6 @@ class Engine:
             word_mode = self.word_mode
         )
 
-        render_functions.render_names_at_mouse_location(
-            console=console, x=0, y=41, engine=self
-        )
-
-        actor = self.game_map.get_actor_at_location(*self.mouse_location)
-        self.game_map.print_enemy_fov(console, actor)
-        self.game_map.print_intent(console, actor)
-
-        if self.show_instructions:
-            render_functions.render_instructions(
-                console=console,
-                location=(63,41)
-            )
-        else:
-            render_functions.render_status(console=console,location=(63,42),statuses=self.player.statuses)
-
         render_functions.render_player_drawer(
             console=console,
             location=(77,9),
@@ -173,6 +158,36 @@ class Engine:
             turn=self.turn_count,
             word_mode=self.word_mode
         )
+
+        # MIDDLE PANEL
+        self.message_log.render(console=console, x=21, y=41, width=40, height=9)
+
+        # RIGHT PANEL
+        # todo: this includes stats
+        render_functions.render_status(console=console,location=(62,41),statuses=self.player.statuses, engine=self)
+
+        # LEFT PANEL
+        looking = self.mouse_location != (0,0)
+        if looking:
+            actor = self.game_map.get_actor_at_location(*self.mouse_location)
+            if actor:
+                self.game_map.print_enemy_fov(console, actor)
+                self.game_map.print_intent(console, actor)
+            render_functions.render_names_at_mouse_location(
+                console=console, x=0, y=41, engine=self
+            )
+
+        elif self.show_instructions:
+            render_functions.render_instructions(
+                console=console,
+                location=(1,41)
+            )
+
+        else:
+            console.print(6,49,"(c)ontrols",color.grey)
+            pass
+        #new render function for listing actors in fov
+
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""

@@ -66,28 +66,41 @@ def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
     l6 = f"      (f)ind"
     l7 =   "    re(v)iew"
-    l8 = f"      (c)haracter"
+    l8 = f"   per(c)eive"
 
     for i,l in enumerate([l0,l1,l2,l3,l4,l5,l6,l7,l8]):
         console.print(x=x, y=y+i, string=l, fg=color.grey)
 
-def render_status(console: Console, location: Tuple[int,int], statuses: List) -> None:
-    x, y = location
-    for s,status in enumerate(statuses):
+def render_status(console: Console, location: Tuple[int,int], statuses: List, engine: Engine) -> None:
+    render_stats(console, *location, engine)
+
+    sx, sy = location
+    y = sy + 5
+    x = sx
+    statuses = sorted(statuses, key=lambda status:len(status.label) if status.label else 0)
+    for status in statuses:
         if not status.label:
             continue
+        string = f"{status.label.upper()} {str(status.duration)}"
+
+        if x + len(string) > sx+18:
+            x = sx
+            y += 1
+
         console.print(
             x=x,
-            y=y+s,
-            string=f"{status.label.upper()} {str(status.duration)}",
+            y=y,
+            string=string,
             fg=status.color
         )
-    console.print(x,y+7,"      (c)ontrols",color.grey)
+
+        x += len(string)+1
 
 
-def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
+def render_stats(console: Console, x:int, y:int, engine: Engine):
     player = engine.player
 
+    """
     if engine.word_mode:
         colors = [
             color.tongue,
@@ -105,6 +118,7 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
         random.Random(engine.turn_count).shuffle(colors)
         for i,c in enumerate("WORD MODE"):
             console.print(x=x+i,y=y,string=c,fg=colors.pop())
+    """
 
     for i,stat in enumerate(["BILE","MIND","TONG","TAIL"]):
         base_amt = player.stats[stat] - player.get_status_boost(stat)
@@ -117,10 +131,10 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
                 fg = color.boosted_stats[stat]
             else:
                 fg = color.grey
-            console.print(x=x+j,y=y+2+i,string=c,fg=fg)
+            console.print(x=x+j,y=y+i,string=c,fg=fg)
 
         k = 4
-        while k < temp_amt and k < 14:
+        while k < temp_amt and k < 8:
             if k < base_amt:
                 fg = color.stats[stat]
             elif k < temp_amt:
@@ -133,11 +147,11 @@ def render_stats_in_inspect_box(console: Console, x:int, y:int, engine: Engine):
                     c = 'U'
                 if k == 5:
                     c = 'E'
-            console.print(x=x+k,y=y+2+i,string=c,fg=fg)
+            console.print(x=x+k,y=y+i,string=c,fg=fg)
             k+=1
 
         if player.get_status_boost(stat) > 0:
-            console.print(x=x+k,y=y+2+i,string=f"({player.get_stat_boost_duration(stat)})",fg=color.boosted_stats[stat])
+            console.print(x=x+k,y=y+i,string=f"({player.get_stat_boost_duration(stat)})",fg=color.boosted_stats[stat])
 
 
 def render_names_at_mouse_location(
@@ -159,12 +173,7 @@ def render_names_at_mouse_location(
             )
         ]
 
-    if len(entities) < 1:
-        render_stats_in_inspect_box(console, x, y, engine)
-        return
-
     if len(entities) == 1:
-        # print info panel
         entity = entities[0]
     elif len(entities) > 1:
         actors = [e for e in entities if e.render_order == RenderOrder.ACTOR]
@@ -176,10 +185,12 @@ def render_names_at_mouse_location(
                 if e > 8:
                     break
             return
+    else:
+        return
     console.print(x=x,y=y,string=entity.label,fg=entity.color)
     console.print_box(x,y+2,20,6,entity.description,color.offwhite)
 
-    console.print(x=x,y=y+8,string=f"id:{entity.id}",fg=color.offwhite)
+    console.print(x=x,y=y+y,string=f"id:{entity.id}",fg=color.offwhite)
     
 
 

@@ -34,9 +34,9 @@ class StatusEffect(BaseComponent):
 	def remove(self):
 		self.parent.statuses.remove(self)
 		if self.label and self.parent is self.engine.player:
-			self.engine.message_log.add_message(f"You are no longer {self.label}.", color.yellow)
+			self.engine.message_log.add_message(f"You are no longer {self.description}.", color.yellow)
 		elif self.label:
-			self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.label}.", color.yellow)
+			self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.description}.", color.yellow)
 
 	def strengthen(self, strength: int=10):
 		self.duration += strength
@@ -69,8 +69,8 @@ class StatBoost(_StatBoost):
 
 
 class Doomed(StatusEffect):
-	label="doomed"
-	description="will die"
+	label="doom"
+	description="doomed"
 	color=color.red
 
 	def remove(self):
@@ -82,8 +82,8 @@ class Doomed(StatusEffect):
 
 
 class Phasing(StatusEffect):
-	label="phasing"
-	description="can go through walls"
+	label="phase"
+	description="phasing"
 	color=color.purple
 
 	def apply(self):
@@ -98,8 +98,8 @@ class Phasing(StatusEffect):
 
 
 class PhasedOut(StatusEffect):
-	label="phased out"
-	description="gone for now"
+	label="phase"
+	description="phased out"
 	color=color.purple
 
 	def apply(self):
@@ -123,8 +123,8 @@ class PhasedOut(StatusEffect):
 
 
 class Leaking(EnemyStatusEffect):
-	label="crumbling"
-	description="bits are falling off"
+	label="crumble"
+	description="crumbling"
 	color=color.bile
 
 	def decrement(self):
@@ -145,8 +145,8 @@ class Leaking(EnemyStatusEffect):
 
 
 class Shielded(StatusEffect):
-	label="shielded"
-	description="invulnerable"
+	label="shield"
+	description="shielded"
 	color=color.grey
 
 	def decrement(self, on_turn=True):
@@ -169,8 +169,8 @@ class Shielded(StatusEffect):
 
 
 class Petrified(EnemyStatusEffect):
-	label="petrified"
-	description="can't move"
+	label="petrify"
+	description="petrified"
 	color=color.grey
 
 	def apply(self):
@@ -183,9 +183,9 @@ class Petrified(EnemyStatusEffect):
 		self.engine.message_log.add_message(f"The {self.parent.name} hardens!", color.offwhite)
 
 
-class PetrifiedSnake(EnemyStatusEffect):
-	label="petrified"
-	description="can't move"
+class PetrifiedSnake(StatusEffect):
+	label="petrify"
+	description="petrified"
 	color=color.grey
 
 	def apply(self):
@@ -198,8 +198,8 @@ class PetrifiedSnake(EnemyStatusEffect):
 
 
 class FreeSpit(StatusEffect):
-	label="salivating"
-	description="spit segments without consuming them"
+	label="saliva"
+	description="salivating"
 	color=color.snake_green
 
 	def apply(self):
@@ -212,8 +212,8 @@ class FreeSpit(StatusEffect):
 
 
 class PetrifEyes(StatusEffect):
-	label = "petrifying"
-	description = "gaze of stone"
+	label = "petrify"
+	description = "petrifying"
 	color = color.cyan
 
 	def apply(self):
@@ -226,8 +226,8 @@ class PetrifEyes(StatusEffect):
 
 
 class Choking(BadStatusEffect):
-	label = "choking"
-	description = "can't spit"
+	label = "choke"
+	description = "choking"
 	color = color.tongue
 
 	def apply(self):
@@ -240,8 +240,8 @@ class Choking(BadStatusEffect):
 
 
 class ThirdEyeBlind(BadStatusEffect):
-	label ="future blind"
-	description = "can't see intents"
+	label ="daze"
+	description = "dazed"
 	color = color.red
 	
 	def apply(self):
