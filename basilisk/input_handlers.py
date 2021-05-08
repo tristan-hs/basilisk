@@ -281,6 +281,7 @@ class HistoryViewer(EventHandler):
             log_console.width - 2,
             log_console.height - 2,
             self.engine.message_log.messages[: self.cursor + 1],
+            False
         )
         log_console.blit(console, 3, 3)
 

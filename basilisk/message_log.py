@@ -45,9 +45,6 @@ class MessageLog:
             ftext = text
 
         last_msg = self.messages[-1] if self.messages else None
-        if self.messages and self.engine.turn_count != last_msg.turn_count and last_msg.text[0] != '_':
-                last_msg.text = '_'+last_msg.text
-                last_msg.plain_text = '_'+last_msg.plain_text
 
         self.messages.append(Message(text, fg, self, arg, arg_color))
 
@@ -68,15 +65,24 @@ class MessageLog:
                 line, width, expand_tabs=True,
             )
 
-    @classmethod
+    def fade_colors(self, color, color2, fade_count):
+        fade_count += 1
+        fade_count = (fade_count**2)/2 if fade_count > 1 else fade_count
+        color = tuple(int(round(i/fade_count)) for i in color)
+        if color2:
+            color2 = tuple(int(round(i/fade_count)) for i in color2)
+        
+        return color,color2
+
     def render_messages(
-        cls,
+        self,
         console: tcod.Console,
         x: int,
         y: int,
         width: int,
         height: int,
         messages: Reversible[Message],
+        fading: bool = True
     ) -> None:
         """Render the messages provided.
         The `messages` are rendered starting at the last message and working
@@ -84,21 +90,33 @@ class MessageLog:
         """
         y_offset = height - 1
 
+        last_turns = [self.messages[-1].turn_count] if self.messages else [0]
+
         for message in reversed(messages):
             i = 0
             arg_printed = False
-            for line in reversed(list(cls.wrap(message.full_text, width))):
+
+            fades = 0
+            if fading:
+                for turn in last_turns:
+                    if message.turn_count < turn:
+                        fades += 1
+                if fades == len(last_turns):
+                    last_turns.append(message.turn_count)
+            mfg, afg = self.fade_colors(message.fg, message.arg_color, fade_count=fades)
+
+            for line in reversed(list(self.wrap(message.full_text, width))):
                 if message.arg and i + len(line) > len(message.text.split('?')[1]) and arg_printed == False:
                     # we've printed backwards up to a line w/ an argument
                     pos = len(message.text.split('?')[1])-i
                     pos2 = pos + len(message.arg)
 
-                    console.print(x=x, y=y+y_offset,string=line[:-pos2], fg=message.fg)
-                    console.print(x=x+len(line)-pos2, y=y+y_offset, string=line[-pos2:-pos],fg=message.arg_color)
+                    console.print(x=x, y=y+y_offset,string=line[:-pos2], fg=mfg)
+                    console.print(x=x+len(line)-pos2, y=y+y_offset, string=line[-pos2:-pos],fg=afg)
                     arg_printed = True
-                    console.print(x=x+len(line)-pos, y=y+y_offset, string=line[-pos:], fg=message.fg)
+                    console.print(x=x+len(line)-pos, y=y+y_offset, string=line[-pos:], fg=mfg)
                 else:
-                    console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
+                    console.print(x=x, y=y + y_offset, string=line, fg=mfg)
                 y_offset -= 1                
                 if y_offset < 0:
                     return  # No more space to print messages.
