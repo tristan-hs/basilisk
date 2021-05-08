@@ -417,7 +417,6 @@ class Item(Entity):
             rarity=rarity,
             flavor=flavor
         )
-        print(f"making {name}: {flavor}")
         self.item_type = item_type
         self.edible = edible
         self.spitable = spitable
