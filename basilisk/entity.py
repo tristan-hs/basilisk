@@ -45,7 +45,6 @@ class Entity:
         rarity: Optional[str] = None,
         flavor: str = None
     ):
-        print(f"making {name}: {flavor}")
         self.x = x
         self.y = y
         self.char = char
@@ -441,7 +440,6 @@ class Item(Entity):
 
     @property
     def flavor(self):
-        print(f"{self.name}: {self._flavor}")
         return self._flavor if self.identified else "An obnubliated segment of stitious potential. Destroy it to reify its ilk."
 
     @identified.setter
