@@ -67,6 +67,10 @@ class GameMap:
         self._next_id += 1
         return self._next_id
 
+    def bloody_floor(self,x,y):
+        if self.tiles[x,y] == tile_types.floor:
+            self.tiles[x,y] = tile_types.bloody_floor
+
 
     def smellable(self,entity: Entity, super_smell:bool=False):
         dx = entity.x-self.engine.player.x

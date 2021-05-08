@@ -318,6 +318,8 @@ class Actor(Entity):
             self.char = str(char_num)
 
     def corpse(self) -> None:
+        self.gamemap.bloody_floor(self.x,self.y)
+
         if self.name == "Decoy":
             return
 

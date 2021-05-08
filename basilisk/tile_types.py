@@ -47,6 +47,12 @@ floor = new_tile(
     dark=(ord(" "), (50,50,50), (7,7,7)),
     light=(ord("."), (25,25,25), (10,10,10)),
 )
+bloody_floor = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (50,50,50), (7,7,7)),
+    light=(ord("."), (75,0,0), (10,10,10))
+)
 snake_only = new_tile(
     walkable=False,
     transparent=True,
