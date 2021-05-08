@@ -80,6 +80,13 @@ vault_floor = new_tile(
     light=(ord("."), (25,25,25), (0,0,20)),
 )
 
+boss_vault_floor = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (255,255,255), (10,0,0)),
+    light=(ord("."), (25,25,25), (20,0,0)),
+)
+
 tunnel_floor = new_tile(
     walkable=True,
     transparent=True,

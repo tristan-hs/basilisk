@@ -394,7 +394,8 @@ def generate_dungeon(
     if floor_number != 10:
         dungeon.tiles[center_of_last_room] = tile_types.down_stairs
     else:
-        entity_factories.final_boss.spawn(dungeon,center_of_last_room[0],center_of_last_room[1])        
+        entity_factories.final_boss.spawn(dungeon,center_of_last_room[0],center_of_last_room[1])
+        dungeon.tiles[rooms[-1].inner] = tile_types.boss_vault_floor       
 
     dungeon.downstairs_location = center_of_last_room
 
