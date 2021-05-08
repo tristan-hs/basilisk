@@ -43,7 +43,9 @@ class Entity:
         render_order: RenderOrder = RenderOrder.CORPSE,
         description: str = "???",
         rarity: Optional[str] = None,
+        flavor: str = None
     ):
+        print(f"making {name}: {flavor}")
         self.x = x
         self.y = y
         self.char = char
@@ -55,6 +57,7 @@ class Entity:
         self.rarity = rarity
         self.statuses=[]
         self.base_stats = {"BILE":0,"MIND":0,"TAIL":0,"TONG":0}
+        self._flavor = flavor
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -112,6 +115,10 @@ class Entity:
     @property
     def is_phased_out(self) -> bool:
         return any(isinstance(s,PhasedOut) for s in self.statuses)
+
+    @property
+    def flavor(self):
+        return self._flavor
 
     def get_word_mode_boost(self, stat:str):
         return len([i for i in self.inventory.items if i.stat == stat and i.identified]) if self.engine.word_mode else 0
@@ -226,7 +233,8 @@ class Actor(Entity):
         render_order: RenderOrder = RenderOrder.ACTOR,
         description: str = "???",
         drop_tier: str = 'c',
-        is_boss: bool = False
+        is_boss: bool = False,
+        flavor: str = None
     ):
         super().__init__(
             x=x,
@@ -236,7 +244,8 @@ class Actor(Entity):
             name=name,
             blocks_movement=True,
             render_order=render_order,
-            description=description
+            description=description,
+            flavor=flavor
         )
 
         self.inventory = Inventory()
@@ -406,8 +415,10 @@ class Item(Entity):
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
             description=description,
-            rarity=rarity
+            rarity=rarity,
+            flavor=flavor
         )
+        print(f"making {name}: {flavor}")
         self.item_type = item_type
         self.edible = edible
         self.spitable = spitable
@@ -417,7 +428,6 @@ class Item(Entity):
         self._color = color
         self.rarity = rarity
         self.stat = stat
-        self.flavor = flavor
 
     @property
     def label(self):
@@ -428,6 +438,11 @@ class Item(Entity):
         if self.item_type != 'c':
             return True
         return [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified
+
+    @property
+    def flavor(self):
+        print(f"{self.name}: {self._flavor}")
+        return self._flavor if self.identified else "An obnubliated segment of stitious potential. Destroy it to reify its ilk."
 
     @identified.setter
     def identified(self, new_val: bool):

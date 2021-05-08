@@ -336,8 +336,14 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def get_frame_height(self, console: tcod.Console) -> int:
         if self.highlighted_item:
+            self.description_height = console.get_height_rect(
+                self.frame_x+1, self.frame_y+1, self.frame_width-2,47,self.highlighted_item.description
+            )
+            string = self.highlighted_item.description
+            if self.highlighted_item.flavor:
+                string += "\n\n"+self.highlighted_item.flavor
             inner = console.get_height_rect(
-                self.frame_x+1,self.frame_y+1,self.frame_width-2,47,self.highlighted_item.description
+                self.frame_x+1,self.frame_y+1,self.frame_width-2,47,string
             )+2
         else:
             inner = 1
@@ -365,6 +371,13 @@ class InventoryEventHandler(AskUserEventHandler):
         if self.highlighted_item:
             console.print(self.frame_x+1, self.frame_y+1, self.highlighted_item.label, self.highlighted_item.color)
             console.print_box(self.frame_x+1,self.frame_y+3,self.frame_width-2,self.frame_height-4,self.highlighted_item.description,color.offwhite)
+            
+            if not self.highlighted_item.flavor:
+                return
+            y = self.frame_y+4+self.description_height
+            for line in self.engine.message_log.wrap(self.highlighted_item.flavor,self.frame_width-2):
+                console.print(self.frame_x+1,y,line,color.grey)
+                y += 1
         else:
             console.print(self.frame_x+1,self.frame_y+1,"(None)", color.grey)
 
@@ -404,8 +417,6 @@ class InventoryEventHandler(AskUserEventHandler):
 
         if self.highlighted_item:
             self.render_items_drawer(console)
-
-        if self.highlighted_item:
             self.highlight_item(console)
 
         self.render_item_panel(console)
@@ -415,10 +426,6 @@ class InventoryEventHandler(AskUserEventHandler):
 
 
     def on_render(self, console: tcod.Console) -> None:
-        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
-        Will move to a different position based on where the player is located, so the player can always see where
-        they are.
-        """
         super().on_render(console)
         self.render_menu(console)
 

@@ -156,7 +156,7 @@ vowel_segment = Item(
     edible=consumable.StatBoostConsumable(1),
     spitable=consumable.Projectile(damage=1),
     stat=None,
-    flavor="Rusted scrap and compost from the dungeon floor."
+    flavor="Rusted scrap and compost given vigor by your presence."
 )
 
 crown_segment = Item(

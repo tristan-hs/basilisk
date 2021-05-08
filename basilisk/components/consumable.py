@@ -569,7 +569,7 @@ class StatBoostConsumable(Consumable):
         self.stat = stat if stat else "a stat"
         self.amount = amount
         forever = " permanently" if permanent else ""
-        self.description = f"increases {self.stat} by {amount}{forever}"
+        self.description = f"increase {self.stat} by {amount}{forever}"
         self.permanent = permanent
 
     def activate(self, action: actions.ItemAction) -> None:
