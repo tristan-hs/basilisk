@@ -4,6 +4,9 @@
 # default 1 -- neutral / non-urgent / passive
 grey = (120,120,120)
 
+# inactive light-ups
+dark_grey = (60,60,60)
+
 # default after grey -- player or ally action with result
 offwhite = (200,200,200)
 

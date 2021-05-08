@@ -164,7 +164,7 @@ class Engine:
 
         # RIGHT PANEL
         # todo: this includes stats
-        render_functions.render_status(console=console,location=(62,41),statuses=self.player.statuses, engine=self)
+        render_functions.render_status(console=console,location=(72,41),statuses=self.player.statuses, engine=self)
 
         # LEFT PANEL
         looking = self.mouse_location != (0,0)

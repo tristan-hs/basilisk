@@ -74,51 +74,19 @@ def render_instructions(console: Console, location: Tuple[int,int]) -> None:
 def render_status(console: Console, location: Tuple[int,int], statuses: List, engine: Engine) -> None:
     render_stats(console, *location, engine)
 
-    sx, sy = location
-    y = sy + 5
-    x = sx
-    statuses = sorted(statuses, key=lambda status:len(status.label) if status.label else 0)
-    for status in statuses:
-        if not status.label:
-            continue
-        string = f"{status.label.upper()} {str(status.duration)}"
+    g_statuses = ["SALIVA","PETRIFY","PHASE","SHIELD"] + ["CHOKE","DAZE"]
 
-        if x + len(string) > sx+18:
-            x = sx
-            y += 1
-
-        console.print(
-            x=x,
-            y=y,
-            string=string,
-            fg=status.color
-        )
-
-        x += len(string)+1
+    for i,s in enumerate(g_statuses):
+        status = [status for status in statuses if status.label and status.label.upper() == s]
+        fg = status[0].color if status else color.dark_grey
+        y = 41 + i if i < 4 else 42 + i
+        x = 71-len(s)-2 if i < 4 else 72
+        string = s+'.0' if i < 4 else s + '.'*(6-len(s)) + '0'
+        console.print(x=x,y=y,string=string,fg=fg)
 
 
 def render_stats(console: Console, x:int, y:int, engine: Engine):
     player = engine.player
-
-    """
-    if engine.word_mode:
-        colors = [
-            color.tongue,
-            color.snake_green, 
-            color.green,
-            color.goblin,
-            color.tail,
-            color.statue,
-            color.player_dark,
-            color.grey,
-            (75,125,0),
-            color.mind,
-            color.bile
-        ] + [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
-        random.Random(engine.turn_count).shuffle(colors)
-        for i,c in enumerate("WORD MODE"):
-            console.print(x=x+i,y=y,string=c,fg=colors.pop())
-    """
 
     for i,stat in enumerate(["BILE","MIND","TONG","TAIL"]):
         base_amt = player.stats[stat] - player.get_status_boost(stat)
@@ -130,28 +98,30 @@ def render_stats(console: Console, x:int, y:int, engine: Engine):
             elif j < temp_amt:
                 fg = color.boosted_stats[stat]
             else:
-                fg = color.grey
+                fg = color.dark_grey
             console.print(x=x+j,y=y+i,string=c,fg=fg)
 
         k = 4
-        while k < temp_amt and k < 8:
+        while  k < 6:
+            c = '+'
             if k < base_amt:
                 fg = color.stats[stat]
             elif k < temp_amt:
                 fg = color.boosted_stats[stat]
             else:
-                fg = color.grey
-            c = '+'
-            if stat == 'TONG':
+                c = '.'
+                fg = color.dark_grey
+            if stat == 'TONG' and k < temp_amt:
                 if k == 4:
                     c = 'U'
                 if k == 5:
                     c = 'E'
             console.print(x=x+k,y=y+i,string=c,fg=fg)
             k+=1
+        console.print(x=x+6,y=y+i,string='0',fg=fg)
 
         if player.get_status_boost(stat) > 0:
-            console.print(x=x+k,y=y+i,string=f"({player.get_stat_boost_duration(stat)})",fg=color.boosted_stats[stat])
+            console.print(x=x+6,y=y+i,string=str(player.get_stat_boost_duration(stat)),fg=color.boosted_stats[stat])
 
 
 def render_names_at_mouse_location(
@@ -193,10 +163,37 @@ def render_names_at_mouse_location(
     console.print(x=x,y=y+y,string=f"id:{entity.id}",fg=color.offwhite)
     
 
+class ColorScheme:
+    def __init__(self, player, base_colors=[color.dark_grey,color.grey]):
+        colors = [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
+        if len(colors) < 28:
+            colors += [base_colors[0]] * (28 - len(colors) - 1)
+            colors += [base_colors[1]]
+        # fixed shuffle per length of list
+        random.Random(92).shuffle(colors)
+        
+        # cycle through that shuffle turn by turn
+        for i in range(player.engine.turn_count % 28):
+            c = colors.pop(0)
+            colors.append(c)
+
+        self.colors = colors
+        self._index = -1
+
+    @property
+    def next_color(self):
+        self._index += 1
+        if self._index >= len(self.colors):
+            self._index = 0
+
+        return self.colors[self._index]
+
+
 
 def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:
     sx, sy = x, y = location
     items = player.inventory.items
+    cs = ColorScheme(player, [color.offwhite,color.grey]) if word_mode else ColorScheme(player)
 
     sy -= 4
     y -= 4
@@ -223,34 +220,43 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
             x -= 1
         y += 1
 
+    c2 = color.offwhite if word_mode else color.grey
     console.draw_frame(
         x=sx-2,
         y=f_start,
         width=5,
         height=f_height,
         clear=False,
-        fg=c,
+        fg=c2,
         bg=(0,0,0)
     )
 
     x, y = 75, sy - adj + r - f_height
 
-    console.print(x=x,y=y,string="WORD║",fg=c)
+    for i,char in enumerate("WORD"):
+        console.print(x=x+i,y=y,string=char,fg=cs.next_color)
+
+    console.print(x=x+4,y=y,string="║",fg=c)
     y=y+f_height
     console.print(x=x,y=y,string='╠',fg=c)
     y+=1
-    console.print(x=x,y=y,string="║MODE",fg=c)
+    console.print(x=x,y=y,string="║",fg=c)
+
+    for i,char in enumerate("MODE"):
+        console.print(x=x+i+1,y=y,string=char,fg=cs.next_color)
+
     # frame up from word to d#
     console.print_box(79,2,1,f_start-1,'╣'+'║'*(f_start-3)+'╣',fg=c)
     # frame down from mode
     y+=1
-    console.print(x=x,y=y,string='╚═══╗\n    ║\n╔═══╝',fg=c)
-    y+=3
-    c2 = color.offwhite if word_mode else color.grey
-    console.print_box(0,y,80,1,'═'*20+'╦'+'═'*40+'╦'+'═'*13+'╩════',fg=c2)
-    y+=1
-    console.print_box(20,y,1,9,'║'*9,fg=c2)
-    console.print_box(61,y,1,9,'║'*9,fg=c2)
+    console.print(x=x,y=y,string='╚═══╗\n    ║',fg=c)
+    console.draw_frame(x=71,y=y+3,width=9,height=6,clear=False,fg=c2,bg=(0,0,0))
+    console.print(x=x+4,y=y+2,string='║\n╣',fg=c)
+    #y+=3
+    #console.print_box(0,y,80,1,'═'*20+'╦'+'═'*40+'╦'+'═'*13+'╩════',fg=c2)
+    #y+=1
+    #console.print_box(20,y,1,9,'║'*9,fg=c2)
+    #console.print_box(61,y,1,9,'║'*9,fg=c2)
 
 
 
