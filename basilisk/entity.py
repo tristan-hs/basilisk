@@ -433,7 +433,6 @@ class Item(Entity):
 
     @property
     def identified(self):
-        return True
         if self.item_type != 'c':
             return True
         return [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified
