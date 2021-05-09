@@ -198,7 +198,7 @@ class ColorScheme:
 def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:
     sx, sy = x, y = location
     items = player.inventory.items
-    cs = ColorScheme(player, [color.offwhite,color.grey]) if word_mode else ColorScheme(player)
+    cs = ColorScheme(player, [color.offwhite,color.snake_green]) if word_mode else ColorScheme(player)
     wcs = ColorScheme(player, [color.dark_grey,color.snake_green]) if word_mode else ColorScheme(player)
 
     sy -= 4

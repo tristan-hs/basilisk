@@ -824,7 +824,7 @@ class PetrifyEnemyConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if not target:
-            self.engine.message_log.add_message("The projectile breaks apart on the dungoen floor.",color.grey)
+            self.engine.message_log.add_message("The projectile breaks apart on the dungeon floor.",color.grey)
         if target is consumer:
             raise Impossible("You can't spit it at yourself!")
 
