@@ -64,8 +64,8 @@ def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (>)descend"
     l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (/)look"
     l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
-    l6 = f"      (f)ind"
-    l7 =   "    re(v)iew"
+    l6 = "    re(v)iew"
+    l7 = ""
     l8 = f"   per(c)eive"
 
     for i,l in enumerate([l0,l1,l2,l3,l4,l5,l6,l7,l8]):

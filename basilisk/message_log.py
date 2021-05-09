@@ -105,7 +105,14 @@ class MessageLog:
                     last_turns.append(message.turn_count)
             mfg, afg = self.fade_colors(message.fg, message.arg_color, fade_count=fades)
 
-            for line in reversed(list(self.wrap(message.full_text, width))):
+            if y_offset > 4:
+                lines = list(self.wrap(message.full_text, width+10))
+                if y_offset - len(lines) < 5:
+                    lines = list(self.wrap(message.full_text, width))
+            else:
+                lines = list(self.wrap(message.full_text, width))
+
+            for line in reversed(lines):
                 if message.arg and i + len(line) > len(message.text.split('?')[1]) and arg_printed == False:
                     # we've printed backwards up to a line w/ an argument
                     pos = len(message.text.split('?')[1])-i
