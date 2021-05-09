@@ -194,7 +194,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_d:
             return InventoryDigestHandler(self.engine)
 
-        elif key == tcod.event.K_SLASH:
+        elif key == tcod.event.K_x:
             return LookHandler(self.engine)
 
         elif key == tcod.event.K_c:
