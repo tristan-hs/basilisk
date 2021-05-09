@@ -216,6 +216,34 @@ class GameMap:
                     #console.print(x=x,y=y,string=" ",bg=color.highlighted_fov)
 
 
+    def print_actor_tile(self,actor,location,console):
+        fg = actor.color
+        bg = None
+        string = actor.char
+        x,y = location
+
+        if self.visible[actor.x,actor.y]:
+            if actor.is_phased_out:
+                bg = color.purple
+                fg = color.purple
+            elif actor.ai.fov[self.engine.player.x,self.engine.player.y] and actor.name != "Decoy":
+                bg = color.enemy_bg
+
+        elif self.smellable(actor, True):
+            bg=color.grey
+
+        elif self.smellable(actor):
+            string = '?'
+            fg = color.yellow
+            bg = color.grey
+
+        else:
+            return False
+
+        console.print(x=x,y=y,string=string,fg=fg,bg=bg)
+        return True
+
+
     def render(self, console: Console) -> None:
         """
         Renders the map.
@@ -240,6 +268,9 @@ class GameMap:
 
         # display entities
         for entity in entities_sorted_for_rendering:
+            if isinstance(entity,Actor) and entity is not self.engine.player:
+                self.print_actor_tile(entity,entity.xy,console)
+                continue
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
                 if entity in self.engine.player.inventory.items:
@@ -251,21 +282,7 @@ class GameMap:
                         fg=color.player
                 else:
                     fg=entity.color
-                if isinstance(entity, Actor) and entity is not self.engine.player: 
-                    fov = compute_fov(
-                        self.tiles["transparent"],
-                        (entity.x, entity.y),
-                        radius=8,
-                        light_walls=False
-                    )
-                    if entity.is_phased_out:
-                        bg = color.purple
-                    elif fov[self.engine.player.x, self.engine.player.y] and entity.name != "Decoy":
-                        bg = color.enemy_bg
-                    else:
-                        bg = None
-                else:
-                    bg = None
+                bg = None
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=fg, bg=bg
                 )
@@ -282,24 +299,6 @@ class GameMap:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=color.grey
                 )
-
-            # or statues
-            elif isinstance(entity, Actor) and self.explored[entity.x, entity.y] and isinstance(entity.ai, Statue):
-                console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=color.grey
-                )
-
-            # or in FOS
-            elif self.smellable(entity, True) and isinstance(entity, Actor):
-                console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=entity.color, bg=color.grey
-                )
-
-            elif self.smellable(entity) and isinstance(entity, Actor):
-                console.print(
-                    x=entity.x, y=entity.y, string='?', fg=color.yellow, bg=color.grey
-                )
-
 
 class GameWorld:
     """

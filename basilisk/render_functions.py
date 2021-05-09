@@ -64,8 +64,8 @@ def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (>)descend"
     l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (/)look"
     l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
-    l6 = "    re(v)iew"
-    l7 = ""
+    l7 = "    re(v)iew"
+    l6 = ""
     l8 = f"   per(c)eive"
 
     for i,l in enumerate([l0,l1,l2,l3,l4,l5,l6,l7,l8]):
@@ -234,14 +234,14 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
         width=5,
         height=f_height,
         clear=False,
-        fg=color.grey if word_mode else color.dark_grey,
+        fg=color.offwhite if word_mode else color.dark_grey,
         bg=(0,0,0)
     )
     for i,char in enumerate("MODE"):
         console.print(x=75+i+1,y=sy-adj+r+1,string=char,fg=cs.next_color)
 
     # stats frame
-    console.draw_frame(x=71,y=40,width=9,height=6,clear=False,fg=color.dark_grey,bg=(0,0,0))
+    console.draw_frame(x=71,y=40,width=9,height=6,clear=False,fg=color.grey if word_mode else color.dark_grey,bg=(0,0,0))
 
     # wires top to bottom
     for i,c in enumerate('╣'+'║'*(f_start-3)+'╣'):
@@ -259,9 +259,22 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
         console.print(x=x+4,y=y+i,string=c,fg=wcs.next_color)
 
 
+def print_fov_actors(console,player,xy):
+    x,y = xy
+    fov_actors = []
+    fov = player.engine.fov
+    for actor in sorted(list(player.gamemap.actors),key=lambda a:a.id):
+        if actor is player:
+            continue
+        if player.gamemap.print_actor_tile(actor,(x+1,y),console):
+            known = (player.gamemap.visible[actor.x,actor.y] or player.gamemap.smellable(actor,True))
+            name = actor.name if known else '???'
+            fg = actor.color if known else color.yellow
+            console.print(x+3,y,name,fg=fg)
+            y += 1
+            if y > 48:
+                console.print(x+1,y,'...',fg=color.offwhite)
+                break
 
-
-
-
-
+    console.print(7,49,"(c)ontrols",color.grey)
 

@@ -124,15 +124,19 @@ class Engine:
             self.player.die()
         
         self.turn_count += 1
-        self.save_turn_snapshot()   
+        self.save_turn_snapshot()
 
-    def update_fov(self) -> None:
-        """Recompute the visible area based on the players point of view."""
-        self.game_map.visible[:] = compute_fov(
+    @property
+    def fov(self):
+        return compute_fov(
             self.game_map.tiles["transparent"],
             (self.player.x, self.player.y),
             radius=self.fov_radius,
         )
+
+    def update_fov(self) -> None:
+        """Recompute the visible area based on the players point of view."""
+        self.game_map.visible[:] = self.fov
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
@@ -184,9 +188,8 @@ class Engine:
             )
 
         else:
-            console.print(6,49,"(c)ontrols",color.grey)
+            render_functions.print_fov_actors(console,self.player,(0,41))
             pass
-        #new render function for listing actors in fov
 
 
     def save_as(self, filename: str) -> None:
