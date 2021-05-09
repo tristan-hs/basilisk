@@ -33,7 +33,7 @@ class Engine:
         self.player = player
         self.word_mode = False
         self.turn_count = 0
-        self.show_instructions = False
+        self.show_instructions = True
         self.boss_killed = False
 
     # field of view
@@ -164,7 +164,7 @@ class Engine:
         )
 
         # MIDDLE PANEL
-        self.message_log.render(console=console, x=21, y=41, width=40, height=9)
+        self.message_log.render(console=console, x=18, y=41, width=43, height=9)
 
         # RIGHT PANEL
         # todo: this includes stats
@@ -184,7 +184,7 @@ class Engine:
         elif self.show_instructions:
             render_functions.render_instructions(
                 console=console,
-                location=(1,41)
+                location=(0,41)
             )
 
         else:

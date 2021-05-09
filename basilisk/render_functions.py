@@ -58,18 +58,18 @@ def render_dungeon_level(
 
 def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     x, y = location
-    l0 = f"      (i)nventory"
-    l1 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (s)pit"
-    l2 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (d)igest"
-    l3 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (>)descend"
-    l4 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (/)look"
-    l5 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
+    l0 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (i)nventory"
+    l1 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (s)pit"
+    l2 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (d)igest"
+    l3 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (>)descend"
+    l4 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
+    l5 = ""
     l7 = "    re(v)iew"
-    l6 = ""
+    l6 = "     e(x)amine"
     l8 = f"   per(c)eive"
 
     for i,l in enumerate([l0,l1,l2,l3,l4,l5,l6,l7,l8]):
-        console.print(x=x, y=y+i, string=l, fg=color.grey)
+        console.print(x=x, y=y+i, string=l, fg=color.dark_grey)
 
 def render_status(console: Console, location: Tuple[int,int], statuses: List, engine: Engine) -> None:
     render_stats(console, *location, engine)
@@ -276,5 +276,5 @@ def print_fov_actors(console,player,xy):
                 console.print(x+1,y,'...',fg=color.offwhite)
                 break
 
-    console.print(7,49,"(c)ontrols",color.grey)
+    console.print(7,49,"(c)ontrols",color.dark_grey)
 
