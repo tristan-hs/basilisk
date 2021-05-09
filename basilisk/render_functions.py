@@ -81,7 +81,9 @@ def render_status(console: Console, location: Tuple[int,int], statuses: List, en
         fg = status[0].color if status else color.dark_grey
         y = 41 + i if i < 4 else 42 + i
         x = 71-len(s)-2 if i < 4 else 72
-        string = s+'.0' if i < 4 else s + '.'*(6-len(s)) + '0'
+        d = str(status[0].duration) if status else '0'
+        d = d if len(d) < 2 else '!'
+        string = s+'.'+d if i < 4 else s + '.'*(6-len(s)) + d
         console.print(x=x,y=y,string=string,fg=fg)
 
 
@@ -121,7 +123,10 @@ def render_stats(console: Console, x:int, y:int, engine: Engine):
         console.print(x=x+6,y=y+i,string='0',fg=fg)
 
         if player.get_status_boost(stat) > 0:
-            console.print(x=x+6,y=y+i,string=str(player.get_stat_boost_duration(stat)),fg=color.boosted_stats[stat])
+            string = str(player.get_stat_boost_duration(stat))
+            if len(string) > 1:
+                string = '!'
+            console.print(x=x+6,y=y+i,string=string,fg=color.boosted_stats[stat])
 
 
 def render_names_at_mouse_location(
