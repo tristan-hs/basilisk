@@ -134,6 +134,16 @@ class Engine:
             radius=self.fov_radius,
         )
 
+    @property
+    def fov_actors(self):
+        return [actor for actor in 
+            sorted(list(self.game_map.actors),key=lambda a:a.id) if
+            not actor is self.player and (
+                self.game_map.visible[actor.x,actor.y] or 
+                self.game_map.smellable(actor,True)
+            )
+        ]
+
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
         self.game_map.visible[:] = self.fov

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 DIRECTIONS = [(0,-1),(0,1),(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1)]
 D_ARROWS = ['↑', '↓', '\\', '←', '/', '/','→','\\']
 D_KEYS = ['J','K','Y','H','B','U','L','N']
+ALPHA_CHARS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
 def render_bar(
     console: Console, current_value: int, maximum_value: int, total_width: int
@@ -163,22 +164,22 @@ def render_names_at_mouse_location(
     else:
         return
     console.print(x=x,y=y,string=entity.label,fg=entity.color)
-    console.print_box(x,y+2,20,6,entity.description,color.offwhite)
+    console.print_box(x,y+2,17,6,entity.description,color.offwhite)
 
     console.print(x=x,y=y+y,string=f"id:{entity.id}",fg=color.offwhite)
     
 
 class ColorScheme:
-    def __init__(self, player, base_colors=[color.dark_grey,color.grey]):
+    def __init__(self, player, base_colors=[color.dark_grey,color.grey], scheme_length=28):
         colors = [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
         if len(colors) < 28:
-            colors += [base_colors[0]] * (28 - len(colors) - 1)
+            colors += [base_colors[0]] * (scheme_length - len(colors) - 1)
             colors += [base_colors[1]]
         # fixed shuffle per length of list
         random.Random(round(player.engine.turn_count/500)).shuffle(colors)
         
         # cycle through that shuffle turn by turn
-        for i in range(player.engine.turn_count % 28):
+        for i in range(player.engine.turn_count % scheme_length):
             c = colors.pop(0)
             colors.append(c)
 
@@ -198,8 +199,8 @@ class ColorScheme:
 def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:
     sx, sy = x, y = location
     items = player.inventory.items
-    cs = ColorScheme(player, [color.offwhite,color.snake_green]) if word_mode else ColorScheme(player)
-    wcs = ColorScheme(player, [color.dark_grey,color.snake_green]) if word_mode else ColorScheme(player)
+    cs = ColorScheme(player, [color.snake_green,color.offwhite]) if word_mode else ColorScheme(player)
+    wcs = ColorScheme(player, [color.dark_grey,color.snake_green],30) if word_mode else ColorScheme(player,scheme_length=30)
 
     sy -= 4
     y -= 4
@@ -261,20 +262,23 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
 
 def print_fov_actors(console,player,xy):
     x,y = xy
-    fov_actors = []
-    fov = player.engine.fov
+    chars = ALPHA_CHARS[:]
     for actor in sorted(list(player.gamemap.actors),key=lambda a:a.id):
         if actor is player:
             continue
-        if player.gamemap.print_actor_tile(actor,(x+1,y),console):
+        if player.gamemap.print_actor_tile(actor,(x+3,y),console):
             known = (player.gamemap.visible[actor.x,actor.y] or player.gamemap.smellable(actor,True))
             name = actor.name if known else '???'
+            if len(name) > 12:
+                name = name[:10]+'..'
             fg = actor.color if known else color.yellow
-            console.print(x+3,y,name,fg=fg)
+            if known:
+                console.print(x,y,f"{chars.pop(0)})",fg=fg)
+            console.print(x+5,y,name,fg=fg)
             y += 1
             if y > 48:
                 console.print(x+1,y,'...',fg=color.offwhite)
                 break
 
-    console.print(7,49,"(c)ontrols",color.dark_grey)
+    console.print(6,49,"(c)ontrols",color.dark_grey)
 

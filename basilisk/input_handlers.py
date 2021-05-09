@@ -54,6 +54,35 @@ MOVE_KEYS = {
     tcod.event.K_n: (1, 1),
 }
 
+ALPHA_KEYS = {
+    tcod.event.K_a: 0,
+    tcod.event.K_b: 1,
+    tcod.event.K_c: 2,
+    tcod.event.K_d: 3,
+    tcod.event.K_e: 4,
+    tcod.event.K_f: 5,
+    tcod.event.K_g: 6,
+    tcod.event.K_h: 7,
+    tcod.event.K_i: 8,
+    tcod.event.K_j: 9,
+    tcod.event.K_k: 10,
+    tcod.event.K_l: 11,
+    tcod.event.K_m: 12,
+    tcod.event.K_n: 13,
+    tcod.event.K_o: 14,
+    tcod.event.K_p: 15,
+    tcod.event.K_q: 16,
+    tcod.event.K_r: 17,
+    tcod.event.K_s: 18,
+    tcod.event.K_t: 19,
+    tcod.event.K_u: 20,
+    tcod.event.K_v: 21,
+    tcod.event.K_w: 22,
+    tcod.event.K_x: 23,
+    tcod.event.K_y: 24,
+    tcod.event.K_z: 25
+}
+
 WAIT_KEYS = {
     tcod.event.K_PERIOD,
     tcod.event.K_KP_5,
@@ -172,10 +201,14 @@ class MainGameEventHandler(EventHandler):
  
         player = self.engine.player
  
-        if key == tcod.event.K_PERIOD and modifier & (
-            tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
-        ):
-            return actions.TakeStairsAction(player)
+        if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+            if key == tcod.event.K_PERIOD:
+                return actions.TakeStairsAction(player)
+        
+            if key in ALPHA_KEYS and len(self.engine.fov_actors) > ALPHA_KEYS[key]:
+                return InspectHandler(self.engine, key, self)
+
+            return None
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -783,3 +816,73 @@ class PopupMessage(BaseEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
         """Any key returns to the parent handler."""
         return self.parent
+
+
+class InspectHandler(AskUserEventHandler):
+    """For inspecting things"""
+
+    def __init__(self, engine: Engine, key, parent_handler):
+        super().__init__(engine)
+        self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]]
+        self.title = thing.label
+        self.frame_color = thing.color
+
+        self.frame_width = max(len(i) for i in (self.title, range(31)) if i is not None)+4
+        if engine.player.x <= 30:
+            self.frame_x = 80-self.frame_width-1
+        else:
+            self.frame_x = 1
+        self.frame_y = 1
+
+    def get_frame_height(self, console: tcod.Console) -> int:
+        string = self.thing.description
+        self.description_height = console.get_height_rect(
+            self.frame_x+1, self.frame_y+1, self.frame_width-2,47,string
+        )
+        if self.thing.flavor:
+            string += "\n\n"+self.thing.flavor
+        inner = console.get_height_rect(
+            self.frame_x+1,self.frame_y+1,self.frame_width-2,47,string
+        )+2
+
+        return inner
+
+    def render_thing_panel(self, console: tcod.Console):
+        # print main popup
+        console.draw_frame(
+            x=self.frame_x,
+            y=self.frame_y,
+            width=self.frame_width,
+            height=self.frame_height,
+            title=self.title,
+            clear=True,
+            fg=self.frame_color,
+            bg=(0, 0, 0),
+        )
+
+        console.print_box(self.frame_x+1,self.frame_y+1,self.frame_width-2,self.frame_height-2,self.thing.description,color.offwhite)
+        
+        if not self.thing.flavor:
+            return
+        y = self.frame_y+2+self.description_height
+        for line in self.engine.message_log.wrap(self.thing.flavor,self.frame_width-2):
+            console.print(self.frame_x+1,y,line,color.grey)
+            y += 1
+
+
+    def render_menu(self, console: tcod.Console):
+        self.frame_height = self.get_frame_height(console)
+        self.render_thing_panel(console)
+
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.render_menu(console)
+
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
+        return super().ev_keydown(event)
+
+
+
+
