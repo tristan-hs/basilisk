@@ -243,6 +243,33 @@ class GameMap:
         console.print(x=x,y=y,string=string,fg=fg,bg=bg)
         return True
 
+    def print_item_tile(self,item,location,console):
+        fg = item.color
+        x,y = location
+
+        if item in self.engine.player.inventory.items or item is self.engine.player:
+            if not self.tiles['walkable'][item.x,item.y]:
+                fg = color.purple
+            elif self.engine.player.is_shielded:
+                fg = color.grey
+            elif self.visible[item.x,item.y]:
+                fg = color.player
+            else:
+                fg = color.player_dark
+        elif not self.visible[item.x,item.y] and self.explored[item.x,item.y]:
+            fg = color.grey
+        elif not self.visible[item.x,item.y]:
+            return False
+
+        console.print(x,y,item.char,fg=fg)
+        return True
+
+    def print_tile(self,entity,location,console):
+        if isinstance(entity, Actor) and entity is not self.engine.player:
+            return self.print_actor_tile(entity,location,console)
+        else:
+            return self.print_item_tile(entity,location,console)
+
 
     def render(self, console: Console) -> None:
         """
@@ -270,35 +297,9 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
             if isinstance(entity,Actor) and entity is not self.engine.player:
                 self.print_actor_tile(entity,entity.xy,console)
-                continue
-            # Only print entities that are in the FOV
-            if self.visible[entity.x, entity.y]:
-                if entity in self.engine.player.inventory.items:
-                    if not self.tiles["walkable"][entity.x,entity.y]:
-                        fg=color.purple
-                    elif self.engine.player.is_shielded:
-                        fg=color.grey
-                    else:
-                        fg=color.player
-                else:
-                    fg=entity.color
-                bg = None
-                console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=fg, bg=bg
-                )
+            else:
+                self.print_item_tile(entity,entity.xy,console) # player counts as an item
 
-            # or are player items
-            elif entity in self.engine.player.inventory.items:
-                fg = color.player_dark if self.tiles["walkable"][entity.x,entity.y] else color.purple
-                console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=color.player_dark
-                )
-
-            # or other items the player's seen
-            elif isinstance(entity, Item) and self.explored[entity.x, entity.y]:
-                console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=color.grey
-                )
 
 class GameWorld:
     """

@@ -688,6 +688,15 @@ class LookHandler(SelectIndexHandler):
         """Return to main handler."""
         return MainGameEventHandler(self.engine)
 
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        modifier = event.mod
+        if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+            if key in ALPHA_KEYS and len(self.engine.mouse_things) > ALPHA_KEYS[key]:
+                return InspectHandler(self.engine, key, self, 'mouse', self.engine.mouse_location)
+            return None
+        return super().ev_keydown(event)
+
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
 
@@ -821,9 +830,11 @@ class PopupMessage(BaseEventHandler):
 class InspectHandler(AskUserEventHandler):
     """For inspecting things"""
 
-    def __init__(self, engine: Engine, key, parent_handler):
+    def __init__(self, engine: Engine, key, parent_handler, mode="nearby", mouse_location=(0,0)):
         super().__init__(engine)
-        self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]]
+        if mode == 'mouse':
+            engine.mouse_location = mouse_location
+        self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]] if mode == 'nearby' else engine.mouse_things[ALPHA_KEYS[key]]
         self.title = thing.label
         self.frame_color = thing.color
 
@@ -833,6 +844,8 @@ class InspectHandler(AskUserEventHandler):
         else:
             self.frame_x = 1
         self.frame_y = 1
+
+        self.parent = parent_handler
 
     def get_frame_height(self, console: tcod.Console) -> int:
         string = self.thing.description
@@ -882,6 +895,9 @@ class InspectHandler(AskUserEventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
         return super().ev_keydown(event)
+
+    def on_exit(self):
+        return self.parent
 
 
 

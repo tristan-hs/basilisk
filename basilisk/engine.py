@@ -15,6 +15,7 @@ from basilisk.message_log import MessageLog
 from basilisk.components.status_effect import PetrifEyes, Petrified, PhasedOut
 import basilisk.color as color
 from basilisk.components.ai import Constricted
+from basilisk.render_order import RenderOrder
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor
@@ -143,6 +144,20 @@ class Engine:
                 self.game_map.smellable(actor,True)
             )
         ]
+
+    @property
+    def mouse_things(self):
+        return [
+            e for e in self.game_map.entities if 
+                (e.x,e.y) == self.mouse_location and 
+                (
+                    self.game_map.visible[e.x,e.y] or 
+                    (self.game_map.explored[e.x,e.y] and e.render_order == RenderOrder.ITEM) or
+                    self.game_map.smellable(e, True)
+                )
+        ]
+
+
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

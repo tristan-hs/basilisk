@@ -138,35 +138,18 @@ def render_names_at_mouse_location(
     if not engine.game_map.in_bounds(mouse_x, mouse_y):
         return
 
-    entities = [
-        e for e in engine.game_map.entities if 
-            e.x == mouse_x and 
-            e.y == mouse_y and 
-            (
-                engine.game_map.visible[mouse_x, mouse_y] or 
-                (engine.game_map.explored[mouse_x, mouse_y] and e.render_order == RenderOrder.ITEM) or
-                engine.game_map.smellable(e, True)
-            )
-        ]
+    entities = engine.mouse_things
 
-    if len(entities) == 1:
-        entity = entities[0]
-    elif len(entities) > 1:
-        actors = [e for e in entities if e.render_order == RenderOrder.ACTOR]
-        if len(actors) == 1:
-            entity = actors[0]
-        else:
-            for e,entity in enumerate(entities):
-                console.print(x,y+e,entity.label,fg=entity.color)
-                if e > 8:
-                    break
-            return
-    else:
-        return
-    console.print(x=x,y=y,string=entity.label,fg=entity.color)
-    console.print_box(x,y+2,17,6,entity.description,color.offwhite)
-
-    console.print(x=x,y=y+y,string=f"id:{entity.id}",fg=color.offwhite)
+    chars = ALPHA_CHARS[:]
+    for e,entity in enumerate(entities):
+        engine.game_map.print_tile(entity,(x+3,y+e),console)
+        name = entity.label if len(entity.label) > 1 else '???'
+        name = name if len(name) < 13 else name[:10]+'..'
+        console.print(x,y+e,chars.pop(0)+')',fg=entity.color)
+        console.print(x+5,y+e,name,fg=entity.color)
+        if e > 7:
+            console.print(x+1,y,'...',fg=color.offwhite)
+            break
     
 
 class ColorScheme:
