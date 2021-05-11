@@ -370,20 +370,26 @@ class InventoryEventHandler(AskUserEventHandler):
         return None
 
     def get_frame_height(self, console: tcod.Console) -> int:
+        inner = 3
         if self.highlighted_item:
-            self.description_height = console.get_height_rect(
-                self.frame_x+1, self.frame_y+1, self.frame_width-2,47,self.highlighted_item.description
-            )
-            string = self.highlighted_item.description
-            if self.highlighted_item.flavor:
-                string += "\n\n"+self.highlighted_item.flavor
-            inner = console.get_height_rect(
-                self.frame_x+1,self.frame_y+1,self.frame_width-2,47,string
-            )+2
-        else:
-            inner = 1
+            if self.highlighted_item.identified:
+                self.digest_height = console.get_height_rect(
+                    self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.edible.description
+                )
+                inner += self.digest_height + 1
 
-        return inner+2
+                self.spit_height = console.get_height_rect(
+                    self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.spitable.description
+                )
+                inner += self.spit_height + 1
+
+            if self.highlighted_item.flavor:
+                self.flavor_height = console.get_height_rect(
+                    self.frame_x+1,self.frame_y+1,self.frame_width-2,47-inner,self.highlighted_item.flavor
+                )
+                inner += self.flavor_height + 1
+
+        return inner
 
     def highlight_item(self, console: tcod.Console):
         x, y = self.highlighted_item.xy
@@ -403,16 +409,24 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
+        y = self.frame_y+1
+        x = self.frame_x+1
+
         if self.highlighted_item:
-            console.print(self.frame_x+1, self.frame_y+1, self.highlighted_item.label, self.highlighted_item.color)
-            console.print_box(self.frame_x+1,self.frame_y+3,self.frame_width-2,self.frame_height-4,self.highlighted_item.description,color.offwhite)
+            console.print(x,y, self.highlighted_item.label, self.highlighted_item.color)
+            y += 2
+
+            if self.highlighted_item.identified:
+                console.print(x,y,"Digest:",color.offwhite)
+                console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.edible.description,color.offwhite)
+                y += self.digest_height+1
+                #print digest
+                console.print(x,y,"Spit:",color.offwhite)
+                console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.spitable.description,color.offwhite)
+                y += self.spit_height+1
             
-            if not self.highlighted_item.flavor:
-                return
-            y = self.frame_y+4+self.description_height
-            for line in self.engine.message_log.wrap(self.highlighted_item.flavor,self.frame_width-2):
-                console.print(self.frame_x+1,y,line,color.grey)
-                y += 1
+            if self.highlighted_item.flavor:
+                console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.highlighted_item.flavor,color.grey)
         else:
             console.print(self.frame_x+1,self.frame_y+1,"(None)", color.grey)
 
@@ -835,8 +849,8 @@ class InspectHandler(AskUserEventHandler):
         if mode == 'mouse':
             engine.mouse_location = mouse_location
         self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]] if mode == 'nearby' else engine.mouse_things[ALPHA_KEYS[key]]
-        self.title = thing.label
-        self.frame_color = thing.color
+        self.title = thing.label if hasattr(thing,'ai') or thing.identified else '???'
+        self.frame_color = thing._color if hasattr(thing,'ai') else thing.color
 
         self.frame_width = max(len(i) for i in (self.title, range(31)) if i is not None)+4
         if engine.player.x <= 30:
@@ -848,17 +862,32 @@ class InspectHandler(AskUserEventHandler):
         self.parent = parent_handler
 
     def get_frame_height(self, console: tcod.Console) -> int:
-        string = self.thing.description
-        self.description_height = console.get_height_rect(
-            self.frame_x+1, self.frame_y+1, self.frame_width-2,47,string
-        )
-        if self.thing.flavor:
-            string += "\n\n"+self.thing.flavor
-        inner = console.get_height_rect(
-            self.frame_x+1,self.frame_y+1,self.frame_width-2,47,string
-        )+2
+        if self.thing is self.engine.player:
+            return 3
 
-        return inner
+        inner = console.get_height_rect(
+            self.frame_x+1,self.frame_y+1,self.frame_width-2,47,self.thing.flavor
+        )+3 if self.thing.flavor else 2
+
+        flavor = inner
+
+        if hasattr(self.thing, 'ai'):
+            inner += 4
+            inner += len(self.thing.statuses)
+
+        elif self.thing.identified:
+            self.digest_height = console.get_height_rect(
+                self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.thing.edible.description
+            )
+            inner += self.digest_height
+
+            self.spit_height = console.get_height_rect(
+                self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.thing.spitable.description
+            )
+            inner += self.spit_height
+            inner += 1
+
+        return inner if inner != flavor else inner - 1
 
     def render_thing_panel(self, console: tcod.Console):
         # print main popup
@@ -873,14 +902,54 @@ class InspectHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        console.print_box(self.frame_x+1,self.frame_y+1,self.frame_width-2,self.frame_height-2,self.thing.description,color.offwhite)
-        
-        if not self.thing.flavor:
+        y = self.frame_y + 1
+        x = self.frame_x + 1
+
+
+        if self.thing is self.engine.player:
+            console.print(x,y,"It's you!",fg=color.offwhite)
             return
-        y = self.frame_y+2+self.description_height
-        for line in self.engine.message_log.wrap(self.thing.flavor,self.frame_width-2):
-            console.print(self.frame_x+1,y,line,color.grey)
+
+        if hasattr(self.thing, 'ai'):
+            #print health bar
+            console.print(x,y,'HP',fg=color.offwhite)
+            for i in range(int(self.thing.max_char)+1):
+                if i <= int(self.thing.char):
+                    bg = self.thing._color
+                elif i <= int(self.thing.base_char):
+                    bg = color.statue
+                else:
+                    bg = color.dark_red
+
+                console.print(x+4+i,y,' ',fg=None,bg=bg)
             y += 1
+            #print move speed
+            console.print(x,y,'SPD',fg=color.offwhite)
+            for i in range(self.thing.move_speed):
+                console.print(x+4+i,y,D_ARROWS[6],fg=self.thing._color)
+            y += 2
+            #print ai info
+            console.print(x,y,self.thing.ai.description,fg=color.offwhite)
+            y += 1
+            for status in self.thing.statuses:
+                dur = str(status.duration)
+                dur = dur if len(dur) < 2 else '!'
+                console.print(x,y,f"{status.description.upper()} {dur}",fg=status.color)
+                y += 1
+            y += 1
+
+        elif self.thing.identified:
+            #print spit
+            console.print(x,y,"Digest:",color.offwhite)
+            console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.thing.edible.description,color.offwhite)
+            y += self.digest_height+1
+            #print digest
+            console.print(x,y,"Spit:",color.offwhite)
+            console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.thing.spitable.description,color.offwhite)
+            y += self.spit_height+1
+        
+        if self.thing.flavor:
+            console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.thing.flavor,color.grey)
 
 
     def render_menu(self, console: tcod.Console):

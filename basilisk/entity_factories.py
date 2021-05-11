@@ -19,6 +19,7 @@ statue = Actor(
     color=color.statue,
     name="Statue",
     ai_cls=ai.Statue,
+    move_speed=0,
     description="Can't do much, but drops loot all the same.",
     drop_tier='c'
 )
@@ -37,7 +38,8 @@ jackelope = Actor(
     ai_cls=ai.HostileEnemy,
     move_speed=2,
     description="Moves 2 tiles per turn!",
-    drop_tier='c'
+    drop_tier='c',
+    flavor='the mighty horned rabbit'
 )
 ogre = Actor(
     char="2",
@@ -397,6 +399,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
-    #learned,calcified,ghostly,prolific,drilling
+    #prolific,petrified,ghostly
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']

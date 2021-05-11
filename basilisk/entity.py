@@ -41,7 +41,7 @@ class Entity:
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
         render_order: RenderOrder = RenderOrder.CORPSE,
-        description: str = "???",
+        description: str = None,
         rarity: Optional[str] = None,
         flavor: str = None
     ):
@@ -230,7 +230,7 @@ class Actor(Entity):
         move_speed: int = 1,
         ai_cls: Type[BaseAI],
         render_order: RenderOrder = RenderOrder.ACTOR,
-        description: str = "???",
+        description: str = None,
         drop_tier: str = 'c',
         is_boss: bool = False,
         flavor: str = None
@@ -250,7 +250,7 @@ class Actor(Entity):
         self.inventory = Inventory()
         self.inventory.parent = self
 
-        self.base_char = char
+        self.max_char = self.base_char = char
         self.move_speed = move_speed
 
         self.ai: Optional[BaseAI] = ai_cls(self)
@@ -273,6 +273,9 @@ class Actor(Entity):
 
         if not self.engine.game_map.tiles["walkable"][self.x,self.y]:
             return Color.purple
+
+        if isinstance(self.ai, Constricted):
+            return Color.statue
 
         return self._color
 
@@ -318,7 +321,6 @@ class Actor(Entity):
             return
         self.engine.message_log.add_message(f"You constrict the {self.name}!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)
-        self.color = Color.statue
         char_num = int(self.char)- (1 + self.engine.player.TAIL)
         if char_num < 0:
             self.die()
@@ -401,7 +403,7 @@ class Item(Entity):
         edible: Consumable,
         spitable: Consumable,
         char: str = '?',
-        description: str = '???',
+        description: str = None,
         rarity: Optional[str] = None,
         stat: str,
         flavor: str = None
@@ -461,17 +463,7 @@ class Item(Entity):
 
     @property
     def description(self):
-        if self.identified:
-            d = ''
-            if self.edible.description:
-                d += f"Digest: {self.edible.description}"
-            if self.spitable.description:
-                if self.edible.description:
-                    d += "\n\n"
-                d += f"Spit: {self.spitable.description}"
-            return d
-        else:
-            return '???'
+        return self._description
 
     @color.setter
     def color(self, new_val):

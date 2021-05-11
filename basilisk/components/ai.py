@@ -115,11 +115,16 @@ class BaseAI(Action):
 
 
 class HostileEnemy(BaseAI):
+
     def __init__(self, entity: Actor,):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = None
         self.move_speed = entity.move_speed
         self.last_target = None
+
+    @property
+    def description(self):
+        return "hostile" if self.last_target else "asleep"
 
     def distance_to(self, tx, ty):
         dx = tx-self.entity.x
@@ -201,11 +206,15 @@ class HostileEnemy(BaseAI):
 
 
 class Statue(BaseAI):
+    description = "docile"
+
     def decide(self) -> Optional[Action]:
         self._intent = [WaitAction(self.entity)]
 
 
 class Constricted(BaseAI):
+    description = "constricted"
+
     def __init__(self, entity: Actor, previous_ai: Optional[BaseAI], previous_color: Optional[Tuple[int,int,int]]):
         super().__init__(entity)
         self.previous_ai = previous_ai
@@ -224,12 +233,12 @@ class Constricted(BaseAI):
             super().perform()
         else:
             self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.", color.grey)
-            self.entity.color = self.previous_color
             self.entity.char = self.entity.base_char
             self.entity.ai = self.previous_ai
             self.entity.ai._intent = None
 
 class ConfusedEnemy(BaseAI):
+    description = "confused"
     """
     A confused enemy will stumble around aimlessly for a given number of turns, then revert back to its previous AI.
     If an actor occupies a tile it is randomly moving into, it will attack.
