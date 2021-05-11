@@ -362,6 +362,7 @@ class InventoryEventHandler(AskUserEventHandler):
         else:
             self.frame_x = 1
         self.frame_y = 1
+        self.show_spit = self.show_digest = True
 
     @property
     def highlighted_item(self) -> Optional[Item]:
@@ -373,15 +374,17 @@ class InventoryEventHandler(AskUserEventHandler):
         inner = 3
         if self.highlighted_item:
             if self.highlighted_item.identified:
-                self.digest_height = console.get_height_rect(
-                    self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.edible.description
-                )
-                inner += self.digest_height + 1
+                if self.show_digest:
+                    self.digest_height = console.get_height_rect(
+                        self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.edible.description
+                    )
+                    inner += self.digest_height + 1
 
-                self.spit_height = console.get_height_rect(
-                    self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.spitable.description
-                )
-                inner += self.spit_height + 1
+                if self.show_spit:
+                    self.spit_height = console.get_height_rect(
+                        self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.spitable.description
+                    )
+                    inner += self.spit_height + 1
 
             if self.highlighted_item.flavor:
                 self.flavor_height = console.get_height_rect(
@@ -417,13 +420,15 @@ class InventoryEventHandler(AskUserEventHandler):
             y += 2
 
             if self.highlighted_item.identified:
-                console.print(x,y,"Digest:",color.offwhite)
-                console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.edible.description,color.offwhite)
-                y += self.digest_height+1
-                #print digest
-                console.print(x,y,"Spit:",color.offwhite)
-                console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.spitable.description,color.offwhite)
-                y += self.spit_height+1
+                if self.show_digest:
+                    console.print(x,y,"Digest:",color.offwhite)
+                    console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.edible.description,color.offwhite)
+                    y += self.digest_height+1
+                
+                if self.show_spit:
+                    console.print(x,y,"Spit:",color.offwhite)
+                    console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.spitable.description,color.offwhite)
+                    y += self.spit_height+1
             
             if self.highlighted_item.flavor:
                 console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.highlighted_item.flavor,color.grey)
@@ -538,6 +543,10 @@ class InventorySpitHandler(InventoryEventHandler):
     TITLE = "Select a segment to spit"
     tooltip = None
 
+    def __init__(self,engine):
+        super().__init__(engine)
+        self.show_digest = False
+
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Return the action for the selected item."""
         return self.spit_item(item)
@@ -546,6 +555,10 @@ class InventorySpitHandler(InventoryEventHandler):
 class InventoryDigestHandler(InventoryEventHandler):
     TITLE = "Select a segment to digest"
     tooltip = None
+
+    def __init__(self,engine):
+        super().__init__(engine)
+        self.show_spit = False
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         return self.eat_item(item)
