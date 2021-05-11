@@ -20,16 +20,16 @@ statue = Actor(
     name="Statue",
     ai_cls=ai.Statue,
     move_speed=0,
-    description="Can't do much, but drops loot all the same.",
-    drop_tier='c'
+    drop_tier='c',
+    flavor="A former denizen of the dungeon, taken by the earth."
 )
 goblin = Actor(
     char="1",
     color=color.goblin,
     name="Goblin",
     ai_cls=ai.HostileEnemy,
-    description="Will rush you on sight.",
-    drop_tier='c'
+    drop_tier='c',
+    flavor="Clever enough to know the value of your loot, but not enough to see it doesn't pose a threat."
 )
 jackelope = Actor(
     char="1",
@@ -37,34 +37,33 @@ jackelope = Actor(
     name="Jackelope",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Moves 2 tiles per turn!",
     drop_tier='c',
-    flavor='the mighty horned rabbit'
+    flavor="Natural prey to the basilisk, but quick to dispatch a careless hunter."
 )
 ogre = Actor(
     char="2",
     color=color.ogre,
     name="Ogre",
     ai_cls=ai.HostileEnemy,
-    description="Large and slow.",
+    flavor="Oft found fumbling through dank dungeon corners for rats and bugs.",
     drop_tier='c'
 )
-dragon = Actor(
+mongoose = Actor(
     char="3",
+    color=color.mongoose,
+    name="Dire Badger",
+    ai_cls=ai.HostileEnemy,
+    move_speed=2,
+    drop_tier='u',
+    flavor="Dire badger don't care, it just takes what it wants."
+)
+dragon = Actor(
+    char="4",
     color=color.dragon,
     name="Dragon",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Large and fast!",
-    drop_tier='u'
-)
-titan = Actor(
-    char="4",
-    color=color.titan,
-    name="Titan",
-    ai_cls=ai.HostileEnemy,
-    move_speed=2,
-    description="Durable and fast!",
+    flavor='"My armour is like tenfold shields, my teeth are swords, my claws spears, the shock of my tail is a thunderbolt, my wings a hurricane, and my breath death!"',
     drop_tier='u'
 )
 lich = Actor(
@@ -72,53 +71,53 @@ lich = Actor(
     color=color.lich,
     name="Lich",
     ai_cls=ai.HostileEnemy,
-    description="Slow, but hard to kill.",
-    drop_tier='u'
+    drop_tier='u',
+    flavor="Its bones must be ground to dust before its vendetta is retired."
 )
 demon = Actor(
     char="4",
     color=color.demon,
-    name="Demon",
+    name="King Cobra",
     ai_cls=ai.HostileEnemy,
     move_speed=3,
-    description="A speed demon, to be precise.",
+    flavor="A predator worthy of its name.",
     drop_tier='u'
 )
 war_god = Actor(
     char="7",
     color=color.war_god,
-    name="War God",
+    name="Titan",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    description="Holy calamity",
+    flavor="Holy calamity, wrought to destroy and caged here beneath the earth.",
     drop_tier='r'
 )
 elder = Actor(
     char="8",
     color=color.elder,
-    name="Elder",
+    name="Ancient Horror",
     ai_cls=ai.HostileEnemy,
     move_speed=1,
-    description="Slow seeping madness, nigh unkillable",
+    flavor="A slow seeping but nigh unkillable madness.",
     drop_tier='r'
 )
 decider = Actor(
     char="6",
     color=color.decider,
-    name="The Decider",
+    name="Dire Mongoose",
     ai_cls=ai.HostileEnemy,
     move_speed=4,
-    description="The fastest + most durable thing in the dungeon (so far)",
+    flavor="At the hole where he went in\nRed-Eye called to Wrinkle-Skin.\nHear what little Red-Eye saith:\nNag, come up and dance with death!",
     drop_tier='r'
 )
 
 final_boss = Actor(
     char="9",
     color=color.purple,
-    name="Voidmaw",
+    name="The Voidmaw",
     ai_cls=ai.Statue,
     move_speed=0,
-    description="The object of your quest",
+    flavor="The origin of this dungeon's evil. Only you can stop it.",
     drop_tier='r',
     is_boss=True
 )
@@ -129,25 +128,25 @@ decoy = Actor(
     name="Decoy",
     ai_cls=ai.Statue,
     move_speed=0,
-    description="Distracts enemies",
+    description="Smells faintly of gingerbread",
     drop_tier='c'
 )
 
-enemies = [statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider]
+enemies = [statue,goblin,jackelope,ogre,dragon,mongoose,lich,demon,war_god,elder,decider]
 enemy_sets = [
 [statue,    goblin,     jackelope,  goblin,     goblin],
 [statue,    goblin,     jackelope,  jackelope,  ogre],
 [goblin,    ogre,       jackelope,  lich,       lich],
 
-[ogre,      dragon,     titan,      lich,       lich],
-[lich,      dragon,     titan,      lich,       elder],
-[lich,      titan,      demon,      lich,       elder],
+[ogre,      mongoose,   dragon,      lich,       lich],
+[lich,      mongoose,   dragon,      lich,       elder],
+[lich,      dragon,     demon,       lich,       elder],
 
-[lich,      titan,      demon,      war_god,    elder],
+[lich,      dragon,     demon,      war_god,    elder],
 [elder,     demon,      demon,      war_god,    war_god],
 [elder,     elder,      elder,      war_god,    decider],
 
-[statue,goblin,jackelope,ogre,dragon,titan,lich,demon,war_god,elder,decider],
+[statue,goblin,jackelope,ogre,dragon,mongoose,lich,demon,war_god,elder,decider],
 [decider,elder,war_god]
 ]
 
