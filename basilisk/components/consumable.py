@@ -395,6 +395,7 @@ class KnockbackConsumable(Consumable):
                 pushed = True
         if not pushed:
             self.engine.message_log.add_message("The dust on the dungeon floor is swept away from you.")
+        self.consume()
 
     def knockback_from_segment(self,segment,consumer) -> None:
         pushed = False
