@@ -885,7 +885,9 @@ class InspectHandler(AskUserEventHandler):
         flavor = inner
 
         if hasattr(self.thing, 'ai'):
-            inner += 4
+            inner += 1
+            if self.thing.name != "Decoy":
+                inner += 3
             inner += len(self.thing.statuses)
 
         elif self.thing.identified:
@@ -924,24 +926,26 @@ class InspectHandler(AskUserEventHandler):
             return
 
         if hasattr(self.thing, 'ai'):
-            #print health bar
-            console.print(x,y,'HP',fg=color.offwhite)
-            for i in range(int(self.thing.max_char)+1):
-                if i <= int(self.thing.char):
-                    bg = self.thing._color
-                elif i <= int(self.thing.base_char):
-                    bg = color.statue
-                else:
-                    bg = color.dark_red
 
-                console.print(x+4+i,y,' ',fg=None,bg=bg)
-            y += 1
-            #print move speed
-            console.print(x,y,'SPD',fg=color.offwhite)
-            for i in range(self.thing.move_speed):
-                console.print(x+4+i,y,D_ARROWS[6],fg=self.thing._color)
-            y += 2
-            #print ai info
+            if self.thing.name != "Decoy":
+                #print health bar
+                console.print(x,y,'HP',fg=color.offwhite)
+                for i in range(int(self.thing.max_char)+1):
+                    if i <= int(self.thing.char):
+                        bg = self.thing._color
+                    elif i <= int(self.thing.base_char):
+                        bg = color.statue
+                    else:
+                        bg = color.dark_red
+
+                    console.print(x+4+i,y,' ',fg=None,bg=bg)
+                y += 1
+                #print move speed
+                console.print(x,y,'SPD',fg=color.offwhite)
+                for i in range(self.thing.move_speed):
+                    console.print(x+4+i,y,D_ARROWS[6],fg=self.thing._color)
+                y += 2
+                #print ai info
             console.print(x,y,self.thing.ai.description,fg=color.offwhite)
             y += 1
             for status in self.thing.statuses:
