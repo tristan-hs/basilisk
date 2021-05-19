@@ -272,5 +272,17 @@ def print_fov_actors(console,player,xy):
                 console.print(x+1,y,'...',fg=color.offwhite)
                 break
 
+    xs,ys = player.gamemap.downstairs_location
+    if player.gamemap.visible[xs,ys]:
+        tile = player.gamemap.tiles['light'][xs,ys]
+        name = NAMES[player.gamemap.tiles[xs,ys][5]]
+        fg = color.grey
+        console.print(x+3,y,chr(tile[0]),tuple(tile[1]),tuple(tile[2]))
+
+        if len(name) > 12:
+            name = name[:10]+'..'
+        console.print(x,y,f"{chars.pop(0)})",fg=fg)
+        console.print(x+5,y,name,fg=fg)
+
     console.print(6,49,"(c)ontrols",color.dark_grey)
 

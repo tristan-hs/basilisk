@@ -206,7 +206,12 @@ class MainGameEventHandler(EventHandler):
             if key == tcod.event.K_PERIOD:
                 return actions.TakeStairsAction(player)
         
-            if key in ALPHA_KEYS and len(self.engine.fov_actors) > ALPHA_KEYS[key]:
+            dsx, dsy = self.engine.game_map.downstairs_location
+            if (
+                (key in ALPHA_KEYS and len(self.engine.fov_actors) > ALPHA_KEYS[key]) or
+                (key in ALPHA_KEYS and len(self.engine.fov_actors) == ALPHA_KEYS[key] and
+                        self.engine.game_map.visible[dsx,dsy])
+            ):
                 return InspectHandler(self.engine, key, self)
 
             return None
@@ -863,17 +868,26 @@ class InspectHandler(AskUserEventHandler):
         if mode == 'mouse':
             engine.mouse_location = mouse_location
 
-        self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]] if mode == 'nearby' else engine.mouse_things[ALPHA_KEYS[key]]
+        self.is_tile = False
 
-        x,y = mouse_location
-        if mode != 'nearby' and thing == engine.mouse_things[-1] and (engine.game_map.visible[x,y] or engine.game_map.explored[x,y] or engine.game_map.mapped[x,y]):
+        if mode != 'nearby':
+            x,y = mouse_location
+            self.thing = thing = engine.mouse_things[ALPHA_KEYS[key]]
+            if thing == engine.mouse_things[-1] and (engine.game_map.visible[x,y] or engine.game_map.explored[x,y] or engine.game_map.mapped[x,y]):
+                self.is_tile = True
+        elif ALPHA_KEYS[key] >= len(engine.fov_actors):
+            dsx,dsy = engine.game_map.downstairs_location
+            self.thing = thing = engine.game_map.tiles[dsx,dsy]
             self.is_tile = True
+        else:
+            self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]]
+
+        if self.is_tile:
             self.title = NAMES[thing[5]]
             self.frame_color = color.grey
-            self.flavor = FLAVORS[thing[6]]
+            self.flavor = FLAVORS[thing[6]] 
 
         else:
-            self.is_tile = False
             self.title = thing.label if hasattr(thing,'ai') or thing.identified else '???'
             self.frame_color = thing._color if hasattr(thing,'ai') else thing.color
             self.flavor = thing.flavor
