@@ -147,7 +147,7 @@ class Engine:
 
     @property
     def mouse_things(self):
-        return [
+        entities = [
             e for e in self.game_map.entities if 
                 (e.x,e.y) == self.mouse_location and 
                 (
@@ -156,6 +156,12 @@ class Engine:
                     self.game_map.smellable(e, True)
                 )
         ]
+
+        x,y = self.mouse_location
+        if self.game_map.visible[x,y] or self.game_map.explored[x,y] or self.game_map.mapped[x,y]:
+            entities += [self.game_map.tiles[x,y]]
+
+        return entities
 
 
 

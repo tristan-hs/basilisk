@@ -17,6 +17,7 @@ from basilisk.actions import (
 )
 from basilisk.render_functions import DIRECTIONS, D_ARROWS
 from basilisk.components.status_effect import PetrifiedSnake
+from basilisk.tile_types import NAMES, FLAVORS
 
 if TYPE_CHECKING:
     from basilisk.engine import Engine
@@ -861,9 +862,21 @@ class InspectHandler(AskUserEventHandler):
         super().__init__(engine)
         if mode == 'mouse':
             engine.mouse_location = mouse_location
+
         self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]] if mode == 'nearby' else engine.mouse_things[ALPHA_KEYS[key]]
-        self.title = thing.label if hasattr(thing,'ai') or thing.identified else '???'
-        self.frame_color = thing._color if hasattr(thing,'ai') else thing.color
+
+        x,y = mouse_location
+        if mode != 'nearby' and thing == engine.mouse_things[-1] and (engine.game_map.visible[x,y] or engine.game_map.explored[x,y] or engine.game_map.mapped[x,y]):
+            self.is_tile = True
+            self.title = NAMES[thing[5]]
+            self.frame_color = color.grey
+            self.flavor = FLAVORS[thing[6]]
+
+        else:
+            self.is_tile = False
+            self.title = thing.label if hasattr(thing,'ai') or thing.identified else '???'
+            self.frame_color = thing._color if hasattr(thing,'ai') else thing.color
+            self.flavor = thing.flavor
 
         self.frame_width = max(len(i) for i in (self.title, range(31)) if i is not None)+4
         if engine.player.x <= 30:
@@ -879,8 +892,8 @@ class InspectHandler(AskUserEventHandler):
             return 3
 
         inner = console.get_height_rect(
-            self.frame_x+1,self.frame_y+1,self.frame_width-2,47,self.thing.flavor
-        )+3 if self.thing.flavor else 2
+            self.frame_x+1,self.frame_y+1,self.frame_width-2,47,self.flavor
+        )+3 if self.flavor else 2
 
         flavor = inner
 
@@ -890,7 +903,7 @@ class InspectHandler(AskUserEventHandler):
                 inner += 3
             inner += len(self.thing.statuses)
 
-        elif self.thing.identified:
+        elif not self.is_tile and self.thing.identified:
             self.digest_height = console.get_height_rect(
                 self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.thing.edible.description
             )
@@ -955,7 +968,7 @@ class InspectHandler(AskUserEventHandler):
                 y += 1
             y += 1
 
-        elif self.thing.identified:
+        elif not self.is_tile and self.thing.identified:
             #print spit
             console.print(x,y,"Digest:",color.offwhite)
             console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.thing.edible.description,color.offwhite)
@@ -965,8 +978,8 @@ class InspectHandler(AskUserEventHandler):
             console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.thing.spitable.description,color.offwhite)
             y += self.spit_height+1
         
-        if self.thing.flavor:
-            console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.thing.flavor,color.grey)
+        if self.flavor:
+            console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.flavor,color.grey)
 
 
     def render_menu(self, console: tcod.Console):

@@ -7,6 +7,7 @@ import random
 from basilisk import color
 from basilisk.message_log import MessageLog
 from basilisk.render_order import RenderOrder
+from basilisk.tile_types import NAMES, FLAVORS
 
 if TYPE_CHECKING:
     from tcod import Console
@@ -142,11 +143,19 @@ def render_names_at_mouse_location(
 
     chars = ALPHA_CHARS[:]
     for e,entity in enumerate(entities):
-        engine.game_map.print_tile(entity,(x+3,y+e),console)
-        name = entity.label if len(entity.label) > 1 else '???'
+        if e == len(entities)-1 and (engine.game_map.visible[mouse_x,mouse_y] or engine.game_map.explored[mouse_x,mouse_y] or engine.game_map.mapped[mouse_x,mouse_y]):
+            tile = engine.game_map.tiles['light'][mouse_x,mouse_y]
+            name = NAMES[entity[5]]
+            fg = color.grey
+            console.print(x+3,y+e,chr(tile[0]),tuple(tile[1]),tuple(tile[2]))
+        else:
+            engine.game_map.print_tile(entity,(x+3,y+e),console)
+            name = entity.label if len(entity.label) > 1 else '???'
+            fg = entity.color
+        
         name = name if len(name) < 13 else name[:10]+'..'
-        console.print(x,y+e,chars.pop(0)+')',fg=entity.color)
-        console.print(x+5,y+e,name,fg=entity.color)
+        console.print(x,y+e,chars.pop(0)+')',fg=fg)
+        console.print(x+5,y+e,name,fg=fg)
         if e > 7:
             console.print(x+1,y,'...',fg=color.offwhite)
             break

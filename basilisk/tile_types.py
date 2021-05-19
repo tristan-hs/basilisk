@@ -19,9 +19,13 @@ tile_dt = np.dtype(
         ("transparent", np.bool),  # True if this tile doesn't block FOV.
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV.
         ("light", graphic_dt),  # Graphics for when the tile is in FOV.
+        ("name",np.int32),
+        ("flavor",np.int32)
     ]
 )
 
+NAMES = []
+FLAVORS = []
 
 def new_tile(
     *,  # Enforce the use of keywords, so that parameter order doesn't matter.
@@ -30,9 +34,24 @@ def new_tile(
     transparent: int,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
+    name: int,
+    flavor: int
 ) -> np.ndarray:
     """Helper function for defining individual tile types """
-    return np.array((walkable, snakeable, transparent, dark, light), dtype=tile_dt)
+
+    if name in NAMES:
+        name = NAMES.index(name)
+    else:
+        NAMES.append(name)
+        name = len(NAMES)-1
+
+    if flavor in FLAVORS:
+        flavor = FLAVORS.index(flavor)
+    else:
+        FLAVORS.append(flavor)
+        flavor = len(FLAVORS)-1
+
+    return np.array((walkable, snakeable, transparent, dark, light, name, flavor), dtype=tile_dt)
 
 
 # SHROUD represents unexplored, unseen tiles
@@ -40,26 +59,34 @@ SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
 # MAPPED representes unexplored, mapped tiles
 MAPPED = np.array((ord(" "), (0,0,0), (41,31,15)), dtype=graphic_dt)
 
-
 floor = new_tile(
+    name='floor',
+    flavor='When you fall, it will catch you.',
     walkable=True,
     transparent=True,
     dark=(ord(" "), (50,50,50), (7,7,7)),
     light=(ord("."), (25,25,25), (10,10,10)),
 )
+
 bloody_floor = new_tile(
+    name='floor',
+    flavor='Stained with the viscera of your foes.',
     walkable=True,
     transparent=True,
     dark=(ord(" "), (50,50,50), (7,7,7)),
     light=(ord("."), (75,0,0), (10,10,10))
 )
 snake_only = new_tile(
+    name='water',
+    flavor='An obstacle to the dungeon dwellers, but as good as any terrain for you.',
     walkable=False,
     transparent=True,
     dark=(ord(" "), (50,50,50), (7,7,7)),
     light=(ord("~"), (25,50,25), (10,10,10))
 )
 wall = new_tile(
+    name='wall',
+    flavor='Solid inanimate stone, for most.',
     walkable=False,
     snakeable=False,
     transparent=False,
@@ -67,12 +94,16 @@ wall = new_tile(
     light=(ord(" "), (255, 255, 255), (50,0,50)),
 )
 down_stairs = new_tile(
+    name='stairs',
+    flavor='Your passage to the next level.',
     walkable=True,
     transparent=True,
     dark=(ord(">"), (0, 100, 0), (0,5,0)),
     light=(ord(">"), (0, 255, 0), (0,10,0)),
 )
 door = new_tile(
+    name='doorway',
+    flavor='The floor between rooms.',
     walkable=True,
     transparent=True,
     dark=(ord("+"), (100,50,50), (5,5,5)),
@@ -80,6 +111,8 @@ door = new_tile(
 )
 
 vault_floor = new_tile(
+    name='floor',
+    flavor='Glowing with a malus of improbability.',
     walkable=True,
     transparent=True,
     dark=(ord(" "), (255,255,255), (0,0,10)),
@@ -87,6 +120,8 @@ vault_floor = new_tile(
 )
 
 boss_vault_floor = new_tile(
+    name='floor',
+    flavor='Glowing with the malus of finality.',
     walkable=True,
     transparent=True,
     dark=(ord(" "), (255,255,255), (10,0,0)),
@@ -94,6 +129,8 @@ boss_vault_floor = new_tile(
 )
 
 tunnel_floor = new_tile(
+    name='floor',
+    flavor='Think twice before traversing anything so narrow.',
     walkable=True,
     transparent=True,
     dark=(ord(" "), (255,255,255,), (0,50,0)),
