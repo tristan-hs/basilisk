@@ -368,7 +368,7 @@ class InventoryEventHandler(AskUserEventHandler):
         else:
             self.frame_x = 1
         self.frame_y = 1
-        self.show_spit = self.show_digest = True
+        self.show_spit = self.show_digest = self.show_passive = True
 
     @property
     def highlighted_item(self) -> Optional[Item]:
@@ -382,15 +382,21 @@ class InventoryEventHandler(AskUserEventHandler):
             if self.highlighted_item.identified:
                 if self.show_digest:
                     self.digest_height = console.get_height_rect(
-                        self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.edible.description
+                        self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.highlighted_item.edible.description
                     )
                     inner += self.digest_height + 1
 
                 if self.show_spit:
                     self.spit_height = console.get_height_rect(
-                        self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.highlighted_item.spitable.description
+                        self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.highlighted_item.spitable.description
                     )
                     inner += self.spit_height + 1
+
+                if self.show_passive and self.highlighted_item.stat:
+                    self.passive_height = console.get_height_rect(
+                        self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,f"+1 to AAAA while in WORD MODE"
+                    )
+                    inner += self.passive_height + 1
 
             if self.highlighted_item.flavor:
                 self.flavor_height = console.get_height_rect(
@@ -428,13 +434,18 @@ class InventoryEventHandler(AskUserEventHandler):
             if self.highlighted_item.identified:
                 if self.show_digest:
                     console.print(x,y,"Digest:",color.offwhite)
-                    console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.edible.description,color.offwhite)
+                    console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.edible.description,color.offwhite)
                     y += self.digest_height+1
                 
                 if self.show_spit:
                     console.print(x,y,"Spit:",color.offwhite)
-                    console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.highlighted_item.spitable.description,color.offwhite)
+                    console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.spitable.description,color.offwhite)
                     y += self.spit_height+1
+
+                if self.show_passive and self.highlighted_item.stat:
+                    console.print(x,y,"Passive:",color.offwhite)
+                    console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,f"+1 to {self.highlighted_item.stat} while in WORD MODE",color.offwhite)
+                    y += self.passive_height+1
             
             if self.highlighted_item.flavor:
                 console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.highlighted_item.flavor,color.grey)
@@ -551,7 +562,7 @@ class InventorySpitHandler(InventoryEventHandler):
 
     def __init__(self,engine):
         super().__init__(engine)
-        self.show_digest = False
+        self.show_digest = self.show_passive = False
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Return the action for the selected item."""
@@ -564,7 +575,7 @@ class InventoryDigestHandler(InventoryEventHandler):
 
     def __init__(self,engine):
         super().__init__(engine)
-        self.show_spit = False
+        self.show_spit = self.show_passive = False
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         return self.eat_item(item)
@@ -869,18 +880,19 @@ class InspectHandler(AskUserEventHandler):
             engine.mouse_location = mouse_location
 
         self.is_tile = False
+        key = ALPHA_KEYS[key]
 
         if mode != 'nearby':
             x,y = mouse_location
-            self.thing = thing = engine.mouse_things[ALPHA_KEYS[key]]
-            if thing == engine.mouse_things[-1] and (engine.game_map.visible[x,y] or engine.game_map.explored[x,y] or engine.game_map.mapped[x,y]):
+            self.thing = thing = engine.mouse_things[key]
+            if key == len(engine.mouse_things)-1 and (engine.game_map.visible[x,y] or engine.game_map.explored[x,y] or engine.game_map.mapped[x,y]):
                 self.is_tile = True
-        elif ALPHA_KEYS[key] >= len(engine.fov_actors):
+        elif key >= len(engine.fov_actors):
             dsx,dsy = engine.game_map.downstairs_location
             self.thing = thing = engine.game_map.tiles[dsx,dsy]
             self.is_tile = True
         else:
-            self.thing = thing = engine.fov_actors[ALPHA_KEYS[key]]
+            self.thing = thing = engine.fov_actors[key]
 
         if self.is_tile:
             self.title = NAMES[thing[5]]
@@ -919,15 +931,22 @@ class InspectHandler(AskUserEventHandler):
 
         elif not self.is_tile and self.thing.identified:
             self.digest_height = console.get_height_rect(
-                self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.thing.edible.description
+                self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.thing.edible.description
             )
             inner += self.digest_height
 
             self.spit_height = console.get_height_rect(
-                self.frame_x+9,self.frame_y+1,self.frame_width-10,47-inner,self.thing.spitable.description
+                self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.thing.spitable.description
             )
             inner += self.spit_height
             inner += 1
+
+            if self.thing.stat:
+                self.passive_height = console.get_height_rect(
+                    self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,f"Passive: +1 to AAAA while in WORD MODE"
+                )
+                inner += self.passive_height
+                inner += 1
 
         return inner if inner != flavor else inner - 1
 
@@ -985,12 +1004,17 @@ class InspectHandler(AskUserEventHandler):
         elif not self.is_tile and self.thing.identified:
             #print spit
             console.print(x,y,"Digest:",color.offwhite)
-            console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.thing.edible.description,color.offwhite)
+            console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.thing.edible.description,color.offwhite)
             y += self.digest_height+1
             #print digest
             console.print(x,y,"Spit:",color.offwhite)
-            console.print_box(x+8,y,self.frame_width-10,self.frame_height-2,self.thing.spitable.description,color.offwhite)
+            console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.thing.spitable.description,color.offwhite)
             y += self.spit_height+1
+            #print passive
+            if self.thing.stat:
+                console.print(x,y,"Passive:",color.offwhite)
+                console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,f"+1 to {self.thing.stat} while in WORD MODE",color.offwhite)
+                y += self.passive_height+1
         
         if self.flavor:
             console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.flavor,color.grey)
