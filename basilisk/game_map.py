@@ -257,7 +257,7 @@ class GameMap:
             else:
                 fg = color.player_dark
         elif not self.visible[item.x,item.y] and self.explored[item.x,item.y]:
-            fg = color.grey
+            fg = tuple(i//2 for i in fg)
         elif not self.visible[item.x,item.y]:
             return False
 
