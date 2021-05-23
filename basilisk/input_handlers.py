@@ -101,13 +101,19 @@ CURSOR_Y_KEYS = {
     tcod.event.K_DOWN: 1,
     tcod.event.K_PAGEUP: -10,
     tcod.event.K_PAGEDOWN: 10,
+    tcod.event.K_j: 1,
+    tcod.event.K_k: -1,
+    tcod.event.K_KP_2: 1,
+    tcod.event.K_KP_8: -1,
 }
 
 CURSOR_X_KEYS = {
     tcod.event.K_LEFT: -1,
     tcod.event.K_RIGHT: 1,
     tcod.event.K_h: -1,
-    tcod.event.K_l: 1
+    tcod.event.K_l: 1,
+    tcod.event.K_KP_4: -1,
+    tcod.event.K_KP_6: 1
 }
 
 
@@ -203,6 +209,9 @@ class MainGameEventHandler(EventHandler):
         player = self.engine.player
  
         if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+            if key == tcod.event.K_SLASH:
+                return PopupMessage(self, self.engine.help_text, 'top')
+
             if key == tcod.event.K_PERIOD:
                 return actions.TakeStairsAction(player)
         
@@ -222,7 +231,7 @@ class MainGameEventHandler(EventHandler):
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         elif key == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            return PlayMenuHandler(self.engine, self)
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine)
 
@@ -847,21 +856,23 @@ class AreaRangedAttackHandler(SelectIndexHandler):
 class PopupMessage(BaseEventHandler):
     """Display a popup text window."""
 
-    def __init__(self, parent_handler: BaseEventHandler, text: str):
+    def __init__(self, parent_handler: BaseEventHandler, text: str, vpos = 'center'):
         self.parent = parent_handler
         self.text = text
+        self.vpos = vpos
 
     def on_render(self, console: tcod.Console) -> None:
         """Render the parent and dim the result, then print the message on top."""
         self.parent.on_render(console)
         console.tiles_rgb["fg"] //= 8
         console.tiles_rgb["bg"] //= 8
+        y = console.height // 2 if self.vpos == 'center' else 0
 
         console.print(
             console.width // 2,
-            console.height // 2,
+            y,
             self.text,
-            fg=color.white,
+            fg=color.offwhite,
             bg=color.black,
             alignment=tcod.CENTER,
         )
@@ -869,6 +880,86 @@ class PopupMessage(BaseEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
         """Any key returns to the parent handler."""
         return self.parent
+
+class PlayMenuHandler(AskUserEventHandler):
+    """ Maybe left-align then pop-out new options as you go? 
+    arrange as a dict with (option, sub-optionsOrMethod) tuple """
+    
+    def __init__(self, engine, parent, options=None, selected=None, header=None):
+        super().__init__(engine)
+        self.options = [
+            ("Continue", self.onContinue),
+            ("Options", self.onOptions),
+            ("Help", self.onHelp),
+            ("Save and Quit", self.onSaveAndQuit)
+        ] if not options else options
+
+        self.selected = selected if selected else 0
+        self.parent = parent
+        self.header = header
+
+    def print_options(self, console):
+        y = (console.height // 2) - len(self.options)
+        x = console.width // 2
+
+        if self.header:
+            console.print(x, y-2, self.header, fg=color.yellow,alignment=tcod.CENTER)
+
+        for i,o in enumerate(self.options):
+            bg = (0,100,0) if i == self.selected else None
+
+            console.print(x,y,o[0],fg=color.offwhite,bg=bg,alignment=tcod.CENTER)
+            y += 2
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        console.tiles_rgb["fg"] //= 8
+        console.tiles_rgb["bg"] //= 8
+
+        self.print_options(console)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
+        key = event.sym
+        if key == tcod.event.K_ESCAPE:
+            return self.parent
+
+        if key in CURSOR_Y_KEYS:
+            return self.scroll(CURSOR_Y_KEYS[key])
+
+        if key in CONFIRM_KEYS:
+            return self.confirm()
+
+    def scroll(self, direction):
+        self.selected += direction
+        while self.selected >= len(self.options):
+            self.selected -= len(self.options)
+        while self.selected < 0:
+            self.selected += len(self.options)
+
+    def confirm(self):
+        return self.options[self.selected][1]()
+
+    def onContinue(self):
+        return self.parent
+
+    def onOptions(self):
+        options = [
+            ("Full Screen",self.onFullScreen)
+        ]
+        return PlayMenuHandler(self.engine,self,options,header="OPTIONS")
+
+    def onHelp(self):
+        return PopupMessage(self, self.engine.help_text, 'top')
+
+    def onSaveAndQuit(self):
+        # todo - quit to main menu
+        raise exceptions.QuitToMenu()
+
+    def onFullScreen(self):
+        raise exceptions.ToggleFullscreen()
+
+
 
 
 class InspectHandler(AskUserEventHandler):

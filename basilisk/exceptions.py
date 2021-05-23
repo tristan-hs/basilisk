@@ -10,3 +10,10 @@ class QuitWithoutSaving(SystemExit):
 
 class UnorderedPickup(Exception):
 	""" Raise to order pickups before picking them up """
+
+
+class ToggleFullscreen(Exception):
+	"""Raise to toggle fullscreen"""
+
+class QuitToMenu(Exception):
+	"""Quit from game to main menu"""

@@ -52,6 +52,10 @@ class Engine:
     def foi_radius(self):
         return 0 + self.player.TONG
 
+    @property
+    def help_text(self):
+        return render_functions.full_help_text
+
     def turn_back_time(self, turns, turner):
         turn = self.turn_count - turns
         with open(f"snapshot_{turn}.sav", "rb") as f:

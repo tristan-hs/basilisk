@@ -59,6 +59,11 @@ def main() -> None:
                         for event in tcod.event.wait():
                             context.convert_event(event)
                             handler = handler.handle_events(event)
+                    except exceptions.ToggleFullscreen:
+                        toggle_fullscreen(context)
+                    except exceptions.QuitToMenu:
+                        save_game(handler, utils.get_resource("savegame.sav"))
+                        handler = setup_game.MainMenu()
                     except Exception:  # Handle exceptions in game.
                         traceback.print_exc()  # Print error to stderr.
                         # Then print the error to the message log.
