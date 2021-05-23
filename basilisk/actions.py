@@ -59,6 +59,7 @@ class PickupAction(Action):
             self.engine.check_word_mode()
             segment = "" if len(item.label) == 1 else " segment"
             self.engine.message_log.add_message(f"You pick up the ?{segment}.", color.offwhite, item.label, item.color)
+            self.engine.history.append(("pickup item",f"{item.name} ({item.char})",self.engine.turn_count))
 
 
 class ItemAction(Action):
@@ -85,6 +86,7 @@ class ItemAction(Action):
         """Invoke the items ability, this action will be given to provide context."""
         self.engine.message_log.add_message(f"You digest the ? segment.", color.offwhite, self.item.label, self.item.color)
         self.item.edible.activate(self)
+        self.engine.history.append(("digest item",f"{self.item.name} ({self.item.char})",self.engine.turn_count))
 
 class ThrowItem(ItemAction):
     def perform(self, at="actor") -> None:
@@ -93,6 +95,7 @@ class ThrowItem(ItemAction):
         self.engine.message_log.add_message(f"You spit the ? segment{at}.", color.offwhite, self.item.label, self.item.color)
         
         self.item.spitable.activate(self)
+        self.engine.history.append(("spit item",f"{self.item.name} ({self.item.char})",self.engine.turn_count))
 
     @property
     def target_item(self) -> Optional[Item]:
@@ -197,5 +200,6 @@ class TakeStairsAction(Action):
             self.engine.message_log.add_message(
                 "You descend the staircase.", color.purple
             )
+            self.engine.history.append(("descend stairs",self.engine.game_map.floor_number,self.engine.turn_count))
         else:
             raise exceptions.Impossible("There are no stairs here.")

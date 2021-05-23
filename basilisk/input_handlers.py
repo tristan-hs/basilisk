@@ -212,6 +212,9 @@ class MainGameEventHandler(EventHandler):
             if key == tcod.event.K_SLASH:
                 return PopupMessage(self, self.engine.help_text, 'top')
 
+            if key == tcod.event.K_v:
+                return BigHistoryViewer(self.engine)
+
             if key == tcod.event.K_PERIOD:
                 return actions.TakeStairsAction(player)
         
@@ -356,6 +359,51 @@ class HistoryViewer(EventHandler):
             return MainGameEventHandler(self.engine)
         return None
 
+
+class BigHistoryViewer(HistoryViewer):
+    def __init__(self,engine):
+        super().__init__(engine)
+        self.log_length = len(engine.history)
+        self.cursor = self.log_length - 1
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)  # Draw the main state as the background.
+
+        log_console = tcod.Console(console.width - 6, console.height - 6)
+
+        # Draw a frame with a custom banner title.
+        log_console.draw_frame(0, 0, log_console.width, log_console.height)
+        log_console.print_box(
+            0, 0, log_console.width, 1, "┤Game history├", alignment=tcod.CENTER
+        )
+
+        log_console.print_box(
+            1,1, log_console.width-2, log_console.height-2, self.make_content(log_console.height-2),color.offwhite
+        )
+
+        log_console.blit(console, 3, 3)
+
+    def make_content(self,height):
+        if len(self.engine.history) < 1:
+            return ''
+
+        history = self.engine.history[:self.cursor+1]
+        history = history if len(history) <= height else history[self.cursor+1-height:self.cursor+1]
+
+        col_widths = [
+            max(len(str(i[2])) for i in history)+1,
+            max(len(i[0]) for i in history)+1
+        ]
+
+        content = []
+
+        for i in history:
+            tc = str(i[2]) + ' '*(col_widths[0] - len(str(i[2])))
+            ty = i[0] + ' '*(col_widths[1] - len(i[0]))
+
+            content.append(tc+ty+str(i[1]))
+
+        return "\n".join(content)
 
 class InventoryEventHandler(AskUserEventHandler):
     """This handler lets the user select an item.

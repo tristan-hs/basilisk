@@ -217,7 +217,6 @@ class Entity:
         return actors
 
 
-
 class Actor(Entity):
     def __init__(
         self,
@@ -360,6 +359,8 @@ class Actor(Entity):
             death_message = f"{self.name} is dead!"
             death_message_color = Color.dark_red
 
+            self.engine.history.append(("kill enemy",self.name,self.engine.turn_count))
+
             if self in self.gamemap.entities:
                 self.gamemap.entities.remove(self)
 
@@ -389,6 +390,7 @@ class Actor(Entity):
                 self.hit_shield()
                 return
             self.die()
+
 
 class Item(Entity):
     """Any letter"""
@@ -532,6 +534,7 @@ class Item(Entity):
             self.engine.message_log.add_message(f"Your ? segment breaks apart!", Color.dark_red, self.label, self.color)
             self.consume()
             self.engine.player.unsnake(i)
+            self.engine.history.append(("break item",f"{self.name} ({self.char})",self.engine.turn_count))
         
         else:
             self.gamemap.entities.remove(self)

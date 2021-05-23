@@ -37,6 +37,19 @@ class Engine:
         self.show_instructions = True
         self.boss_killed = False
 
+        #RUN STATS
+        self.history = []
+            # (type of record, record, turn count)
+            # types of record:
+                # pickup item
+                # spit item
+                # digest item
+                # break segment
+
+                # kill enemy
+                # descend stairs
+                # form word
+
     # field of view
     @property
     def fov_radius(self):
@@ -87,6 +100,8 @@ class Engine:
             return
         p_word = ''.join([i.char for i in self.player.inventory.items])
         self.word_mode = p_word in open(utils.get_resource("words.txt")).read().splitlines()
+        if self.word_mode:
+            self.history.append(('form word',p_word,self.turn_count))
 
     def handle_enemy_turns(self) -> None:
         enemies = sorted(set(self.game_map.actors) - {self.player}, key=lambda x: x.id)
