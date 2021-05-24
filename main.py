@@ -64,6 +64,8 @@ def main() -> None:
                     except exceptions.QuitToMenu:
                         save_game(handler, utils.get_resource("savegame.sav"))
                         handler = setup_game.MainMenu()
+                    except exceptions.QuitWithoutSaving:
+                        handler = setup_game.MainMenu()
                     except Exception:  # Handle exceptions in game.
                         traceback.print_exc()  # Print error to stderr.
                         # Then print the error to the message log.
@@ -71,8 +73,6 @@ def main() -> None:
                             handler.engine.message_log.add_message(
                                 traceback.format_exc(), color.red
                             )
-            except exceptions.QuitWithoutSaving:
-                raise
             except SystemExit:  # Save and quit.
                 save_game(handler, utils.get_resource("savegame.sav"))
                 raise

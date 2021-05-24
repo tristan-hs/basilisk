@@ -291,20 +291,53 @@ class GameOverEventHandler(EventHandler):
         snapshots = glob.glob("snapshot_*.sav")
         for s in snapshots:
             os.remove(s)
-        raise exceptions.QuitWithoutSaving()  # Avoid saving a finished game.
 
-    def ev_quit(self, event: tcod.event.Quit) -> None:
-        self.on_quit()
+        return GameOverStatScreen(self.engine)
         
-    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+    def ev_quit(self, event: tcod.event.Quit):
+        return self.on_quit()
+        
+    def ev_keydown(self, event: tcod.event.KeyDown):
         if event.sym == tcod.event.K_ESCAPE:
-            self.on_quit()
+            return self.on_quit()
 
 class VictoryEventHandler(GameOverEventHandler):
     def __init__(self,engine):
         super().__init__(engine)
         engine.message_log.add_message("Congratulations! You've encircled the Voidmaw and saved the world from annihilation!", color.purple)
 
+
+class GameOverStatScreen(GameOverEventHandler):
+    def on_quit(self) -> None:
+        raise exceptions.QuitWithoutSaving()
+
+    def on_render(self,console):
+        history = self.engine.history
+        words = [i[1] for i in history if i[0] == 'form word']
+        uses = [i for i in history if i[0] in ['spit item','digest item']]
+        kills = [i for i in history if i[0] == 'kill enemy']
+        pname = words[-1] if words else ''
+
+        console.print(1,1,"R.I.P.  "+' '*len(pname)+' the Basilisk',color.offwhite)
+        console.print(8,1,f"@{pname}",color.player)
+
+        console.print(1,3,f"Died on floor {self.engine.game_map.floor_number} to ?????",color.offwhite)
+        
+        console.print(1,5,"Along the way:",color.offwhite)
+        console.print(3,6,f"- Used {len(uses)} items",color.offwhite)
+        console.print(3,7,f"- Killed {len(kills)} foes",color.offwhite)
+        console.print(3,8,f"- Formed {len(set(words))} words",color.offwhite)
+
+        lword = sorted(words,key=lambda x:len(x))[-1] if words else "n/a"
+        console.print(1,10,f"Longest word: {lword}")
+        console.print(1,12,f"Turn count: {self.engine.turn_count}")
+
+        y = 3
+        for w in reversed(words):
+            console.print(52,y,f"@{w}",tuple(c//2 for c in color.player))
+            y += 1
+            if y > 39:
+                break
 
 
 class HistoryViewer(EventHandler):
