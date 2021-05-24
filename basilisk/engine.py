@@ -139,7 +139,7 @@ class Engine:
 
         self.player.on_turn()
 
-        if not self.player.can_move():
+        if not self.player.can_move() and self.player.is_alive:
             self.message_log.add_message(f"Oof! You're trapped!", color.red)
             self.player.die()
         
