@@ -141,6 +141,7 @@ class Engine:
 
         if not self.player.can_move() and self.player.is_alive:
             self.message_log.add_message(f"Oof! You're trapped!", color.red)
+            self.player.cause_of_death = "suffocation"
             self.player.die()
         
         self.turn_count += 1

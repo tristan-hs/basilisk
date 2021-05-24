@@ -149,6 +149,8 @@ class MeleeAction(ActionWithDirection):
                 attack_desc, color.offwhite, label, t_color
             )
             target.take_damage(damage)
+            if target is self.engine.player and not target.is_alive:
+                target.cause_of_death = self.entity.name
         else:
             t_color = target.color if i_tar else color.grey
             self.engine.message_log.add_message(

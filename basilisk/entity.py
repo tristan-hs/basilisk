@@ -258,6 +258,8 @@ class Actor(Entity):
         self.drop_tier = drop_tier
         self.is_boss = is_boss
 
+        self.cause_of_death = None
+
     @property
     def color(self):
         if (

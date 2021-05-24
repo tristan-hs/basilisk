@@ -318,10 +318,19 @@ class GameOverStatScreen(GameOverEventHandler):
         kills = [i for i in history if i[0] == 'kill enemy']
         pname = words[-1] if words else ''
 
-        console.print(1,1,"R.I.P.  "+' '*len(pname)+' the Basilisk',color.offwhite)
-        console.print(8,1,f"@{pname}",color.player)
+        if not self.engine.player.is_alive:
+            console.print(1,1,"R.I.P.  "+' '*len(pname)+' the Basilisk',color.offwhite)
+            console.print(8,1,f"@{pname}",color.player)
 
-        console.print(1,3,f"Died on floor {self.engine.game_map.floor_number} to ?????",color.offwhite)
+            cod = self.engine.player.cause_of_death
+            a = 'a ' if cod != 'suffocation' else ''
+            console.print(1,3,f"Died on floor {self.engine.game_map.floor_number} to {a}{cod}",color.offwhite)
+
+        else:
+            console.print(1,1,"Congratulations  "+' '*len(pname)+' the Basilisk',color.purple)
+            console.print(17,1,f"@{pname}",color.player)
+
+            console.print(1,3,f"Constricted the Thing Below!",color.purple)
         
         console.print(1,5,"Along the way:",color.offwhite)
         console.print(3,6,f"- Used {len(uses)} items",color.offwhite)
