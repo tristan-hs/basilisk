@@ -501,7 +501,7 @@ class DamageAllConsumable(Consumable):
             for a in actors:
                 a.take_damage(self.modified_damage)
         else:
-            self.engine.message_log.add_message("You shower an acid rain on the dungeon to no discernable effect.",self.grey)
+            self.engine.message_log.add_message("You shower an acid rain on the dungeon to no discernable effect.",color.grey)
 
         self.consume()
 
