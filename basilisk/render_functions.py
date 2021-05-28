@@ -228,7 +228,7 @@ def render_player_drawer(console: Console, location: Tuple[int,int], player, tur
         height=f_height,
         clear=False,
         fg=color.offwhite if word_mode else color.dark_grey,
-        bg=(0,0,0)
+        bg=None
     )
     for i,char in enumerate("MODE"):
         console.print(x=75+i+1,y=sy-adj+r+1,string=char,fg=cs.next_color)
