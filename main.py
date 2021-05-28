@@ -56,16 +56,31 @@ def main() -> None:
                     context.present(root_console)
 
                     try:
-                        for event in tcod.event.wait():
+                        for event in tcod.event.wait(None):
                             context.convert_event(event)
                             handler = handler.handle_events(event)
+
+                    except exceptions.VictoryAnimation as v:
+                        init_handler = handler = v.handler
+                        while init_handler == handler:
+                            root_console.clear()
+                            handler.on_render(console=root_console)
+                            context.present(root_console)
+
+                            for event in tcod.event.get():
+                                context.convert_event(event)
+                                handler = handler.handle_events(event)
+
                     except exceptions.ToggleFullscreen:
                         toggle_fullscreen(context)
+
                     except exceptions.QuitToMenu:
                         save_game(handler, utils.get_resource("savegame.sav"))
                         handler = setup_game.MainMenu()
+
                     except exceptions.QuitWithoutSaving:
                         handler = setup_game.MainMenu()
+
                     except Exception:  # Handle exceptions in game.
                         traceback.print_exc()  # Print error to stderr.
                         # Then print the error to the message log.
@@ -73,6 +88,7 @@ def main() -> None:
                             handler.engine.message_log.add_message(
                                 traceback.format_exc(), color.red
                             )
+
             except SystemExit:  # Save and quit.
                 save_game(handler, utils.get_resource("savegame.sav"))
                 raise

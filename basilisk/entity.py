@@ -322,7 +322,7 @@ class Actor(Entity):
             return
         self.engine.message_log.add_message(f"You constrict the {self.name}!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)
-        char_num = int(self.char)- (1 + self.engine.player.TAIL)
+        char_num = int(self.char)- (1 + self.engine.player.TAIL) if not self.is_boss else int(self.char) - 1
         if char_num < 0:
             self.die()
         else:

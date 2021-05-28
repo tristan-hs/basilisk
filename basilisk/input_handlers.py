@@ -305,6 +305,34 @@ class VictoryEventHandler(GameOverEventHandler):
     def __init__(self,engine):
         super().__init__(engine)
         engine.message_log.add_message("Congratulations! You've encircled the Voidmaw and saved the world from annihilation!", color.purple)
+        self.render_tally = 0
+        self.frame_interval = 60
+        self.min_frame_interval = 1
+        self.start_animation()
+
+    def start_animation(self):
+        p = self.engine.player
+        inv = p.inventory.items
+
+        last_seg = [i for i in inv if all(x in i.get_adjacent_actors() for x in [self.engine.boss,p])][-1]
+        if last_seg is not inv[-1]:
+            inv[inv.index(last_seg)+1].die()
+
+        raise exceptions.VictoryAnimation(self)
+
+    def animate_frame(self):
+        p = self.engine.player
+        t = self.engine.player.inventory.items[-1]
+        p.move(t.x-p.x,t.y-p.y)
+
+    def on_render(self,console):
+        super().on_render(console)
+        self.render_tally += 1
+        if self.render_tally % self.frame_interval == 0:
+            self.render_tally = 0
+            self.frame_interval = max(min(self.frame_interval // 1.1, self.frame_interval-1),self.min_frame_interval)
+            self.animate_frame()
+
 
 
 class GameOverStatScreen(GameOverEventHandler):
@@ -319,12 +347,12 @@ class GameOverStatScreen(GameOverEventHandler):
         pname = words[-1] if words else ''
 
         if not self.engine.player.is_alive:
-            console.print(1,1,"R.I.P.  "+' '*len(pname)+' the Basilisk',color.offwhite)
+            console.print(1,1,"R.I.P.  "+' '*len(pname)+' the Basilisk',color.red)
             console.print(8,1,f"@{pname}",color.player)
 
             cod = self.engine.player.cause_of_death
             a = 'a ' if cod != 'suffocation' else ''
-            console.print(1,3,f"Died on floor {self.engine.game_map.floor_number} to {a}{cod}",color.offwhite)
+            console.print(1,3,f"Died on floor {self.engine.game_map.floor_number} to {a}{cod}",color.red)
 
         else:
             console.print(1,1,"Congratulations  "+' '*len(pname)+' the Basilisk',color.purple)

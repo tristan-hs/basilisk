@@ -118,8 +118,8 @@ class MainMenu(input_handlers.BaseEventHandler):
             x = 22
             y = 21
 
-            if len(words) + y + 3 > console.height:
-                y -= len(words) + y + 3 - console.height
+            if len(words) + y + 10 > console.height:
+                y -= len(words) + y + 10 - console.height
                 if y < 3:
                     y = 3
 

@@ -17,3 +17,9 @@ class ToggleFullscreen(Exception):
 
 class QuitToMenu(Exception):
 	"""Quit from game to main menu"""
+
+class VictoryAnimation(Exception):
+	"""Time to do cool shit"""
+	def __init__(self,handler):
+		self.handler = handler
+		super().__init__()
