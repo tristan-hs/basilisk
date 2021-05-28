@@ -34,7 +34,7 @@ class Engine:
         self.player = player
         self.word_mode = False
         self.turn_count = 0
-        self.show_instructions = True
+        self.show_instructions = False
         self.boss_killed = False
 
         #RUN STATS
