@@ -57,7 +57,7 @@ def new_tile(
 # SHROUD represents unexplored, unseen tiles
 SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
 # MAPPED representes unexplored, mapped tiles
-MAPPED = np.array((ord(" "), (0,0,0), (41,31,15)), dtype=graphic_dt)
+MAPPED = np.array((ord("."), (50,0,50), (0,0,0)), dtype=graphic_dt)
 
 floor = new_tile(
     name='floor',
