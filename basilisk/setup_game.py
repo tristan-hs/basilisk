@@ -71,6 +71,15 @@ def load_game(filename: str) -> Engine:
 class MainMenu(input_handlers.BaseEventHandler):
     """Handle the main menu rendering and input."""
 
+    def __init__(self):
+        try:
+            self.engine = load_game(utils.get_resource("savegame.sav"))
+        except FileNotFoundError:
+            self.engine = None
+        except Exception as exc:
+            traceback.print_exc()  # Print to stderr.
+            return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
+
     def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
         console.draw_semigraphics(background_image, 0, 0)
@@ -85,11 +94,13 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         menu_width = 24
         for i, text in enumerate(
-            ["[N] Play a new game", "[C] Continue last game", "[Q] Quit"]
+            ["(c)ontinue", "(n)ew game", "(q)uit"]
         ):
+            if i == 0 and not self.engine:
+                continue
             console.print(
-                console.width // 2 - 4,
-                console.height // 2 - 2 + i,
+                72,
+                21 + (2*i),
                 text.ljust(menu_width),
                 fg=color.white,
                 bg=color.black,
@@ -97,19 +108,51 @@ class MainMenu(input_handlers.BaseEventHandler):
                 bg_blend=tcod.BKGND_ALPHA(64),
             )
 
+        if self.engine:
+            history = self.engine.history
+            words = [i[1] for i in history if i[0] == 'form word']
+            uses = [i for i in history if i[0] in ['spit item','digest item']]
+            kills = [i for i in history if i[0] == 'kill enemy']
+            pname = words[-1] if words else ''
+
+            x = 22
+            y = 21
+
+            if len(words) + y + 3 > console.height:
+                y -= len(words) + y + 3 - console.height
+                if y < 3:
+                    y = 3
+
+            pname = '@' + pname
+            console.print(x,y,pname,color.player)
+            console.print(x+len(pname),y," the Basilisk",color.offwhite)
+
+            console.print(x,y+2,f"Floor: D{self.engine.game_map.floor_number}",color.offwhite)
+            console.print(x,y+3,f"Turn:  {self.engine.turn_count}",color.offwhite)
+
+            lword = sorted(words,key=lambda x:len(x))[-1] if words else "n/a"
+            console.print(x,y+5,f"History:",color.offwhite)
+
+            for w in reversed(words):
+                console.print(x+3,y+7,f"@{w}",tuple(c//2 for c in color.player))
+                y += 1
+                if y + 10 > console.height:
+                    break
+
+            if not len(words):
+                console.print(x+3,y+7,"n/a",color.grey)
+
+
     def ev_keydown(
         self, event: tcod.event.KeyDown
     ) -> Optional[input_handlers.BaseEventHandler]:
         if event.sym in (tcod.event.K_q, tcod.event.K_ESCAPE):
             raise SystemExit()
         elif event.sym == tcod.event.K_c:
-            try:
-                return input_handlers.MainGameEventHandler(load_game(utils.get_resource("savegame.sav")))
-            except FileNotFoundError:
+            if self.engine:
+                return input_handlers.MainGameEventHandler(self.engine)
+            else:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
-            except Exception as exc:
-                traceback.print_exc()  # Print to stderr.
-                return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
         elif event.sym == tcod.event.K_n:
             return input_handlers.MainGameEventHandler(new_game())
 
