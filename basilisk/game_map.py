@@ -156,7 +156,6 @@ class GameMap:
             return
 
         if not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent):
-            entity.ai.clear_intent()
             return
 
         if not self.engine.word_mode:
