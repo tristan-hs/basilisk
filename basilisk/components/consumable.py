@@ -338,20 +338,20 @@ class HookshotProjectile(Projectile):
 
         if action.target_actor and action.target_actor is not consumer:
             target = action.target_actor
+            self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
             tile = consumer.ai.get_path_to(*action.target_xy,0)[0]
             target.place(*tile)
             target.constrict()
 
         if not target and action.target_item and action.target_item not in consumer.inventory.items:
             target = action.target_item
+            self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
             tile = consumer.xy
             target.place(*tile)
             actions.PickupAction(consumer).perform()
 
-        if target:
-            self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
-        else:
-            self.engine.message_log.add_message("It flops to the dungeon floor.")
+        if not target:
+            self.engine.message_log.add_message("It unravels on the dungeon floor.")
 
 
 class KnockbackProjectile(Projectile):
