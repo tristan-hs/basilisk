@@ -860,7 +860,8 @@ class ClingyConsumable(Projectile):
 
         self.parent.solidify()
 
-        self.engine.message_log.add_message("The segment clings and whines, only moving forward a little bit.")
+        self.engine.message_log.add_message("The segment clings and whines, only moving forward a bit.")
+        self.parent.identified = True
 
     def plop(self, action: actions.ItemAction):
         xy = self.parent.xy
@@ -868,6 +869,8 @@ class ClingyConsumable(Projectile):
         self.parent.desolidify()
         self.parent.place(*space)
         self.engine.player.snake(xy)
+        self.engine.message_log.add_message("It plops down in front of you.")
+        self.parent.identified = True
 
 
 
