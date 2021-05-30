@@ -82,6 +82,8 @@ class Engine:
             if i.id == turner.id:
                 if i in self.player.inventory.items:
                     i.edible.consume()
+                    i.edible.identify()
+                    i.edible.snake()
                 else:
                     i.consume()
                 return

@@ -85,7 +85,7 @@ class ItemAction(Action):
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
         self.engine.message_log.add_message(f"You digest the ? segment.", color.offwhite, self.item.label, self.item.color)
-        self.item.edible.activate(self)
+        self.item.edible.start_activation (self)
         self.engine.history.append(("digest item",f"{self.item.name} ({self.item.char})",self.engine.turn_count))
 
 class ThrowItem(ItemAction):
@@ -94,7 +94,7 @@ class ThrowItem(ItemAction):
         at = f" at the {target.name}" if target and target is not self.engine.player else ''        
         self.engine.message_log.add_message(f"You spit the ? segment{at}.", color.offwhite, self.item.label, self.item.color)
         
-        self.item.spitable.activate(self)
+        self.item.spitable.start_activation(self)
         self.engine.history.append(("spit item",f"{self.item.name} ({self.item.char})",self.engine.turn_count))
 
     @property

@@ -457,7 +457,7 @@ class Item(Entity):
             return
         factory._identified = self._identified = new_val
         n = 'n' if self.label[0].lower() in ('a','e','i','o','u') else ''
-        self.engine.message_log.add_message(f"It was a{n} ? segment.", Color.grey, self.label, self.color)
+        self.engine.message_log.add_message(f"The {self.char} was a{n} ? segment.", Color.grey, self.label, self.color)
 
     @property
     def color(self):
@@ -519,7 +519,6 @@ class Item(Entity):
 
     #remove the item from the game
     def consume(self):
-        self.identified = True
         self.gamemap.entities.remove(self)
         if self in self.engine.player.inventory.items:
             self.engine.player.inventory.items.remove(self)
