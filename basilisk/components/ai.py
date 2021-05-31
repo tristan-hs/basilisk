@@ -140,6 +140,7 @@ class HostileEnemy(BaseAI):
 
         target = self.engine.player if fov[self.engine.player.x,self.engine.player.y] else None
         d_to_t = len(self.get_path_to(*target.xy)) if target else 999
+        d_to_t = d_to_t if d_to_t else 999
         xy = target.xy if target else None
 
         # don't do anything if no blood in the water
@@ -153,6 +154,7 @@ class HostileEnemy(BaseAI):
         # prioritize parts of the player you can see
         for i in self.engine.player.inventory.items:
             d_to_i = len(self.get_path_to(*i.xy))
+            d_to_i = d_to_i if d_to_i else 999
             if d_to_i < d_to_t and fov[i.x,i.y]:
                 d_to_t = d_to_i
                 target = i
@@ -162,11 +164,13 @@ class HostileEnemy(BaseAI):
             if entity.name == "Decoy" and fov[entity.x,entity.y]:
                 target = entity
                 d_to_t = len(self.get_path_to(*entity.xy))
+                d_to_t = d_to_t if d_to_t else 999
 
         # failing all that go for where you last saw a target
         self.last_target = xy = target.xy if target else self.last_target
         if xy and not d_to_t:
             d_to_t = len(self.get_path_to(*xy))
+            d_to_t = d_to_t if d_to_t else 999
 
         return (target, d_to_t, xy)
 
@@ -177,7 +181,7 @@ class HostileEnemy(BaseAI):
         target, distance, xy = self.pick_target()
         x, y = self.entity.xy
 
-        if not xy:
+        if not xy or distance == 999:
             self._intent.append(WaitAction(self.entity))
             return
 
