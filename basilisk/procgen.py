@@ -392,7 +392,7 @@ def generate_dungeon(
         else:
             rooms.append(room)
     
-    if floor_number != 3:
+    if floor_number != 10:
         dungeon.tiles[center_of_last_room] = tile_types.down_stairs
     else:
         engine.boss = entity_factories.final_boss.spawn(dungeon,center_of_last_room[0],center_of_last_room[1])
