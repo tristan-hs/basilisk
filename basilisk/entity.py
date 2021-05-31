@@ -534,6 +534,7 @@ class Item(Entity):
             i = player.inventory.items.index(self)
             self.engine.message_log.add_message(f"Your ? segment breaks apart!", Color.dark_red, self.label, self.color)
             self.consume()
+            self.identified = True
             self.engine.player.unsnake(i)
             self.engine.history.append(("break item",f"{self.name} ({self.char})",self.engine.turn_count))
         
