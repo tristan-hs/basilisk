@@ -138,41 +138,40 @@ class HostileEnemy(BaseAI):
             radius=8,
         )
 
-        target = self.engine.player if fov[self.engine.player.x,self.engine.player.y] else None
-        d_to_t = len(self.get_path_to(*target.xy)) if target else 999
-        d_to_t = d_to_t if d_to_t else 999
-        xy = target.xy if target else None
+        # pick the first thing in fov that you can path to:
+            # a decoy
+            # the nearest of the player or its parts
+                # if you are seeing the player after not being in attack mode, send the notice message
+            # the last place you saw a player or its parts
 
-        # don't do anything if no blood in the water
-        if target == None and not self.last_target:
-            return (None, None, None)
+        # set last_target to whatever you pick
 
-        # if you see the player for the first time, enter attack mode
-        if target != None and not self.last_target:
-            self.engine.message_log.add_message(f"The ? notices you!", color.offwhite, self.entity.name, self.entity.color)
-
-        # prioritize parts of the player you can see
-        for i in self.engine.player.inventory.items:
-            d_to_i = len(self.get_path_to(*i.xy))
-            d_to_i = d_to_i if d_to_i else 999
-            if d_to_i < d_to_t and fov[i.x,i.y]:
-                d_to_t = d_to_i
-                target = i
-
-        # above all else go for a decoy
+        target = None
+        
         for entity in self.engine.game_map.entities:
             if entity.name == "Decoy" and fov[entity.x,entity.y]:
-                target = entity
-                d_to_t = len(self.get_path_to(*entity.xy))
-                d_to_t = d_to_t if d_to_t else 999
+                d = len(self.get_path_to(*entity.xy))
+                if d:
+                    self.last_target = target.xy
+                    return (target,d,target.xy)
 
-        # failing all that go for where you last saw a target
-        self.last_target = xy = target.xy if target else self.last_target
-        if xy and not d_to_t:
-            d_to_t = len(self.get_path_to(*xy))
-            d_to_t = d_to_t if d_to_t else 999
+        d_to_t = 0
+        for entity in [self.engine.player] + self.engine.player.inventory.items:
+            if fov[entity.x,entity.y]:
+                d = len(self.get_path_to(*entity.xy))
+                if d and (not d_to_t or d_to_t > d):
+                    d_to_t = d
+                    target = entity
+        if target:
+            self.last_target = target.xy
+            return (target,d_to_t,target.xy)
 
-        return (target, d_to_t, xy)
+        if self.last_target:
+            d = len(self.get_path_to(*self.last_target))
+            if d:
+                return (None, d, self.last_target)
+
+        return (None, None, None)
 
 
     def decide(self) -> Optional[Action]:
@@ -181,11 +180,11 @@ class HostileEnemy(BaseAI):
         target, distance, xy = self.pick_target()
         x, y = self.entity.xy
 
-        if not xy or distance == 999:
+        if not xy:
             self._intent.append(WaitAction(self.entity))
             return
 
-        if distance <= 1:
+        if distance == 1:
             self._intent.append(BumpAction(self.entity, xy[0]-x, xy[1]-y))
             return
         

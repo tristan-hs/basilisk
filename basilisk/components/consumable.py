@@ -77,6 +77,8 @@ class Consumable(BaseComponent):
         self.engine.player.snake(self.footprint, self.start_at)
 
     def apply_status(self, action, status, duration=10) -> None:
+        if action.target_actor.is_boss:
+            return
         st = [s for s in action.target_actor.statuses if isinstance(s,status)]
         if st:
             st[0].strengthen()
