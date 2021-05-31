@@ -116,7 +116,7 @@ class Projectile(Consumable):
         consumer = action.entity
         target = action.target_actor if action.target_actor else action.target_item
 
-        if target:
+        if target and not target.is_boss:
             self.engine.message_log.add_message(
                     f"{target.label} takes {self.modified_damage} damage!", color.offwhite
             )
@@ -367,7 +367,7 @@ class KnockbackProjectile(Projectile):
         consumer = action.entity
         target = action.target_actor
 
-        if target:
+        if target and not target.is_boss:
             push_path = self.engine.player.ai.get_path_past(target.x,target.y,0)
             pushed = False
             destination = None
@@ -384,7 +384,7 @@ class KnockbackProjectile(Projectile):
             else:
                 self.engine.message_log.add_message(f"The {target.name} couldn't be pushed.")
         else:
-            self.engine.message_log.add_message("The forceful projectile dissipates in the air.")
+            self.engine.message_log.add_message("It dissipates in the air.")
 
 
 class KnockbackConsumable(Consumable):
@@ -953,7 +953,7 @@ class LightningDamageConsumable(Projectile):
                     target = actor
                     closest_distance = distance
 
-        if target:
+        if target and not target.is_boss:
             self.engine.message_log.add_message(
                 f"Lightning smites the {target.name} for {self.modified_damage} damage!", color.offwhite,
             )
@@ -993,7 +993,7 @@ class FireballDamageConsumable(Projectile):
 
         targets_hit = False
         for entity in list(self.engine.game_map.entities)[:]:
-            if entity.distance(*target_xy) <= self.radius:
+            if entity.distance(*target_xy) <= self.radius and not entity.is_boss:
                 self.engine.message_log.add_message(
                     f"The explosion engulfs the {entity.label}! It takes {self.modified_damage} damage!", color.offwhite,
                 )
