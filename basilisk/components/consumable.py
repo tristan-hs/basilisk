@@ -58,7 +58,7 @@ class Consumable(BaseComponent):
         """
         raise NotImplementedError()
 
-    def consume(self) -> None:
+    def consume(self, force=False) -> None:
         """Remove the consumed item from its containing inventory."""
         if not self.parent in self.engine.player.inventory.items:
             self.parent.consume()
@@ -122,8 +122,8 @@ class Projectile(Consumable):
         else:
             self.engine.message_log.add_message("Nothing happens.", color.grey)
 
-    def consume(self) -> None:
-        if any(isinstance(s,FreeSpit) for s in self.engine.player.statuses):
+    def consume(self, force=False) -> None:
+        if any(isinstance(s,FreeSpit) for s in self.engine.player.statuses) and not force:
             return
 
         super().consume()
@@ -552,8 +552,10 @@ class PhasingProjectile(Projectile):
 class NotConsumable(Consumable):
     description = "know futility"
 
-    def consume(self):
-        return
+    def consume(self, force=False):
+        if not force:
+            return
+        super().consume(force)
 
     def snake(self):
         return
@@ -624,7 +626,7 @@ class ConsumingConsumable(Consumable):
 
     def start_activation(self, action):
         self.activate(action)
-        self.consume()
+        self.consume(True)
         self.identify()
         self.snake()
 
@@ -640,7 +642,7 @@ class ConsumingConsumable(Consumable):
         if neighbours:
             neighbour = random.choice(neighbours)
             self.engine.message_log.add_message(f"It swipes your {neighbour.char} and disappears!", color.red)
-            neighbour.edible.consume()
+            neighbour.edible.consume(True)
             neighbour.edible.identify()
             neighbour.edible.snake()
         else:
