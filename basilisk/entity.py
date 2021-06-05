@@ -432,6 +432,7 @@ class Item(Entity):
         self._color = color
         self.rarity = rarity
         self.stat = stat
+        self.is_boss = False
 
     @property
     def label(self):
