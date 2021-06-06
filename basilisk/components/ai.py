@@ -164,7 +164,7 @@ class HostileEnemy(BaseAI):
                     target = entity
         if target:
             if not self.last_target:
-                self.engine.message_log.add_message(f"The {self.entity.name} spotted you!", color.offwhite)
+                self.engine.message_log.add_message(f"The ? spotted you!", color.offwhite, self.entity.name, self.entity.color)
             self.last_target = target.xy
             return (target,d_to_t,target.xy)
 
