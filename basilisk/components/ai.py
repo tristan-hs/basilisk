@@ -152,8 +152,8 @@ class HostileEnemy(BaseAI):
             if entity.name == "Decoy" and fov[entity.x,entity.y]:
                 d = len(self.get_path_to(*entity.xy))
                 if d:
-                    self.last_target = target.xy
-                    return (target,d,target.xy)
+                    self.last_target = entity.xy
+                    return (entity,d,entity.xy)
 
         d_to_t = 0
         for entity in [self.engine.player] + self.engine.player.inventory.items:
