@@ -454,11 +454,11 @@ class DrillingProjectile(Projectile):
             actor = gm.get_actor_at_location(*tile)
             if actor and actor is not consumer:
                 actor.take_damage(self.modified_damage)
-                self.engine.message_log.add_message(f"It drills through the ?!", color.grey, actor.name, actor.color)
+                self.engine.message_log.add_message(f"It drills through the ?!", color.offwhite, actor.name, actor.color)
 
             if not gm.tiles['walkable'][tile[0],tile[1]]:
                 gm.tiles[tile[0],tile[1]] = tile_types.floor
-                self.engine.message_log.add_message("It drills through the dungeon wall!", color.grey)
+                self.engine.message_log.add_message("It drills through the dungeon wall!", color.offwhite)
 
 
 class LeakingProjectile(Projectile):
@@ -585,7 +585,7 @@ class StatBoostConsumable(Consumable):
     def activate(self, action: actions.ItemAction) -> None:
         stat = self.stat if self.stat != "a stat" else random.choice(['BILE','MIND','TAIL','TONG'])
         stat_str = "TONGUE" if stat == "TONG" else stat
-        self.engine.message_log.add_message(self.messages[stat], color.grey, stat_str, color.stats[stat])
+        self.engine.message_log.add_message(self.messages[stat], color.offwhite, stat_str, color.stats[stat])
         if self.permanent:
             action.target_actor.base_stats[self.stat] += self.amount
         else:
@@ -831,7 +831,7 @@ class PetrifyEnemyConsumable(Projectile):
 
     def activate(self, action: actions.ItemAction) -> None:
         if not action.target_actor:
-            self.engine.message_log.add_message("The projectile breaks apart on the dungeon floor.",color.grey)
+            self.engine.message_log.add_message("It breaks apart on the dungeon floor.",color.grey)
 
         if action.target_actor:
             self.apply_status(action, Petrified)
@@ -912,7 +912,7 @@ class ConfusionConsumable(Projectile):
         target = action.target_actor
 
         if not target:
-            self.engine.message_log.add_message("The projectile dissipates in the air.",color.grey)
+            self.engine.message_log.add_message("It dissipates in the air.",color.grey)
 
         if target:
             self.engine.message_log.add_message(

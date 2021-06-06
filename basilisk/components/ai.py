@@ -164,7 +164,7 @@ class HostileEnemy(BaseAI):
                     target = entity
         if target:
             if not self.last_target:
-                self.engine.message_log.add_message(f"The {self.entity.name} spotted you!")
+                self.engine.message_log.add_message(f"The {self.entity.name} spotted you!", color.offwhite)
             self.last_target = target.xy
             return (target,d_to_t,target.xy)
 
@@ -242,7 +242,7 @@ class Constricted(BaseAI):
             self.entity.char = str(new_char)
             super().perform()
         else:
-            self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.", color.grey)
+            self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.", color.offwhite)
             self.entity.char = self.entity.base_char
             self.entity.ai = self.previous_ai
             self.entity.ai._intent = None
@@ -289,7 +289,7 @@ class ConfusedEnemy(BaseAI):
         # Revert the AI back to the original state if the effect has run its course.
         if self.turns_remaining <= 0:
             self.engine.message_log.add_message(
-                f"The {self.entity.name} is no longer confused.", color.grey
+                f"The {self.entity.name} is no longer confused.", color.offwhite
             )
             self.entity.ai = self.previous_ai
             return

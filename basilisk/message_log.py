@@ -32,7 +32,7 @@ class MessageLog:
         self.engine = engine
 
     def add_message(
-        self, text: str, fg: Tuple[int, int, int] = color.grey, arg: str = None, arg_color: str = None
+        self, text: str, fg: Tuple[int, int, int] = color.offwhite, arg: str = None, arg_color: str = None
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.
@@ -99,7 +99,10 @@ class MessageLog:
             fades = 0
             if fading:
                 for turn in last_turns:
-                    if message.turn_count < turn:
+                    if message.turn_count < turn and (
+                        message.turn_count > self.engine.player.unpetrified_on or 
+                        message.turn_count < self.engine.player.petrified_on
+                    ):
                         fades += 1
                 if fades == len(last_turns):
                     last_turns.append(message.turn_count)

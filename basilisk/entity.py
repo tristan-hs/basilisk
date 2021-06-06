@@ -61,6 +61,8 @@ class Entity:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
             parent.entities.add(self)
+        self.unpetrified_on = 0
+        self.petrified_on = 0
 
     @property
     def char(self):
@@ -186,7 +188,7 @@ class Entity:
 
     def unsnake(self, start_at: int) -> None:
         for item in self.inventory.items[start_at:]:
-            self.engine.message_log.add_message(f"Your ? segment falls off!", Color.grey, item.char, item.color)
+            self.engine.message_log.add_message(f"Your ? segment falls off!", Color.offwhite, item.char, item.color)
             item.desolidify()
         self.engine.check_word_mode()
 
@@ -458,7 +460,7 @@ class Item(Entity):
             return
         factory._identified = self._identified = new_val
         n = 'n' if self.label[0].lower() in ('a','e','i','o','u') else ''
-        self.engine.message_log.add_message(f"The {self.char} was a{n} ? segment.", Color.grey, self.label, self.color)
+        self.engine.message_log.add_message(f"The {self.char} was a{n} ? segment.", Color.offwhite, self.label, self.color)
 
     @property
     def color(self):

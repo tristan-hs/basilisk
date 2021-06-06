@@ -115,7 +115,7 @@ class PhasedOut(StatusEffect):
 
 		if conflict:
 			msg = f"The {self.parent.label} and {conflict.label} merge into one grotesque but inviable specimen."
-			self.engine.message_log.add_message(msg, color.grey)
+			self.engine.message_log.add_message(msg, color.purple)
 			self.parent.die()
 			conflict.die()
 		self.parent.blocks_movement = True
@@ -131,7 +131,7 @@ class Leaking(EnemyStatusEffect):
 		self.parent.take_damage(1)
 		v = self.engine.game_map.vowel.spawn(self.engine.game_map,*self.parent.xy)
 		n = 'n' if v.char not in ['y','u'] else ''
-		self.engine.message_log.add_message(f"The {self.parent.name} sheds a{n} ?!", color.grey, v.char, v.color)
+		self.engine.message_log.add_message(f"The {self.parent.name} sheds a{n} ?!", color.bile, v.char, v.color)
 		super().decrement()
 
 	def apply(self):
@@ -191,10 +191,15 @@ class PetrifiedSnake(StatusEffect):
 	def apply(self):
 		super().apply()
 		self.engine.message_log.add_message("You turn to stone!", color.red)
+		self.parent.petrified_on = self.engine.turn_count
 
 	def strengthen(self):
 		super().strengthen(3)
 		self.engine.message_log.add_message("You harden!", color.red)
+
+	def remove(self):
+		super().remove()
+		self.parent.unpetrified_on = self.engine.turn_count
 
 
 class FreeSpit(StatusEffect):
