@@ -93,12 +93,12 @@ war_god = Actor(
     drop_tier='r'
 )
 elder = Actor(
-    char="8",
+    char="7",
     color=color.elder,
-    name="Ancient Horror",
+    name="Giant Mite",
     ai_cls=ai.HostileEnemy,
     move_speed=1,
-    flavor="A slow seeping but nigh unkillable madness.",
+    flavor="A slow but nigh-unkillable pest.",
     drop_tier='r'
 )
 decider = Actor(
