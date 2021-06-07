@@ -314,8 +314,25 @@ class Actor(Entity):
 
         return False
 
+    def update_constrict(self) -> None:
+        new_char = int(self.base_char)-self.how_next_to_player()
+        if not self.is_boss:
+            new_char -= self.engine.player.TAIL
+        if new_char < 0:
+            self.die()
+            return
+        if self.is_boss and self.how_next_to_player() > 7:
+            self.engine.boss_killed = True
+            return
+        self.char = str(new_char)
+
+    def pre_turn(self) -> None:
+        if isinstance(self.ai, Constricted):
+            self.update_constrict()
 
     def on_turn(self) -> None:
+        if isinstance(self.ai, Constricted):
+            self.update_constrict()
         for status in self.statuses:
             status.decrement()
 
@@ -351,12 +368,12 @@ class Actor(Entity):
         random.choice(my_drops).spawn(self.gamemap,self.x,self.y)
 
     def die(self) -> None:
+        self.ai = None
         if self.engine.player is self:
             death_message = "You died!"
             death_message_color = Color.dark_red
             self.char = "%"
             self.color = Color.corpse
-            self.ai = None
             self.name = f"remains of {self.name}"
             self.render_order = RenderOrder.CORPSE
         else:

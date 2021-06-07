@@ -48,7 +48,6 @@ class BaseAI(Action):
             except Impossible:
                 break
         self._intent = None
-        self.entity.on_turn()
 
     def get_path_to(self, dest_x: int, dest_y: int, path_cost:int = 10, walkable=True) -> List[Tuple[int, int]]:
         """Compute and return a path to the target position.
@@ -230,16 +229,6 @@ class Constricted(BaseAI):
 
     def perform(self) -> None:
         if self.entity.is_next_to_player():
-            new_char = int(self.entity.base_char)-self.entity.how_next_to_player()
-            if not self.entity.is_boss:
-                new_char -= self.engine.player.TAIL
-            if new_char < 0:
-                self.entity.die()
-                return
-            if self.entity.is_boss and self.entity.how_next_to_player() > 7:
-                self.engine.boss_killed = True
-                return
-            self.entity.char = str(new_char)
             super().perform()
         else:
             self.engine.message_log.add_message(f"The {self.entity.name} is no longer constricted.", color.offwhite)

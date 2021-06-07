@@ -112,8 +112,17 @@ class Engine:
             for entity in enemies:
                 entity.ai.clear_intent()
 
+        print("pre")
+        # enemy pre turns
         for entity in enemies:
             if entity.ai:
+                entity.pre_turn()
+
+        print("proper")
+        # enemy turns
+        for entity in enemies:
+            if entity.ai:
+                # visible enemies during petrifeyes have no intent
                 if (
                     any(isinstance(s,PetrifEyes) for s in self.player.statuses) and 
                     self.game_map.visible[entity.x,entity.y] and 
@@ -121,6 +130,8 @@ class Engine:
                 ):
                     entity.ai.clear_intent()
                     continue
+
+                # petrified and phased out enemies have no intent
                 if (
                     (
                         any(isinstance(s,Petrified) for s in entity.statuses) or
@@ -129,16 +140,21 @@ class Engine:
                     not isinstance(entity.ai, Constricted)
                 ):
                     entity.ai.clear_intent()
-                    entity.on_turn()
                     continue
-                try:
+
+                # the rest do their thing
+                try: 
                     entity.ai.perform()
                 except exceptions.Impossible:
-                    pass  # Ignore impossible action exceptions from AI.
+                    pass
 
-            if not self.player.is_alive:
-                break
+        print("post")
+        # enemy post-turns
+        for entity in enemies:
+            if entity.ai:
+                entity.on_turn()
 
+        # player post-turn
         self.player.on_turn()
 
         if not self.player.can_move() and self.player.is_alive:
