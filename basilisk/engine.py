@@ -112,13 +112,11 @@ class Engine:
             for entity in enemies:
                 entity.ai.clear_intent()
 
-        print("pre")
         # enemy pre turns
         for entity in enemies:
             if entity.ai:
                 entity.pre_turn()
 
-        print("proper")
         # enemy turns
         for entity in enemies:
             if entity.ai:
@@ -148,7 +146,6 @@ class Engine:
                 except exceptions.Impossible:
                     pass
 
-        print("post")
         # enemy post-turns
         for entity in enemies:
             if entity.ai:
