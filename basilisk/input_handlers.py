@@ -212,8 +212,8 @@ class MainGameEventHandler(EventHandler):
             if key == tcod.event.K_SLASH:
                 return PopupMessage(self, self.engine.help_text, 'top')
 
-            if key == tcod.event.K_v:
-                return BigHistoryViewer(self.engine)
+            #if key == tcod.event.K_v:
+            #    return BigHistoryViewer(self.engine)
 
             if key == tcod.event.K_PERIOD:
                 return actions.TakeStairsAction(player)
