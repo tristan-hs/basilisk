@@ -296,8 +296,15 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
             if isinstance(entity,Actor) and entity is not self.engine.player:
                 self.print_actor_tile(entity,entity.xy,console)
+            elif entity is self.engine.player or entity in self.engine.player.inventory.items:
+                continue
             else:
                 self.print_item_tile(entity,entity.xy,console) # player counts as an item
+
+        for i in reversed(self.engine.player.inventory.items): # print in reverse order for stair reasons
+            self.print_item_tile(i,i.xy,console)
+
+        self.print_item_tile(self.engine.player,self.engine.player.xy,console)
 
 
 class GameWorld:
