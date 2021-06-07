@@ -156,8 +156,8 @@ def render_names_at_mouse_location(
         name = name if len(name) < 13 else name[:10]+'..'
         console.print(x,y+e,chars.pop(0)+')',fg=fg)
         console.print(x+5,y+e,name,fg=fg)
-        if e > 7:
-            console.print(x+1,y,'...',fg=color.offwhite)
+        if e > 6:
+            console.print(x+1,y+e+1,'...',fg=color.offwhite)
             break
     
 
