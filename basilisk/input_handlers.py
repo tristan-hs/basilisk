@@ -759,6 +759,7 @@ class InventoryRearrangeHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Optional[Item]):
         self.items.remove(item)
+        self.inventory_length -= 1
         self.selected_items.append(item)
         if self.cursor > len(self.items)-1:
             self.cursor = len(self.items)-1
