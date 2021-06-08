@@ -291,11 +291,11 @@ full_help_text = """
  BASILISK                                               ATTRIBUTES              
                                                                                 
  You are a modular dungeon-crawling       .s...s...     BILE makes your spit    
- machine tasked with delving through      k.i.i.a.@     more potent and less    
- ever-more-dangerous floors to the        ...l...b.     wasteful.               
- Thing Below, which must be destroyed                                           
- at any cost.                                           BELLY does the same     
-                                           .....        to your metabolism.     
+ machine tasked with delving through      k.i.i.a.@     deal more damage.       
+ ever-more-dangerous floors to the        ...l...b.                             
+ Thing Below, which must be destroyed                   MIND alters status      
+ at any cost.                                           effect durations to     
+                                           .....        your advantage.         
  Do not let your parts or your foes        .isa.                                
  surround you. Like a shark, you must      .l@b.        TAIL increases your     
  keep moving to breathe.                   .isk.        base constrict damage.  
