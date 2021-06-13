@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Action:
+    meleed = False
+    
     def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
@@ -162,6 +164,7 @@ class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity and self.entity is not self.engine.player:
             if self.blocking_entity is self.engine.player or self.blocking_entity in self.engine.player.inventory.items:
+                self.meleed = True
                 return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         return MovementAction(self.entity, self.dx, self.dy).perform()

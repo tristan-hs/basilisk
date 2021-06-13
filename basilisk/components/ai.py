@@ -45,6 +45,8 @@ class BaseAI(Action):
         for i in self.intent:
             try:
                 i.perform()
+                if i.meleed:
+                    break
             except Impossible:
                 break
         self._intent = None
