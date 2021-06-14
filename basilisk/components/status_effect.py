@@ -128,7 +128,6 @@ class Leaking(EnemyStatusEffect):
 	color=color.bile
 
 	def decrement(self):
-		print("decrement")
 		self.parent.take_damage(1)
 		v = self.engine.game_map.vowel.spawn(self.engine.game_map,*self.parent.xy)
 		n = 'n' if v.char not in ['y','u'] else ''
