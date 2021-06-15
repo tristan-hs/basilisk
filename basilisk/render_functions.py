@@ -122,7 +122,8 @@ def render_stats(console: Console, x:int, y:int, engine: Engine):
                     c = 'E'
             console.print(x=x+k,y=y+i,string=c,fg=fg)
             k+=1
-        console.print(x=x+6,y=y+i,string='0',fg=fg)
+    
+        console.print(x=x+6,y=y+i,string='0',fg=color.dark_grey)
 
         if player.get_status_boost(stat) > 0:
             string = str(player.get_stat_boost_duration(stat))

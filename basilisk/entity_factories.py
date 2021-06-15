@@ -102,11 +102,11 @@ elder = Actor(
     drop_tier='r'
 )
 decider = Actor(
-    char="6",
+    char="8",
     color=color.decider,
     name="Dire Mongoose",
     ai_cls=ai.HostileEnemy,
-    move_speed=4,
+    move_speed=3,
     flavor="At the hole where he went in\nRed-Eye called to Wrinkle-Skin.\nHear what little Red-Eye saith:\nNag, come up and dance with death!",
     drop_tier='r'
 )
