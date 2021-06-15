@@ -563,7 +563,7 @@ class NotConsumable(Consumable):
         return
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.engine.message_log.add_message("The segment refuses your command!", color.mind)
+        self.engine.message_log.add_message("It refuses your command!", color.mind)
 
 
 class StatBoostConsumable(Consumable):
@@ -610,15 +610,22 @@ class ChokingConsumable(Consumable):
     description = "at your own risk"
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.engine.message_log.add_message("The segment bubbles up and gets caught in your throat!")
+        self.engine.message_log.add_message("It bubbles up and catches in your throat!")
         self.apply_status(action, Choking)
 
 
-class DroppingConsumable(Consumable):
+class DroppingConsumable(Projectile):
     description = "drop everything"
 
+    def __init__(self):
+        self.do_snake = False
+
+    def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+        """Try to return the action for this item."""
+        return actions.ThrowItem(consumer, self.parent)
+
     def activate(self, action: actions.ItemAction) -> None:
-        self.engine.message_log.add_message("As you eject the segment you realize it was your lynchpin.")
+        self.engine.message_log.add_message("It had become your lynchpin!")
         self.engine.message_log.add_message("You fall apart!", color.red)
         self.engine.player.unsnake(0)
 
@@ -748,7 +755,7 @@ class IdentifyingProjectile(Projectile):
     def activate(self, action:action.ItemAction) -> None:
         item = action.target_item
         if not item:
-            self.engine.message_log.add_message("The segment shatters uselessly on the ground.", color.grey)
+            self.engine.message_log.add_message("It shatters uselessly on the ground.", color.grey)
             return
 
         self.engine.message_log.add_message(f"You identified the {item.char}.", color.offwhite)
@@ -784,7 +791,7 @@ class ThirdEyeBlindConsumable(Consumable):
     description = "blind your third eye"
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.engine.message_log.add_message("The segment dissolves in the air, leaving a shroud of temporal ambiguity.")
+        self.engine.message_log.add_message("It dissolves in a shroud of temporal ambiguity.")
         self.apply_status(action, ThirdEyeBlind)
 
 
@@ -867,7 +874,7 @@ class ClingyConsumable(Projectile):
 
         self.parent.solidify()
 
-        self.engine.message_log.add_message("The segment clings and whines, only moving forward a bit.")
+        self.engine.message_log.add_message("It clings and whines as you push it forward.")
 
     def plop(self, action: actions.ItemAction):
         xy = self.parent.xy
