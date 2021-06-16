@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import lzma
 import pickle
-import glob
 import os
 
 from typing import TYPE_CHECKING
@@ -74,7 +73,7 @@ class Engine:
 
     def turn_back_time(self, turns, turner):
         turn = self.turn_count - turns
-        with open(f"snapshot_{turn}.sav", "rb") as f:
+        with open(utils.get_resource(f"snapshot_{turn}.sav"), "rb") as f:
             engine = pickle.loads(lzma.decompress(f.read()))
         assert isinstance(engine, Engine)
         engine.game_map._next_id = self.game_map._next_id
@@ -98,12 +97,8 @@ class Engine:
                 i.identified = True
 
     def save_turn_snapshot(self):
-        self.save_as(f"snapshot_{self.turn_count}.sav")
-        snapshots = glob.glob("snapshot_*.sav")
-        for s in snapshots:
-            turn = s[9:s.index('.')]
-            if int(turn) < self.turn_count-20:
-                os.remove(s)
+        self.save_as(utils.get_resource(f"snapshot_{self.turn_count}.sav"))
+        utils.del_old_snapshots(self.turn_count)
 
     def check_word_mode(self):
         if len(self.player.inventory.items) < 1:
