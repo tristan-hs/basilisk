@@ -167,12 +167,21 @@ class Entity:
     def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
         footprint = self.xy
+
+        if (
+            self is self.engine.player and 
+            not self.engine.game_map.tile_is_snakeable(self.x+dx,self.y+dy,phasing=False) and 
+            self.is_phasing
+        ):
+            [s for s in self.statuses if isinstance(s,Phasing)][0].decrement(False)
+
         self.x += dx
         self.y += dy
 
         # Snake thyself
         if self is self.engine.player:
             self.snake(footprint)
+
 
     def snake(self, footprint, start_at: int = 0) -> None:
         for item in self.inventory.items[start_at:]:

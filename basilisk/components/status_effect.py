@@ -86,6 +86,11 @@ class Phasing(StatusEffect):
 	description="phasing"
 	color=color.purple
 
+	def decrement(self,on_turn=True):
+		if on_turn:
+			return
+		super().decrement()
+
 	def apply(self):
 		super().apply()
 		msg = "Your vibrations attune to the stone."
@@ -206,6 +211,11 @@ class FreeSpit(StatusEffect):
 	label="saliva"
 	description="salivating"
 	color=color.snake_green
+
+	def decrement(self, on_turn=True):
+		if on_turn:
+			return
+		super().decrement()
 
 	def apply(self):
 		super().apply()

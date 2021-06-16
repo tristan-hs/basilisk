@@ -128,6 +128,7 @@ class Projectile(Consumable):
 
     def consume(self, force=False) -> None:
         if any(isinstance(s,FreeSpit) for s in self.engine.player.statuses) and not force:
+            [s for s in self.engine.player.statuses if isinstance(s,FreeSpit)][0].decrement(False)
             return
 
         super().consume()
