@@ -46,6 +46,7 @@ def main() -> None:
             tileset=tileset,
             title="Basilisk",
             vsync=True,
+            renderer=tcod.RENDERER_SDL2
         ) as context:
             root_console = tcod.Console(screen_width, screen_height, order="F")
             toggle_fullscreen(context)
