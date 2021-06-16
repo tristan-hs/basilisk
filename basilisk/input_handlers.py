@@ -181,10 +181,14 @@ class EventHandler(BaseEventHandler):
         except exceptions.UnorderedPickup as exc:
             return OrderPickupHandler(self.engine)
 
-        while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
-            self.engine.handle_enemy_turns()
+        if self.engine.time_turned:
+            self.engine.time_turned = False
 
-        self.engine.handle_enemy_turns()
+        else:
+            while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
+                self.engine.handle_enemy_turns()
+
+            self.engine.handle_enemy_turns()
 
         self.engine.update_fov()
         return True
@@ -304,7 +308,7 @@ class GameOverEventHandler(EventHandler):
 class VictoryEventHandler(GameOverEventHandler):
     def __init__(self,engine):
         super().__init__(engine)
-        engine.message_log.add_message("Congratulations! You've encircled the Voidmaw and saved the world from annihilation!", color.purple)
+        engine.message_log.add_message("Congratulations! You've trapped the One Below and saved the world from annihilation!", color.purple)
         self.render_tally = 0
         self.frame_interval = 60
         self.min_frame_interval = 1
@@ -358,7 +362,7 @@ class GameOverStatScreen(GameOverEventHandler):
             console.print(1,1,"Congratulations  "+' '*len(pname)+' the Basilisk',color.purple)
             console.print(17,1,f"@{pname}",color.player)
 
-            console.print(1,3,f"Constricted the Thing Below!",color.purple)
+            console.print(1,3,f"Constricted the One Below!",color.purple)
         
         console.print(1,5,"Along the way:",color.offwhite)
         console.print(3,6,f"- Used {len(uses)} items",color.offwhite)
@@ -724,7 +728,7 @@ class InventoryIdentifyHandler(InventoryEventHandler):
             return super().on_exit()
 
 class InventoryRearrangeHandler(InventoryEventHandler):
-    TITLE = "Type yourself out"
+    TITLE = "Rearrange yourself"
     tooltip = None
 
     def __init__(self, engine: Engine, rearranger: Item):

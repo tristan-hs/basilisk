@@ -88,18 +88,14 @@ class Consumable(BaseComponent):
 
 
 class Projectile(Consumable):
-    description = "launch a small projectile"
 
     def __init__(self,damage=1):
-        super().__init__()
+        super().__init__()   
         self.damage = damage
-        if damage > 4:
-            descriptor = "large "
-        elif damage > 2:
-            descriptor = ""
-        else:
-            descriptor = "small "    
-        self.description = f"launch a {descriptor}projectile"
+
+    @property
+    def description(self):
+        return f"projectile, {self.modified_damage} dmg"
 
 
     def get_throw_action(self, consumer: Actor, thru_tail=True) -> Optional[ActionOrHandler]:
@@ -205,10 +201,14 @@ class Projectile(Consumable):
 
 
 class DecoyConsumable(Projectile):
-    description = "spawn a decoy"
 
     def __init__(self):
         self.do_snake = False
+
+    @property
+    def description(self):
+        d = 10 + (self.engine.player.MIND*2)
+        return f"spawn a decoy for {d} turns"
 
     def activate(self, action: actions.ItemAction) -> None:
         x,y = action.target_xy
@@ -222,7 +222,7 @@ class DecoyConsumable(Projectile):
             if len(tiles) > 0:
                 x,y = tiles[-1]
             else:
-                self.engine.message_log.add_message("With no room to swing its elbows, it burrows into the ground.", color.grey)
+                self.engine.message_log.add_message("It burrows into the ground.", color.grey)
                 return
 
         self.engine.message_log.add_message("It begins taunting your enemies!")
@@ -234,19 +234,24 @@ class DecoyConsumable(Projectile):
 
 
 class TimeReverseConsumable(Consumable):
-    description = "wrinkle time"
-
     def __init__(self):
         self.do_snake = False
         self.turns = 5
+
+    @property
+    def description(self):
+        return f"wrinkle {(self.turns + self.engine.player.MIND)} turns worth of time"
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("You feel intense deja-vu.")
         self.engine.turn_back_time(self.turns,self.parent)
 
+    def start_activation(self,action):
+        self.activate(action)
+
 
 class WormholeConsumable(Projectile):
-    description = "wrinkle space"
+    description = "cross a wrinkle in space"
 
     def __init__(self):
         self.do_snake = False
@@ -275,7 +280,7 @@ class WormholeConsumable(Projectile):
             wormhole = action.target_xy
 
         if not wormhole:
-            self.engine.message_log.add_message("Space stretches like taffy then snaps back to normalcy.")
+            self.engine.message_log.add_message("Space stretches like taffy then snaps back to normalcy.", color.grey)
             return
 
         self.engine.message_log.add_message("Space stretches like taffy around you!")
@@ -291,7 +296,7 @@ class WormholeConsumable(Projectile):
 
 
 class EntanglingConsumable(Projectile):
-    description = "make a stretch of ground snake-only"
+    description = "turn a swathe of ground to snakestone"
 
     def __init__(self):
         self.do_snake = False
@@ -325,7 +330,7 @@ class EntanglingConsumable(Projectile):
                 ):
                     self.engine.game_map.tiles[(xi,yi)] = tile_types.snake_only
 
-        self.engine.message_log.add_message("The area fills with terrain you are uniquely equipped to traverse.")
+        self.engine.message_log.add_message("The ground turns to snakestone -- only you can traverse it.")
 
 
 class SpittingConsumable(Projectile):
@@ -396,7 +401,7 @@ class VacuumProjectile(Consumable):
             self.engine.message_log.add_message("It whines loudly before popping out of existence.", color.grey)
 
         if len(to_destroy) > 0:
-            self.engine.message_log.add_message("It cackles gleefully and disappears along with all nearby items.")
+            self.engine.message_log.add_message("It collects all the loot it can before disappearing into the shadows.")
             for i in to_destroy:
                 i.die()
 
@@ -432,7 +437,7 @@ class HookshotProjectile(Projectile):
 class KnockbackProjectile(Projectile):
     description = "push back an enemy"
 
-    def __init__(self,damage=2):
+    def __init__(self,damage=3):
         self.damage = damage
         self.do_snake = False
 
@@ -463,7 +468,7 @@ class KnockbackProjectile(Projectile):
 class KnockbackConsumable(Consumable):
     description = "push back all adjacent enemies"
 
-    def __init__(self,damage=2):
+    def __init__(self,damage=3):
         self.damage=damage
         self.do_snake = False
 
@@ -484,7 +489,7 @@ class KnockbackConsumable(Consumable):
             d = (actor.x-segment.x,actor.y-segment.y)
             destination = None
 
-            for i in range(self.damage):
+            for i in range(self.modified_damage):
                 new_tile = (actor.x+d[0],actor.y+d[1]) if i == 0 else (destination[0]+d[0],destination[1]+d[1])
                 if self.engine.game_map.tile_is_walkable(*new_tile):
                     destination = new_tile
@@ -500,11 +505,13 @@ class KnockbackConsumable(Consumable):
 
 
 class DrillingProjectile(Projectile):
-    description = "pierce the dungeons"
-
-    def __init__(self, damage=1):
+    def __init__(self, damage=2):
         self.damage = damage
         self.do_snake = False
+
+    @property
+    def description(self):
+        return f"pierce the dungeons and anything else, {self.modified_damage} dmg"
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         if not self.parent.identified:
@@ -535,7 +542,7 @@ class DrillingProjectile(Projectile):
 
 
 class LeakingProjectile(Projectile):
-    description = "make an enemy fall to pieces"
+    description = "make an enemy crumble"
 
     def __init__(self):
         self.do_snake = False
@@ -551,7 +558,7 @@ class LeakingProjectile(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if action.target_actor is action.entity:
-            raise Impossible("You cannot spit at yourself!")
+            raise Impossible("You cannot target yourself.")
 
         super().start_activation(action)
 
@@ -564,11 +571,13 @@ class LeakingProjectile(Projectile):
 
 
 class DamageAllConsumable(Consumable):
-    description = "deal damage to all enemies"
-
-    def __init__(self,damage=1):
+    def __init__(self,damage=2):
         self.damage = damage
         self.do_snake = False
+
+    @property
+    def description(self):
+        return f"rain acid on all nearby enemies, {self.modified_damage} dmg"
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
@@ -576,15 +585,25 @@ class DamageAllConsumable(Consumable):
         actors = [a for a in self.engine.game_map.actors if self.engine.game_map.visible[a.x,a.y] and a is not self.engine.player]
 
         if len(actors) > 0:
-            self.engine.message_log.add_message("You shower your opponents with acid rain!")
+            self.engine.message_log.add_message("It rains acid on your opponents!")
             for a in actors:
                 a.take_damage(self.modified_damage)
         else:
-            self.engine.message_log.add_message("You shower the dungeon with acid rain.",color.grey)
+            self.engine.message_log.add_message("It rains acid on the dungoen.",color.grey)
 
 
 class ShieldingConsumable(Consumable):
-    description = "shrug off the next hit you take"
+
+    def __init__(self, duration=1):
+        self.duration = duration
+        self.do_snake = False
+
+    @property
+    def description(self):
+        d = self.duration + self.engine.player.MIND
+        n = ' '+str(d) if d > 1 else ''
+        s = 's' if d > 1 else ''
+        return f"shrug off the next{n} hit{s} you take"
 
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,Shielded,1)
@@ -594,13 +613,16 @@ class PhasingConsumable(Consumable):
     description = "phase through walls"
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,Phasing,4)
+        self.apply_status(action,Phasing,2)
 
 class PhasingProjectile(Projectile):
-    description = "temporarily derealize an enemy"
-
     def __init__(self):
         self.do_snake = False
+
+    @property
+    def description(self):
+        duration = 10 + (2*self.engine.player.MIND)
+        return f"derealize an enemy for {duration} turns"
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         if not self.parent.identified:
@@ -644,7 +666,7 @@ class StatBoostConsumable(Consumable):
         "BILE":"A more dangerous ? rises in your throat.",
         "MIND":"Time's weave floods the creases of your ?.",
         "TAIL":"Your ? thrashes with a new strength.",
-        "TONG":"Your ? whips the air with increased sensitivity."
+        "TONG":"Your ennervated ? lashes the air."
     }
 
     def __init__(self, amount, stat=None, permanent=False):
@@ -660,20 +682,23 @@ class StatBoostConsumable(Consumable):
         stat_str = "TONGUE" if stat == "TONG" else stat
         self.engine.message_log.add_message(self.messages[stat], color.offwhite, stat_str, color.stats[stat])
         if self.permanent:
-            action.target_actor.base_stats[self.stat] += self.amount
+            action.target_actor.base_stats[self.stat] = min(
+                action.target_actor.base_stats[self.stat]+self.amount,
+                6
+            )
         else:
             StatBoost(10, action.target_actor, stat, self.amount)
 
 
 class FreeSpitConsumable(Consumable):
-    description = "spit spit spit"
+    description = "spit without consuming"
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,FreeSpit,4)
+        self.apply_status(action,FreeSpit,2)
 
 
 class PetrifEyesConsumable(Consumable):
-    description = "be your best self"
+    description = "petrify all you see"
 
     def activate(self, action: actions.ItemAction) -> None:        
         self.apply_status(action, PetrifEyes, 4)
@@ -809,7 +834,7 @@ class IdentifyingConsumable(Consumable):
 
 
 class IdentifyingProjectile(Projectile):
-    description = "identify a segment on the ground"
+    description = "identify a segment"
 
     def __init__(self):
         self.do_snake = False
@@ -844,7 +869,7 @@ class RearrangingConsumable(Consumable):
 
     def get_eat_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         if self.can_rearrange:
-            self.engine.message_log.add_message("Type out your new self.", color.cyan)
+            self.engine.message_log.add_message("Select your new order.", color.cyan)
             return InventoryRearrangeHandler(self.engine, self.parent)
 
         return actions.ItemAction(consumer, self.parent)
@@ -889,10 +914,14 @@ class RandomProjectile(Projectile):
 
 
 class PetrifyEnemyConsumable(Projectile):
-    description = "petrify an enemy"
-
     def __init__(self):
         self.do_snake = False
+
+    @property
+    def description(self):
+        duration = 10 + (self.engine.player.MIND*2)
+        return f"petrify an enemy for {duration} turns"
+
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         if not self.parent.identified:
@@ -905,7 +934,7 @@ class PetrifyEnemyConsumable(Projectile):
         if not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("You cannot target an area that you cannot see.")
         if action.target_actor is action.entity:
-            raise Impossible("You cannot spit at yourself!")
+            raise Impossible("You cannot target yourself.")
 
         super().start_activation(action)
 
@@ -1043,19 +1072,21 @@ class LightningDamageConsumable(Projectile):
 
 
 class FireballDamageConsumable(Projectile):
-    description = "conjure an explosion"
-
     def __init__(self, damage: int=2, radius: int=2):
         self.damage = damage
         self.radius = radius
         self.do_snake = False
+
+    @property
+    def description(self):
+        return f"lob explosive, {self.modified_damage} dmg"
 
     def get_throw_action(self, consumer: Actor) -> AreaRangedAttackHandler:
         if not self.parent.identified:
             return super().get_throw_action(consumer)
             
         self.engine.message_log.add_message(
-            "Select a target location.", color.cyan
+            "Select a location.", color.cyan
         )
         return AreaRangedAttackHandler(
             self.engine,

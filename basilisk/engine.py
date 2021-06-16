@@ -16,6 +16,8 @@ from basilisk.components.status_effect import PetrifEyes, Petrified, PhasedOut
 import basilisk.color as color
 from basilisk.components.ai import Constricted
 from basilisk.render_order import RenderOrder
+from basilisk.exceptions import Impossible
+from basilisk.components.consumable import TimeReverseConsumable
 
 if TYPE_CHECKING:
     from basilisk.entity import Actor
@@ -36,6 +38,7 @@ class Engine:
         self.turn_count = 0
         self.show_instructions = False
         self.boss_killed = False
+        self.time_turned = False
 
         #RUN STATS
         self.history = []
@@ -74,9 +77,12 @@ class Engine:
         with open(f"snapshot_{turn}.sav", "rb") as f:
             engine = pickle.loads(lzma.decompress(f.read()))
         assert isinstance(engine, Engine)
+        engine.game_map._next_id = self.game_map._next_id
         self.game_map = engine.game_map
         self.game_map.engine = self
         self.player = engine.player
+
+        self.time_turned = True
 
         for i in self.game_map.entities:
             if i.id == turner.id:
@@ -86,14 +92,17 @@ class Engine:
                     i.edible.snake()
                 else:
                     i.consume()
+                    i.identified = True
                 return
+            elif i.char == turner.char:
+                i.identified = True
 
     def save_turn_snapshot(self):
         self.save_as(f"snapshot_{self.turn_count}.sav")
         snapshots = glob.glob("snapshot_*.sav")
         for s in snapshots:
             turn = s[9:s.index('.')]
-            if int(turn) < self.turn_count-10:
+            if int(turn) < self.turn_count-20:
                 os.remove(s)
 
     def check_word_mode(self):

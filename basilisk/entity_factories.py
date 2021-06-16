@@ -11,7 +11,7 @@ player = Actor(
     name="Basilisk",
     ai_cls=ai.HostileEnemy,
     render_order=RenderOrder.PLAYER,
-    description="Of course I know him. He's me!"
+    description="That's you!"
 )
 
 statue = Actor(
@@ -45,7 +45,7 @@ ogre = Actor(
     color=color.ogre,
     name="Ogre",
     ai_cls=ai.HostileEnemy,
-    flavor="Oft found fumbling through dank dungeon corners for rats and bugs.",
+    flavor="Oft found fumbling slow through dank dungeon corners for rats and bugs.",
     drop_tier='c'
 )
 mongoose = Actor(
@@ -63,7 +63,7 @@ dragon = Actor(
     name="Dragon",
     ai_cls=ai.HostileEnemy,
     move_speed=2,
-    flavor='"My armour is like tenfold shields, my teeth are swords, my claws spears, the shock of my tail is a thunderbolt, my wings a hurricane, and my breath death!"',
+    flavor='Beware its armour like tenfold shields and wings a hurricane.',
     drop_tier='u'
 )
 lich = Actor(
@@ -72,7 +72,7 @@ lich = Actor(
     name="Lich",
     ai_cls=ai.HostileEnemy,
     drop_tier='u',
-    flavor="Its bones must be ground to dust before its vendetta is retired."
+    flavor="Stalks all who disturb it with a tireless vendetta."
 )
 demon = Actor(
     char="4",
@@ -114,7 +114,7 @@ decider = Actor(
 final_boss = Actor(
     char="9",
     color=color.purple,
-    name="The One Below",
+    name="One Below",
     ai_cls=ai.Statue,
     move_speed=0,
     flavor="The origin of this dungeon's evil. Only you can stop it.",
@@ -174,9 +174,9 @@ crown_segment = Item(
 volatile = Item(
     item_type='c',
     color=color.bile,
-    name='volatile',
+    name='explosive',
     edible=consumable.StatBoostConsumable(2,'BILE'),
-    spitable=consumable.FireballDamageConsumable(damage=2, radius=2),
+    spitable=consumable.FireballDamageConsumable(damage=3, radius=2),
     rarity='c',
     stat='BILE',
     flavor='The metal heart of some ancient titan, leaking acrid pus.'
@@ -185,7 +185,7 @@ volatile = Item(
 forceful = Item(
     item_type='c',
     color=color.bile,
-    name='forceful',
+    name='force',
     edible=consumable.KnockbackConsumable(),
     spitable=consumable.KnockbackProjectile(),
     rarity='u',
@@ -196,9 +196,9 @@ forceful = Item(
 drilling = Item(
     item_type='c',
     color=color.bile,
-    name='drilling',
+    name='drill',
     edible=consumable.ChokingConsumable(),
-    spitable=consumable.DrillingProjectile(2),
+    spitable=consumable.DrillingProjectile(3),
     rarity='u',
     stat='BILE',
     flavor='A spiraling metal coil that glimmers with ambition.'
@@ -212,15 +212,15 @@ prolific = Item(
     spitable=consumable.LeakingProjectile(),
     rarity='u',
     stat='BILE',
-    flavor='A sloshing grey ooze whose tendrils stretch for whatevery may fuel its growth.'
+    flavor='A sloshing grey ooze whose tendrils stretch for whatever may fuel its growth.'
 )
 
 acidic = Item(
     item_type='c',
     color=color.bile,
-    name='acidic',
+    name='acid',
     edible=consumable.StatBoostConsumable(1,'BILE',True),
-    spitable=consumable.DamageAllConsumable(damage=1),
+    spitable=consumable.DamageAllConsumable(damage=3),
     rarity='r',
     stat='BILE',
     flavor='Carved from the fangs of your predecessor, this segment still drips with their legendary venom.'
@@ -229,7 +229,7 @@ acidic = Item(
 petrified = Item(
     item_type='c',
     color=color.mind,
-    name='petrified',
+    name='petrify',
     edible=consumable.PetrifyConsumable(),
     spitable=consumable.PetrifyEnemyConsumable(),
     rarity='c',
@@ -240,7 +240,7 @@ petrified = Item(
 ghostly = Item(
     item_type='c',
     color=color.mind,
-    name='ghostly',
+    name='phase',
     edible=consumable.PhasingConsumable(),
     spitable=consumable.PhasingProjectile(),
     rarity='u',
@@ -262,12 +262,12 @@ cursed = Item(
 calcified = Item(
     item_type='c',
     color=color.mind,
-    name='calcified',
+    name='hardened',
     edible=consumable.ShieldingConsumable(),
     spitable=consumable.PetrifEyesConsumable(),
     rarity='r',
     stat='MIND',
-    flavor="As you move you hear it chewing bone and gravel."
+    flavor="As you move it chews the bone and gravel beneath you."
 )
 
 wrinkled = Item(
@@ -278,15 +278,15 @@ wrinkled = Item(
     spitable=consumable.WormholeConsumable(),
     rarity='r',
     stat='MIND',
-    flavor="A straight line is not the shortest distance between two points."
+    flavor="\"A straight line is not the shortest distance between two points,\" it assures you."
 )
 
 musclebound = Item(
     item_type='c',
     color=color.tail,
-    name='musclebound',
+    name='ripped',
     edible=consumable.StatBoostConsumable(2,'TAIL'),
-    spitable=consumable.Projectile(damage=3),
+    spitable=consumable.Projectile(damage=4),
     rarity='c',
     stat='TAIL',
     flavor="Dense, rippling cords of flesh, wound together like a ball of yarn."
@@ -295,7 +295,7 @@ musclebound = Item(
 annoying = Item(
     item_type='c',
     color=color.tail,
-    name='annoying',
+    name='decoy',
     edible=consumable.ConsumingConsumable(),
     spitable=consumable.DecoyConsumable(),
     rarity='u',
@@ -321,34 +321,34 @@ backward = Item(
 pure = Item(
     item_type='c',
     color=color.tail,
-    name='pure',
+    name='insightful',
     edible=consumable.RearrangingConsumable(),
     spitable=consumable.DroppingConsumable(),
     rarity='u',
     stat='TAIL',
-    flavor="Each perfect facet grants a new dimension of clarity."
+    flavor="Each perfect side grants a new dimension of clarity."
 )
 
 growing = Item(
     item_type='c',
     color=color.tail,
-    name='growing',
+    name='evolving',
     edible=consumable.StatBoostConsumable(1,'TAIL',True),
     spitable=consumable.EntanglingConsumable(),
     rarity='r',
     stat='TAIL',
-    flavor="Its creeping tendrils plant flowers where you pass."
+    flavor="Creeping vines emerge where it passes."
 )
 
 learned = Item(
     item_type='c',
     color=color.tongue,
-    name='learned',
+    name='identify',
     edible=consumable.IdentifyingConsumable(),
     spitable=consumable.ThirdEyeBlindConsumable(),
     rarity='c',
     stat='TONG',
-    flavor="A heap of brains twitching in unity; it whispers secrets as you travel"
+    flavor="A cohesion of twitching cortical matter; it whispers secrets as you travel."
 )
 
 longue = Item(
@@ -359,18 +359,18 @@ longue = Item(
     spitable=consumable.HookshotProjectile(),
     rarity='c',
     stat='TONG',
-    flavor="A coil of wet pink flesh branching off into prehensile tendrils."
+    flavor="A coil of prehensile and toothed tendrils."
 )
 
 inquisitive = Item(
     item_type='c',
     color=color.tongue,
-    name='inquisitive',
+    name='reference',
     edible=consumable.MappingConsumable(),
     spitable=consumable.IdentifyingProjectile(),
     rarity='u',
     stat='TONG',
-    flavor="As close as you'll come to looking in a mirror; understanding is opaque in every eye."
+    flavor="It offers no warranty for the truths within."
 )
 
 hungry = Item(
@@ -381,18 +381,18 @@ hungry = Item(
     spitable=consumable.VacuumProjectile(),
     rarity='u',
     stat='TONG',
-    flavor="Each facet holds a slathering maw. They cry to be fed."
+    flavor="Slathering maws adorn its every side. They cry to be fed."
 )
 
 sensitive = Item(
     item_type='c',
     color=color.tongue,
-    name='sensitive',
+    name='sense',
     edible=consumable.StatBoostConsumable(1,'TONG',True),
     spitable=consumable.ClingyConsumable(),
     rarity='r',
     stat='TONG',
-    flavor="This soft orb oozes appreciation at the slightest acknowledgement."
+    flavor="This orb of fluff coos appreciation at the slightest acknowledgement."
 )
 
 

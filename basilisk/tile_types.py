@@ -61,7 +61,7 @@ MAPPED = np.array((ord("."), (100,0,100), (0,0,0)), dtype=graphic_dt)
 
 floor = new_tile(
     name='floor',
-    flavor='When you fall, it will catch you.',
+    flavor='When you fall, it will be there for you.',
     walkable=True,
     transparent=True,
     dark=(ord(" "), (50,50,50), (7,7,7)),
@@ -77,8 +77,8 @@ bloody_floor = new_tile(
     light=(ord("."), (75,0,0), (10,10,10))
 )
 snake_only = new_tile(
-    name='water',
-    flavor='An obstacle to the dungeon dwellers, but as good as any terrain for you.',
+    name='snakestone',
+    flavor='Traversable only by the Basilisk.',
     walkable=False,
     transparent=True,
     dark=(ord(" "), (50,50,50), (7,7,7)),
@@ -86,7 +86,7 @@ snake_only = new_tile(
 )
 wall = new_tile(
     name='wall',
-    flavor='Solid inanimate stone, for most.',
+    flavor='Solid inanimate stone.',
     walkable=False,
     snakeable=False,
     transparent=False,
@@ -103,7 +103,7 @@ down_stairs = new_tile(
 )
 door = new_tile(
     name='doorway',
-    flavor='The floor between rooms.',
+    flavor='The threshold between rooms.',
     walkable=True,
     transparent=True,
     dark=(ord("+"), (100,50,50), (5,5,5)),

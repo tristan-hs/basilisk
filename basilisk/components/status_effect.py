@@ -39,7 +39,7 @@ class StatusEffect(BaseComponent):
 			self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.description}.", color.yellow)
 
 	def strengthen(self, strength: int=10):
-		self.duration += strength
+		self.duration += (strength + self.duration_mod)
 
 
 class BadStatusEffect(StatusEffect):
@@ -78,7 +78,7 @@ class Doomed(StatusEffect):
 
 	@property
 	def duration_mod(self):
-		return 0
+		return self.engine.player.MIND*2
 
 
 class Phasing(StatusEffect):
@@ -97,7 +97,7 @@ class Phasing(StatusEffect):
 		self.engine.message_log.add_message(msg, color.offwhite)
 
 	def strengthen(self):
-		super().strengthen(3)
+		super().strengthen(1)
 		msg = "Your particles continue to whir." if self.parent is self.engine.player else f"The {self.parent.name}'s particles continue to whir."
 		self.engine.message_log.add_message(msg, color.offwhite)
 
@@ -110,7 +110,7 @@ class PhasedOut(StatusEffect):
 	def apply(self):
 		super().apply()
 		self.parent.ai.clear_intent()
-		msg = f"The {self.parent.name} phases out of existence -- for now."
+		msg = f"The {self.parent.name} phases out of existence."
 		self.engine.message_log.add_message(msg, color.offwhite)
 		self.parent.blocks_movement = False
 
@@ -124,6 +124,10 @@ class PhasedOut(StatusEffect):
 			self.parent.die()
 			conflict.die()
 		self.parent.blocks_movement = True
+
+	@property
+	def duration_mod(self):
+		return self.engine.player.MIND*2
 
 
 
@@ -141,10 +145,10 @@ class Leaking(EnemyStatusEffect):
 
 	def apply(self):
 		super().apply()
-		self.engine.message_log.add_message(f"The {self.parent.name} starts shedding pieces!", color.offwhite)
+		self.engine.message_log.add_message(f"The {self.parent.name} starts crumbling!", color.offwhite)
 
 	def strengthen(self):
-		super().strengthen(3)
+		super().strengthen(5)
 		self.engine.message_log.add_message(f"The {self.parent.name} will crumble for even longer.", color.offwhite)
 
 
@@ -184,8 +188,12 @@ class Petrified(EnemyStatusEffect):
 		self.engine.message_log.add_message(f"The {self.parent.name} turns to stone!", color.offwhite)
 
 	def strengthen(self):
-		super().strengthen(3)
+		super().strengthen(5)
 		self.engine.message_log.add_message(f"The {self.parent.name} hardens!", color.offwhite)
+
+	@property
+	def duration_mod(self):
+		return self.engine.player.MIND*2
 
 
 class PetrifiedSnake(StatusEffect):
@@ -222,7 +230,7 @@ class FreeSpit(StatusEffect):
 		self.engine.message_log.add_message("All your spit replenishes.", color.snake_green)
 
 	def strengthen(self):
-		super().strengthen(3)
+		super().strengthen(2)
 		self.engine.message_log.add_message("Your bile wells up within you.", color.snake_green)
 
 
