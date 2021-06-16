@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 import random
 import math
+import numpy as np
 
 from basilisk import actions, color
 
@@ -108,7 +109,8 @@ class Projectile(Consumable):
             self.engine,
             callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
             seeking=seeking,
-            thru_tail = thru_tail
+            thru_tail=thru_tail,
+            pathfinder=self.get_path_to
         )
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -130,6 +132,76 @@ class Projectile(Consumable):
 
         super().consume()
 
+    def get_path_to(self, dest_x, dest_y, walkable=True, thru_tail=True):
+        """versatile bresenham"""
+        gm = self.gamemap
+        tiles = gm.tiles['walkable'] if walkable else np.full((gm.width,gm.height),fill_value=True,order="F")
+        tiles = np.array(tiles, dtype=np.bool)
+
+        for entity in gm.entities:
+            if entity.blocks_movement:
+                if thru_tail and entity in self.engine.player.inventory.items:
+                    continue
+                tiles[entity.x,entity.y] = False
+
+        path = []
+        start = loc = [self.engine.player.x, self.engine.player.y]
+        dest = [dest_x, dest_y]
+        dist = [abs(dest[0]-loc[0]), abs(dest[1]-loc[1])]
+
+        a = 1 if dist[1] > dist[0] else 0
+        b = 1 if a == 0 else 0
+
+        D = (2 * dist[b]) - dist[a]
+
+        while loc != [dest_x, dest_y] and len(path) < 100:
+            if dest[a] > loc[a]:
+                loc[a] += 1
+            if dest[a] < loc[a]:
+                loc[a] -= 1
+
+            if D > 0:
+                if dest[b] > loc[b]:
+                    loc[b] += 1
+                if dest[b] < loc[b]:
+                    loc[b] -= 1                    
+                D = D - (2*dist[a])
+
+            D = D + (2*dist[b])
+
+            path.append((loc[0],loc[1]))
+            if not tiles[loc[0],loc[1]] and walkable:
+                break
+
+        return path
+
+    def get_path_past(self, dest_x, dest_y, walkable=True):
+        path = self.get_path_to(dest_x,dest_y,walkable)
+        if len(path) < 1:
+            return path
+
+        new_path = []
+        i = 0
+
+        while True:
+            key = i % len(path)
+            tile = path[key]
+            if key == 0:
+                diff = (tile[0]-self.engine.player.x,tile[1]-self.engine.player.y)
+            else:
+                prev = path[key-1]
+                diff = (tile[0]-prev[0],tile[1]-prev[1])
+
+            new_o = new_path[i-1] if i > 0 else (dest_x,dest_y)
+            new_tile = (new_o[0]+diff[0],new_o[1]+diff[1])
+
+            if not self.engine.game_map.tile_is_walkable(*new_tile):
+                break
+            new_path.append(new_tile)
+            i += 1
+
+        return new_path
+
 
 class DecoyConsumable(Projectile):
     description = "spawn a decoy"
@@ -141,7 +213,7 @@ class DecoyConsumable(Projectile):
         x,y = action.target_xy
 
         if not self.engine.game_map.tile_is_walkable(x,y):
-            path = self.engine.player.ai.get_path_to(x,y,0)
+            path = self.get_path_to(x,y)
             tiles = []
             for tile in path:
                 if self.engine.game_map.tile_is_walkable(*tile):
@@ -188,7 +260,7 @@ class WormholeConsumable(Projectile):
 
         wormhole = None
         if not self.parent.identified and not self.engine.game_map.tile_is_walkable(*action.target_xy):
-            path = consumer.ai.get_path_to(*action.target_xy,0)
+            path = self.get_path_to(*action.target_xy)
 
             for tile in reversed(path):
                 if not self.engine.game_map.tile_is_walkable(*tile, consumer.is_phasing):
@@ -205,7 +277,7 @@ class WormholeConsumable(Projectile):
             self.engine.message_log.add_message("Space stretches like taffy then snaps back to normalcy.")
             return
 
-        self.engine.message_log.add_message("Space stretches like taffy and pulls you through it!")
+        self.engine.message_log.add_message("Space stretches like taffy around you!")
         self.engine.player.place(*wormhole)
 
         for enemy in consumer.get_adjacent_actors():
@@ -269,7 +341,7 @@ class SpittingConsumable(Projectile):
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
-        path = consumer.ai.get_path_to(*action.target_xy,0)
+        path = self.get_path_to(*action.target_xy)
 
         for tile in path:
             if not self.engine.game_map.tile_is_snakeable(*tile, consumer.is_phasing):
@@ -341,7 +413,7 @@ class HookshotProjectile(Projectile):
         if action.target_actor and action.target_actor is not consumer:
             target = action.target_actor
             self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
-            tile = consumer.ai.get_path_to(*action.target_xy,0)[0]
+            tile = self.get_path_to(*action.target_xy)[0]
             target.place(*tile)
             target.constrict()
 
@@ -368,7 +440,7 @@ class KnockbackProjectile(Projectile):
         target = action.target_actor
 
         if target and not target.is_boss:
-            push_path = self.engine.player.ai.get_path_past(target.x,target.y,0)
+            push_path = self.get_path_past(target.x,target.y)
             pushed = False
             destination = None
             for i,tile in enumerate(push_path):
@@ -447,7 +519,7 @@ class DrillingProjectile(Projectile):
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         walkable = not self.parent.identified
-        path = self.engine.player.ai.get_path_to(*action.target_xy,0,walkable)
+        path = self.get_path_to(*action.target_xy,walkable=walkable)
         gm = self.engine.game_map
 
         for tile in path:
@@ -878,7 +950,7 @@ class ClingyConsumable(Projectile):
 
     def plop(self, action: actions.ItemAction):
         xy = self.parent.xy
-        space = self.engine.player.ai.get_path_to(*action.target_xy,0)[0]
+        space = self.get_path_to(*action.target_xy)[0]
         self.parent.desolidify()
         self.parent.place(*space)
         self.engine.player.snake(xy)

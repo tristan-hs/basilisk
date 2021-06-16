@@ -84,34 +84,6 @@ class BaseAI(Action):
         return [(index[0], index[1]) for index in path]
 
 
-    def get_path_past(self, dest_x,dest_y,path_cost=0,walkable=True):
-        path = self.get_path_to(dest_x,dest_y,path_cost,walkable)
-        if len(path) < 1:
-            return path
-
-        new_path = []
-        i = 0
-
-        while True:
-            key = i % len(path)
-            tile = path[key]
-            if key == 0:
-                diff = (tile[0]-self.entity.x,tile[1]-self.entity.y)
-            else:
-                prev = path[key-1]
-                diff = (tile[0]-prev[0],tile[1]-prev[1])
-
-            new_o = new_path[i-1] if i > 0 else (dest_x,dest_y)
-            new_tile = (new_o[0]+diff[0],new_o[1]+diff[1])
-
-            if not self.engine.game_map.tile_is_walkable(*new_tile):
-                break
-            new_path.append(new_tile)
-            i += 1
-
-        return new_path
-
-
 
 
 

@@ -885,20 +885,21 @@ class SingleRangedAttackHandler(SelectIndexHandler):
 
 class SingleProjectileAttackHandler(SelectIndexHandler):
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything", walkable=True, thru_tail=True
+        self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything", walkable=True, thru_tail=True, pathfinder=None
     ):
         super().__init__(engine)
         self.callback = callback
         self.seeking = seeking
         self.walkable=walkable
         self.thru_tail = thru_tail
+        self.pathfinder = pathfinder if pathfinder else self.engine.player.ai.get_path_to
 
     @property
     def path_to_target(self):
         x,y = self.engine.mouse_location
         if self.walkable and not self.engine.game_map.visible[x,y]:
             return None
-        return self.engine.player.ai.get_path_to(x,y,0,self.walkable)
+        return self.pathfinder(x,y,walkable=self.walkable,thru_tail=self.thru_tail)
 
     def ends_projectile_path(self, px, py):
         return (
@@ -915,7 +916,7 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
             return
 
         for px,py in self.path_to_target:
-            console.tiles_rgb["bg"][px, py] = color.white
+            console.tiles_rgb["bg"][px, py] = color.bile
             console.tiles_rgb["fg"][px, py] = color.black
             if self.ends_projectile_path(px,py):
                 break
