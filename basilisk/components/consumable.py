@@ -521,7 +521,8 @@ class DrillingProjectile(Projectile):
             return SingleDrillingProjectileAttackHandler(
                 self.engine,
                 callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
-                walkable=False
+                walkable=False,
+                pathfinder=self.get_path_to
             )
 
     def activate(self, action: actions.ItemAction) -> None:
