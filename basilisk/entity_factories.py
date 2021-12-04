@@ -212,7 +212,7 @@ prolific = Item(
     spitable=consumable.LeakingProjectile(),
     rarity='u',
     stat='BILE',
-    flavor='A sloshing grey ooze whose tendrils stretch for whatever may fuel its growth.'
+    flavor='A sloshing grey ooze whose tendrils reach for whatever may fuel its growth.'
 )
 
 acidic = Item(
@@ -223,7 +223,7 @@ acidic = Item(
     spitable=consumable.DamageAllConsumable(damage=3),
     rarity='r',
     stat='BILE',
-    flavor='Carved from the fangs of your predecessor, this segment still drips with their legendary venom.'
+    flavor='Carved from the fangs of your predecessors, this segment still drips with their legendary venom.'
 )
 
 petrified = Item(
@@ -289,7 +289,7 @@ musclebound = Item(
     spitable=consumable.Projectile(damage=4),
     rarity='c',
     stat='TAIL',
-    flavor="Dense, rippling cords of flesh, wound together like a ball of yarn."
+    flavor="Dense, rippling cords of flesh, wound like a ball of yarn."
 )
 
 annoying = Item(
@@ -398,5 +398,6 @@ sensitive = Item(
 
 c_segments = [
     volatile, forceful, drilling, prolific, acidic, petrified, ghostly, cursed, calcified, wrinkled, musclebound, annoying, backward, pure, growing, learned, longue, inquisitive, hungry, sensitive
+    #wrinkled
 ]
 consonants = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
