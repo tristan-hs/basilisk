@@ -249,6 +249,9 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_x:
             return LookHandler(self.engine)
 
+        elif key == tcod.event.K_TAB:
+            return LookHandler(self.engine,True)
+
         elif key == tcod.event.K_c:
             self.engine.show_instructions = not self.engine.show_instructions
 
@@ -882,6 +885,11 @@ class SelectIndexHandler(AskUserEventHandler):
 class LookHandler(SelectIndexHandler):
     """Lets the player look around using the keyboard."""
 
+    def __init__(self, engine, start_cycle=False):
+        super().__init__(engine)
+        if len(engine.fov_actors):
+            engine.mouse_location = engine.fov_actors[0].xy
+
     def on_index_selected(self, x: int, y: int) -> MainGameEventHandler:
         """Return to main handler."""
         return MainGameEventHandler(self.engine)
@@ -889,10 +897,23 @@ class LookHandler(SelectIndexHandler):
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
         modifier = event.mod
+        
         if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
             if key in ALPHA_KEYS and len(self.engine.mouse_things) > ALPHA_KEYS[key]:
                 return InspectHandler(self.engine, key, self, 'mouse', self.engine.mouse_location)
             return None
+
+        if key == tcod.event.K_TAB:
+            # get current fov actor if any
+            if len(self.engine.mouse_things) and self.engine.mouse_things[0] in self.engine.fov_actors:
+                i = self.engine.fov_actors.index(self.engine.mouse_things[0])
+                i = i+1 if i+1 < len(self.engine.fov_actors) else 0
+                actor = self.engine.fov_actors[i]
+            else:
+                actor = self.engine.player
+            self.engine.mouse_location = actor.xy
+            return None
+
         return super().ev_keydown(event)
 
 class SingleRangedAttackHandler(SelectIndexHandler):
