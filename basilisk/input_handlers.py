@@ -291,6 +291,18 @@ class AskUserEventHandler(EventHandler):
         """
         return MainGameEventHandler(self.engine)
 
+    def print_multicolor_box(self, console, x, y, width, height, parts):
+        """For highlighting stat-affected numbers"""
+        wx = x
+        wy = y
+        for part in parts:
+            for word in str(part[0]).split():
+                if wx + len(word) > x+width:
+                    wx = x
+                    wy += 1
+                console.print(wx,wy,word,part[1])
+                wx += len(word)+1
+
 class GameOverEventHandler(EventHandler):
     def on_quit(self) -> None:
         """Handle exiting out of a finished game."""
@@ -569,12 +581,12 @@ class InventoryEventHandler(AskUserEventHandler):
             if self.highlighted_item.identified:
                 if self.show_digest:
                     console.print(x,y,"Digest:",color.offwhite)
-                    console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.edible.description,color.offwhite)
+                    self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.edible.description_parts)
                     y += self.digest_height+1
                 
                 if self.show_spit:
                     console.print(x,y,"Spit:",color.offwhite)
-                    console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.spitable.description,color.offwhite)
+                    self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.spitable.description_parts)
                     y += self.spit_height+1
 
                 if self.show_passive and self.highlighted_item.stat:
@@ -1223,11 +1235,11 @@ class InspectHandler(AskUserEventHandler):
         elif not self.is_tile and self.thing.identified:
             #print spit
             console.print(x,y,"Digest:",color.offwhite)
-            console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.thing.edible.description,color.offwhite)
+            self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.thing.edible.description_parts)
             y += self.digest_height+1
             #print digest
             console.print(x,y,"Spit:",color.offwhite)
-            console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,self.thing.spitable.description,color.offwhite)
+            self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.thing.spitable.description_parts)
             y += self.spit_height+1
             #print passive
             if self.thing.stat:
