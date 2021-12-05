@@ -35,7 +35,7 @@ class Engine:
         self.player = player
         self.word_mode = False
         self.turn_count = 0
-        self.show_instructions = False
+        self.show_instructions = True
         self.boss_killed = False
         self.time_turned = False
 
