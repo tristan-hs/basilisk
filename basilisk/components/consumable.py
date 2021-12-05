@@ -622,7 +622,9 @@ class ShieldingConsumable(Consumable):
 
 
 class PhasingConsumable(Consumable):
-    description = "phase through walls"
+    @property
+    def description_parts(self):
+        return [("phase through walls ",color.offwhite), (2+self.engine.player.MIND,color.mind), (" times",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,Phasing,2)
@@ -709,14 +711,18 @@ class StatBoostConsumable(Consumable):
 
 
 class FreeSpitConsumable(Consumable):
-    description = "spit without consuming"
+    @property
+    def description_parts(self):
+        return [("spit without consuming ",color.offwhite), (2+self.engine.player.MIND,color.mind), (" times",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,FreeSpit,2)
 
 
 class PetrifEyesConsumable(Consumable):
-    description = "petrify all you see"
+    @property
+    def description_parts(self):
+        return [("petrify all you see for ",color.offwhite), (4+self.engine.player.MIND,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:        
         self.apply_status(action, PetrifEyes, 4)
@@ -904,7 +910,9 @@ class NothingConsumable(Consumable):
 
 
 class ThirdEyeBlindConsumable(Consumable):
-    description = "blind your third eye"
+    @property
+    def description_parts(self):
+        return [("blind your third eye for ",color.offwhite), (10-self.engine.player.MIND,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("It dissolves in a shroud of temporal ambiguity.")
@@ -912,7 +920,9 @@ class ThirdEyeBlindConsumable(Consumable):
 
 
 class PetrifyConsumable(Consumable):
-    description = "petrify thyself"
+    @property
+    def description_parts(self):
+        return [("petrify thyself for ",color.offwhite), (max(0,3-self.engine.player.MIND),color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The taste of earth and bone permeates your being.")
@@ -1006,85 +1016,12 @@ class ClingyConsumable(Projectile):
         self.parent.identified = True
 
 
-class ConfusionConsumable(Projectile):
-    description = "confuse an enemy"
-
-    def __init__(self, number_of_turns: int=10):
-        self.number_of_turns = number_of_turns
-        self.do_snake = False
-
-    def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
-        if not self.parent.identified:
-            return super().get_throw_action(consumer)
-
-        self.engine.message_log.add_message(
-            "Select a target.", color.cyan
-        )
-        return SingleRangedAttackHandler(
-            self.engine,
-            callback=lambda xy: actions.ThrowItem(consumer, self.parent, xy),
-        )
-
-    def start_activation(self,action):
-        if not self.engine.game_map.visible[action.target_xy]:
-            raise Impossible("You cannot target an area that you cannot see.")
-        if action.target_actor is action.entity:
-            raise Impossible("You cannot spit at yourself!")
-
-        super().start_activation(action)
-
-    def activate(self, action: actions.ItemAction) -> None:
-        target = action.target_actor
-
-        if not target:
-            self.engine.message_log.add_message("It dissipates in the air.",color.grey)
-
-        if target:
-            self.engine.message_log.add_message(
-                f"The eyes of the {target.name} glaze over as it stumbles about",
-                color.offwhite,
-            )
-            target.ai = basilisk.components.ai.ConfusedEnemy(
-                entity=target, previous_ai=target.ai, turns_remaining=self.number_of_turns,
-            )
-
-
 class MappingConsumable(Consumable):
     description = "map this floor"
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("Your mind permeates the walls of the dungeon.")
         self.engine.game_map.make_mapped()
-
-
-class LightningDamageConsumable(Projectile):
-    description = "smite a random enemy"
-
-    def __init__(self, damage: int=4, maximum_range: int=5):
-        self.damage = damage
-        self.maximum_range = maximum_range
-        self.do_snake = False
-
-    def activate(self, action: actions.ItemAction) -> None:
-        consumer = action.entity
-        target = None
-        closest_distance = self.maximum_range + 1.0
-
-        for actor in self.engine.game_map.actors:
-            if actor is not consumer and self.parent.gamemap.visible[actor.x, actor.y]:
-                distance = consumer.distance(actor.x, actor.y)
-
-                if distance < closest_distance:
-                    target = actor
-                    closest_distance = distance
-
-        if target and not target.is_boss:
-            self.engine.message_log.add_message(
-                f"Lightning smites the {target.name} for {self.modified_damage} damage!", color.offwhite,
-            )
-            target.take_damage(self.modified_damage)
-        else:
-            self.engine.message_log.add_message(f"Lightning strikes the ground nearby.", color.offwhite)
 
 
 class FireballDamageConsumable(Projectile):
