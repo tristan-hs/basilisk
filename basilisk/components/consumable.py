@@ -672,14 +672,19 @@ class StatBoostConsumable(Consumable):
 
     def __init__(self, amount, stat=None, permanent=False):
         super().__init__()
-        self.stat = stat if stat else "a stat"
+        self.stat = stat if stat else "a random stat"
         self.amount = amount
-        forever = " permanently" if permanent else ""
-        self.description = f"increase {self.stat} by {amount}{forever}"
         self.permanent = permanent
 
+    @property
+    def description(self):
+        n = 9 + self.engine.player.MIND
+        duration = "permanently" if self.permanent else f"for {n} turns"
+        return f"increase {self.stat} by {self.amount} {duration}"
+
+
     def activate(self, action: actions.ItemAction) -> None:
-        stat = self.stat if self.stat != "a stat" else random.choice(['BILE','MIND','TAIL','TONG'])
+        stat = self.stat if self.stat != "a random stat" else random.choice(['BILE','MIND','TAIL','TONG'])
         stat_str = "TONGUE" if stat == "TONG" else stat
         self.engine.message_log.add_message(self.messages[stat], color.offwhite, stat_str, color.stats[stat])
         if self.permanent:
