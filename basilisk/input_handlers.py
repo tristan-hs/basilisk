@@ -204,21 +204,14 @@ class MainGameEventHandler(EventHandler):
         action: Optional[Action] = None
 
         key = event.sym
-
         modifier = event.mod
- 
         player = self.engine.player
  
         if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
-            if key == tcod.event.K_SLASH:
-                return PopupMessage(self, self.engine.help_text, 'top')
 
             #if key == tcod.event.K_v:
             #    return BigHistoryViewer(self.engine)
 
-            if key == tcod.event.K_PERIOD:
-                return actions.TakeStairsAction(player)
-        
             dsx, dsy = self.engine.game_map.downstairs_location
 
             if key in ALPHA_KEYS:
@@ -261,6 +254,14 @@ class MainGameEventHandler(EventHandler):
 
         # No valid key was pressed
         return action
+
+    # hopefully this helps with int'l keyboards not registering shift+/ or shift+.
+    # upgrading tcod will also fix
+    def ev_textinput(self, event: tcod.event.TextInput):
+        if event.text == '?':
+            return PopupMessage(self, self.engine.help_text, 'top')
+        if event.text == '>':
+            return actions.TakeStairsAction(self.engine.player)
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown):
         if len(self.engine.mouse_things) > 0:
