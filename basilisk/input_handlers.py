@@ -220,12 +220,19 @@ class MainGameEventHandler(EventHandler):
                 return actions.TakeStairsAction(player)
         
             dsx, dsy = self.engine.game_map.downstairs_location
-            if (
-                (key in ALPHA_KEYS and len(self.engine.fov_actors) > ALPHA_KEYS[key]) or
-                (key in ALPHA_KEYS and len(self.engine.fov_actors) == ALPHA_KEYS[key] and
-                        self.engine.game_map.visible[dsx,dsy])
-            ):
-                return InspectHandler(self.engine, key, self)
+
+            if key in ALPHA_KEYS:
+                if self.engine.mouse_location != (0,0):
+                    if len(self.engine.mouse_things) > ALPHA_KEYS[key]:
+                        # mouse is active -- use mouseover index
+                        return InspectHandler(self.engine, key, self, 'mouse', self.engine.mouse_location)
+                elif (
+                    (key in ALPHA_KEYS and len(self.engine.fov_actors) > ALPHA_KEYS[key]) or
+                    (key in ALPHA_KEYS and len(self.engine.fov_actors) == ALPHA_KEYS[key] and
+                            self.engine.game_map.visible[dsx,dsy])
+                ):
+                    # mouse is inactive -- use default fov index
+                    return InspectHandler(self.engine, key, self)
 
             return None
 
