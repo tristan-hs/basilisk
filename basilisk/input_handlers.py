@@ -181,9 +181,6 @@ class EventHandler(BaseEventHandler):
         except exceptions.UnorderedPickup as exc:
             return OrderPickupHandler(self.engine)
 
-        if self.engine.time_turned:
-            self.engine.time_turned = False
-
         else:
             while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
                 self.engine.handle_enemy_turns()

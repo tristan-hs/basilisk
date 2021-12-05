@@ -77,24 +77,19 @@ class Engine:
             engine = pickle.loads(lzma.decompress(f.read()))
         assert isinstance(engine, Engine)
         engine.game_map._next_id = self.game_map._next_id
+        engine.game_map.item_factories = self.game_map.item_factories
         self.game_map = engine.game_map
         self.game_map.engine = self
         self.player = engine.player
 
-        self.time_turned = True
+        turner.identified = True
 
-        for i in self.game_map.entities:
-            if i.id == turner.id:
-                if i in self.player.inventory.items:
-                    i.edible.consume()
-                    i.edible.identify()
-                    i.edible.snake()
-                else:
-                    i.consume()
-                    i.identified = True
-                return
-            elif i.char == turner.char:
-                i.identified = True
+        for i in [e for e in self.game_map.entities if e.id == turner.id]:
+            if i in self.player.inventory.items:
+                i.edible.consume()
+                i.edible.snake()
+            else:
+                i.consume()
 
     def save_turn_snapshot(self):
         self.save_as(utils.get_resource(f"snapshot_{self.turn_count}.sav"))

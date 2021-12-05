@@ -43,7 +43,7 @@ class GameMap:
         self.item_factories = items
         self.vowel = vowel
         self.decoy = decoy
-        self._next_id = 0
+        self._next_id = 1
 
     @property
     def actors(self) -> Iterable[Actor]:
