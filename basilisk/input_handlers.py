@@ -223,8 +223,8 @@ class MainGameEventHandler(EventHandler):
 
             if key in ALPHA_KEYS:
                 if self.engine.mouse_location != (0,0):
+                    # mouse is active -- use mouseover index
                     if len(self.engine.mouse_things) > ALPHA_KEYS[key]:
-                        # mouse is active -- use mouseover index
                         return InspectHandler(self.engine, key, self, 'mouse', self.engine.mouse_location)
                 elif (
                     (key in ALPHA_KEYS and len(self.engine.fov_actors) > ALPHA_KEYS[key]) or
@@ -261,6 +261,11 @@ class MainGameEventHandler(EventHandler):
 
         # No valid key was pressed
         return action
+
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown):
+        if len(self.engine.mouse_things) > 0:
+            return InspectHandler(self.engine, 97, self, 'mouse', self.engine.mouse_location)
+
 
 class AskUserEventHandler(EventHandler):
     """Handles user input for actions which require special input."""
