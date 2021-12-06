@@ -14,7 +14,6 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
     """If the current event handler has an active Engine then save it."""
     if isinstance(handler, input_handlers.EventHandler):
         handler.engine.save_as(filename)
-        print("Game saved.")
 
 def toggle_fullscreen(context: tcod.context.Context) -> None:
     """Toggle a context window between fullscreen and windowed modes."""
@@ -49,7 +48,8 @@ def main() -> None:
             renderer=tcod.RENDERER_SDL2
         ) as context:
             root_console = tcod.Console(screen_width, screen_height, order="F")
-            toggle_fullscreen(context)
+            if handler.meta.fullscreen:
+                toggle_fullscreen(context)
             try:
                 while True:
                     root_console.clear()
@@ -74,6 +74,7 @@ def main() -> None:
 
                     except exceptions.ToggleFullscreen:
                         toggle_fullscreen(context)
+                        handler.engine.meta.fullscreen = not handler.engine.meta.fullscreen
 
                     except exceptions.QuitToMenu:
                         save_game(handler, utils.get_resource("savegame.sav"))

@@ -9,9 +9,8 @@ from typing import Optional
 
 import tcod
 
-from basilisk import input_handlers
 from basilisk.engine import Engine
-from basilisk import color, entity_factories
+from basilisk import color, entity_factories, exceptions, input_handlers
 from basilisk.game_map import GameWorld
 
 import utils
@@ -68,6 +67,12 @@ def load_game(filename: str) -> Engine:
     assert isinstance(engine, Engine)
     return engine
 
+def load_settings(filename: str) -> Meta:
+    with open(filename, "rb") as f:
+        meta = pickle.loads(lzma.decompress(f.read()))
+    assert isinstance(meta, Meta)
+    return meta
+
 class MainMenu(input_handlers.BaseEventHandler):
     """Handle the main menu rendering and input."""
 
@@ -76,9 +81,13 @@ class MainMenu(input_handlers.BaseEventHandler):
             self.engine = load_game(utils.get_resource("savegame.sav"))
         except FileNotFoundError:
             self.engine = None
-        except Exception as exc:
-            traceback.print_exc()  # Print to stderr.
-            return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
+
+        try:
+            self.meta = load_settings(utils.get_resource("savemeta.sav"))
+        except FileNotFoundError:
+            self.meta = Meta()
+
+        self.engine.meta = self.meta
 
     def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
@@ -94,13 +103,15 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         menu_width = 24
         for i, text in enumerate(
-            ["(c)ontinue", "(n)ew game", "(q)uit"]
+            ["(c)ontinue", "(h)istory", "(o)ptions", "(n)ew game", "(q)uit"]
         ):
             if i == 0 and not self.engine:
                 continue
+            if i == 1 and not len(self.meta.old_runs):
+                continue
             console.print(
                 72,
-                21 + (2*i),
+                19 + (2*i),
                 text.ljust(menu_width),
                 fg=color.white,
                 bg=color.black,
@@ -155,5 +166,68 @@ class MainMenu(input_handlers.BaseEventHandler):
                 return input_handlers.PopupMessage(self, "No saved game to load.")
         elif event.sym == tcod.event.K_n:
             return input_handlers.MainGameEventHandler(new_game())
+        elif event.sym == tcod.event.K_h and len(self.meta.old_runs):
+            return HistoryMenu(self)
+        elif event.sym == tcod.event.K_o:
+            return OptionsMenu(self, self.engine)
 
         return None
+
+
+class SubMenu(input_handlers.BaseEventHandler):
+    def __init__(self, parent):
+        self.parent = parent
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[input_handlers.BaseEventHandler]:
+        if event.sym == tcod.event.K_ESCAPE:
+            return self.parent
+        return None
+
+    def on_render(self, console:tcod.Console) -> None:
+        console.draw_semigraphics(background_image, 0, 0)
+        console.print(7,47,"(ESC) to go back")
+
+class HistoryMenu(SubMenu):
+    def on_render(self, console:tcod.Console) -> None:
+        super().on_render(console)
+        console.print(7,7,"HISTORY")
+
+    
+class OptionsMenu(SubMenu):
+    def __init__(self, parent, engine):
+        super().__init__(parent)
+        self.engine = engine
+
+    def on_render(self, console:tcod.Console) -> None:
+        super().on_render(console)
+        console.print(7,7,"OPTIONS")
+        console.print(8,10,"(f)ullscreen")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[input_handlers.BaseEventHandler]:
+        if event.sym == tcod.event.K_f:
+            raise exceptions.ToggleFullscreen()
+        return super().ev_keydown(event)
+
+
+class Meta():
+    def __init__(self):
+        self._fullscreen = True
+        self.old_runs = []
+
+    @property
+    def fullscreen(self):
+        return self._fullscreen
+
+    @fullscreen.setter
+    def fullscreen(self, new_val):
+        self._fullscreen = new_val
+        self.save()
+
+    def log_run(self, words, kills, turns, last_level, win):
+        self.old_runs.append({'words':words,'kills':kills,'turns':turns,'last_level':last_level, 'win':win})
+        self.save()
+
+    def save(self):
+        save_data = lzma.compress(pickle.dumps(self))
+        with open(utils.get_resource("savemeta.sav"), "wb") as f:
+            f.write(save_data)
