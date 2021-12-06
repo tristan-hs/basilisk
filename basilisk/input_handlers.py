@@ -317,7 +317,7 @@ class GameOverEventHandler(EventHandler):
         """Handle exiting out of a finished game."""
         if os.path.exists(utils.get_resource("savegame.sav")):
             os.remove(utils.get_resource("savegame.sav"))  # Deletes the active save file.
-        snapshots = glob.glob("snapshot_*.sav")
+        snapshots = glob.glob(utils.get_resource("snapshot_*.sav"))
         for s in snapshots:
             os.remove(s)
 

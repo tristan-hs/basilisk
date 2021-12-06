@@ -87,7 +87,8 @@ class MainMenu(input_handlers.BaseEventHandler):
         except FileNotFoundError:
             self.meta = Meta()
 
-        self.engine.meta = self.meta
+        if self.engine:
+            self.engine.meta = self.meta
 
     def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
@@ -103,11 +104,11 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         menu_width = 24
         for i, text in enumerate(
-            ["(c)ontinue", "(h)istory", "(o)ptions", "(n)ew game", "(q)uit"]
+            ["(c)ontinue", "(n)ew game", "(h)istory", "(o)ptions", "(q)uit"]
         ):
             if i == 0 and not self.engine:
                 continue
-            if i == 1 and not len(self.meta.old_runs):
+            if i == 2 and not len(self.meta.old_runs):
                 continue
             console.print(
                 72,
