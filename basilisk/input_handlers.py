@@ -887,7 +887,7 @@ class LookHandler(SelectIndexHandler):
 
     def __init__(self, engine, start_cycle=False):
         super().__init__(engine)
-        if len(engine.fov_actors):
+        if len(engine.fov_actors) and start_cycle:
             engine.mouse_location = engine.fov_actors[0].xy
 
     def on_index_selected(self, x: int, y: int) -> MainGameEventHandler:
