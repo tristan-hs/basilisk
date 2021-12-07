@@ -411,7 +411,8 @@ class GameOverStatScreen(EventHandler):
         console.print(1,12,f"Turn count: {self.engine.turn_count}")
 
         y = 3
-        for w in reversed(words):
+        seen = set()
+        for w in [i for i in reversed(words) if not (i in seen or seen.add(i))]:
             console.print(52,y,f"@{w}",tuple(c//2 for c in color.player))
             y += 1
             if y > 39:
