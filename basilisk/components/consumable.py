@@ -105,10 +105,6 @@ class Projectile(Consumable):
         super().__init__()   
         self.damage = damage
 
-    @property
-    def description_parts(self):
-        return [("projectile, ", color.offwhite), (self.modified_damage, color.bile), (" dmg", color.offwhite)]
-
     def get_throw_action(self, consumer: Actor, thru_tail=True) -> Optional[ActionOrHandler]:
         self.engine.message_log.add_message("Select a target.", color.cyan)
         seeking = "anything" #if not self.parent.identified else "actor"
@@ -209,6 +205,12 @@ class Projectile(Consumable):
             i += 1
 
         return new_path
+
+
+class DamagingProjectile(Projectile):
+    @property
+    def description_parts(self):
+        return [("projectile, ", color.offwhite), (self.modified_damage, color.bile), (" dmg", color.offwhite)]
 
 
 class DecoyConsumable(Projectile):
@@ -629,6 +631,7 @@ class PhasingConsumable(Consumable):
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,Phasing,2)
 
+
 class PhasingProjectile(Projectile):
     def __init__(self):
         self.do_snake = False
@@ -659,6 +662,7 @@ class PhasingProjectile(Projectile):
 
         if action.target_actor:
             self.apply_status(action, PhasedOut)
+
 
 class NotConsumable(Consumable):
     description = "know futility"

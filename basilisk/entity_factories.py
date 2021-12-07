@@ -155,7 +155,7 @@ vowel_segment = Item(
     color=color.vowel,
     name="vowel",
     edible=consumable.StatBoostConsumable(1),
-    spitable=consumable.Projectile(damage=1),
+    spitable=consumable.DamagingProjectile(damage=1),
     stat=None,
     flavor="Rusted scrap and compost given vigor by your presence."
 )
@@ -286,7 +286,7 @@ musclebound = Item(
     color=color.tail,
     name='ripped',
     edible=consumable.StatBoostConsumable(2,'TAIL'),
-    spitable=consumable.Projectile(damage=4),
+    spitable=consumable.DamagingProjectile(damage=4),
     rarity='c',
     stat='TAIL',
     flavor="Dense, rippling cords of flesh, wound like a ball of yarn."
