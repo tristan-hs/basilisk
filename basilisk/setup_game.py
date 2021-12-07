@@ -23,6 +23,17 @@ background_image = tcod.image.load(utils.get_resource("menu_background.png"))[:,
 
 def new_game(meta) -> Engine:
     """Return a brand new game session as an Engine instance."""
+
+    # If there's an existing save, log it as a game over
+    try:
+        engine = load_game(utils.get_resource("savegame.sav"))
+    except FileNotFoundError:
+        engine = None
+
+    if engine:
+        engine.history.append(("lose",True,engine.turn_count))
+        engine.log_run()
+
     map_width = 76
     map_height = 40
 
