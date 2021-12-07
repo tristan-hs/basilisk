@@ -158,7 +158,8 @@ class MainMenu(input_handlers.BaseEventHandler):
             lword = sorted(words,key=lambda x:len(x))[-1] if words else "n/a"
             console.print(x,y+5,f"History:",color.offwhite)
 
-            for w in reversed(words):
+            seen = set()
+            for w in [i for i in reversed(words) if not (i in seen or seen.add(i))]:
                 console.print(x+3,y+7,f"@{w}",tuple(c//2 for c in color.player))
                 y += 1
                 if y + 10 > console.height:
@@ -282,7 +283,7 @@ class HistoryMenu(SubMenu):
         console.print(8,10,"Last run")
         s = self.stats['Last run']
         console.print(9,12,f"@{s[0][1]}",color.player)
-        console.print(10+len(s[0][1]),12," the basilisk",c2)
+        console.print(10+len(s[0][1]),12," the Basilisk",c2)
         if s[1][1]:
             console.print(9,13,"CONSTRICTED THE ONE BELOW",color.purple)
         else:

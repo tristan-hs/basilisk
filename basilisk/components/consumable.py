@@ -1036,7 +1036,7 @@ class FireballDamageConsumable(Projectile):
 
     @property
     def description_parts(self):
-        return [("lob explosive, ",color.offwhite), (self.modified_damage,color.mind), (" dmg",color.offwhite)]
+        return [("lob explosive, ",color.offwhite), (self.modified_damage,color.bile), (" dmg",color.offwhite)]
 
     def get_throw_action(self, consumer: Actor) -> AreaRangedAttackHandler:
         if not self.parent.identified:
