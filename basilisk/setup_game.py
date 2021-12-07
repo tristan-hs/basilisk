@@ -36,7 +36,7 @@ def new_game(meta) -> Engine:
     player = copy.deepcopy(entity_factories.player)
     player.id = 0
 
-    engine = Engine(player=player)
+    engine = Engine(player=player, meta=meta)
     engine.meta = meta
 
     ooze_factor = 0.9

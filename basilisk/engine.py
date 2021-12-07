@@ -29,15 +29,16 @@ class Engine:
     game_map: GameMap
     game_world: GameWorld
  
-    def __init__(self, player: Actor):
+    def __init__(self, player: Actor, meta):
         self.message_log = MessageLog(self)
         self.mouse_location = (0, 0)
         self.player = player
         self.word_mode = False
         self.turn_count = 0
-        self.show_instructions = True
+        self.show_instructions = True if len(meta.old_runs) < 10 else False
         self.boss_killed = False
         self.time_turned = False
+        self.meta = meta
 
         #RUN STATS
         self.history = []
