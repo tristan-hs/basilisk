@@ -221,7 +221,7 @@ class DecoyConsumable(Projectile):
     @property
     def description_parts(self):
         d = 10 + (self.engine.player.MIND*2)
-        return [("spawn a decoy for ",color.offwhite), (d,color.MIND), (" turns",color.offwhite)]
+        return [("spawn a decoy for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         x,y = action.target_xy
