@@ -51,6 +51,10 @@ class Engine:
                 # kill enemy
                 # descend stairs
                 # form word
+                # win
+
+    def log_run(self):
+        self.meta.log_run(self.history)
 
     # field of view
     @property

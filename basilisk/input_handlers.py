@@ -313,14 +313,18 @@ class AskUserEventHandler(EventHandler):
                 wx += len(word)+1
 
 class GameOverEventHandler(EventHandler):
-    def on_quit(self) -> None:
-        """Handle exiting out of a finished game."""
+    def __init__(self,engine):
+        super().__init__(engine)
         if os.path.exists(utils.get_resource("savegame.sav")):
             os.remove(utils.get_resource("savegame.sav"))  # Deletes the active save file.
         snapshots = glob.glob(utils.get_resource("snapshot_*.sav"))
         for s in snapshots:
             os.remove(s)
 
+        self.engine.history.append(("lose",True,self.engine.turn_count))
+        self.engine.log_run()
+
+    def on_quit(self) -> None:
         return GameOverStatScreen(self.engine)
         
     def ev_quit(self, event: tcod.event.Quit):
@@ -334,6 +338,7 @@ class VictoryEventHandler(GameOverEventHandler):
     def __init__(self,engine):
         super().__init__(engine)
         engine.message_log.add_message("Congratulations! You've trapped the One Below and saved the world from annihilation!", color.purple)
+        engine.history.append(("win", True, engine.turn_count))
         self.render_tally = 0
         self.frame_interval = 60
         self.min_frame_interval = 1
@@ -364,8 +369,15 @@ class VictoryEventHandler(GameOverEventHandler):
 
 
 
-class GameOverStatScreen(GameOverEventHandler):
-    def on_quit(self) -> None:
+class GameOverStatScreen(EventHandler):
+    def ev_quit(self, event: tcod.event.Quit):
+        return self.on_quit()
+        
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        if event.sym == tcod.event.K_ESCAPE:
+            return self.on_quit()
+
+    def on_quit(self):
         raise exceptions.QuitWithoutSaving()
 
     def on_render(self,console):

@@ -1,6 +1,7 @@
 """Handle the loading and initialization of game sessions."""
 from __future__ import annotations
 
+import math
 import copy
 import lzma
 import pickle
@@ -20,7 +21,7 @@ import utils
 background_image = tcod.image.load(utils.get_resource("menu_background.png"))[:, :, :3]
 
 
-def new_game() -> Engine:
+def new_game(meta) -> Engine:
     """Return a brand new game session as an Engine instance."""
     map_width = 76
     map_height = 40
@@ -36,6 +37,7 @@ def new_game() -> Engine:
     player.id = 0
 
     engine = Engine(player=player)
+    engine.meta = meta
 
     ooze_factor = 0.9
 
@@ -166,7 +168,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             else:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
         elif event.sym == tcod.event.K_n:
-            return input_handlers.MainGameEventHandler(new_game())
+            return input_handlers.MainGameEventHandler(new_game(self.meta))
         elif event.sym == tcod.event.K_h and len(self.meta.old_runs):
             return HistoryMenu(self)
         elif event.sym == tcod.event.K_o:
@@ -189,9 +191,91 @@ class SubMenu(input_handlers.BaseEventHandler):
         console.print(7,47,"(ESC) to go back")
 
 class HistoryMenu(SubMenu):
+    # (type of record, record, turn count)
+            # types of record:
+                # pickup item
+                # spit item
+                # digest item
+                # break segment
+                # identify item
+
+                # kill enemy
+                # descend stairs
+                # form word
+                # win
+                # lose
+
     def on_render(self, console:tcod.Console) -> None:
         super().on_render(console)
         console.print(7,7,"HISTORY")
+        
+        history = self.parent.meta.old_runs
+
+        last_run = history[-1]
+        words = [i for i in last_run if i[0] == "form word"]
+        word = words[-1][1] if len(words) else ""
+        unique_kills = len(set([i[1] for i in last_run if i[0] == "kill enemy"]))
+        turns = last_run[-1][2]
+        level = len([i for i in last_run if i[0] == "descend stairs"])+1
+        items_identified = len([i for i in last_run if i[0] == "identify item"])
+        longest_w = max([i[1] for i in words], key=len) if len(words) > 0 else "n/a"
+        unique_ws = len(set([i[1] for i in words]))
+
+        console.print(8,10,"Last run:")
+        console.print(9,12,f"@{word} the basilisk",color.player)
+        if last_run[-1][0] == "win":
+            s = "CONSTRICTED THE ONE BELOW"
+        else:
+            s = f"defeated on floor {str(level)}"
+        console.print(9,13,s)
+        console.print(9,15,f"turns: {str(turns)}")
+        console.print(9,16,f"unique kills: {str(unique_kills)}/12")
+        console.print(9,17,f"items identified: {str(items_identified)}/21")
+        console.print(9,18,f"longest word: {longest_w}")
+        console.print(9,19,f"unique words: {str(unique_ws)}")
+
+        shistory = [event for run in history for event in run]
+
+        all_kills = len(set([event[1] for event in shistory if event[0] == "kill enemy"]))
+        all_items = len(set([event[1] for event in shistory if event[0] == "identify item"]))
+        unique_words = set([event[1] for event in shistory if event[0] == "form word"])
+        unique_word_count = len(unique_words)
+        longest_word = max(unique_words, key=len) if unique_word_count > 0 else ""
+
+        console.print(8,22,"All time:")
+        console.print(9,24,f"unique kills: {str(all_kills)}/12")
+        console.print(9,25,f"items identified: {str(all_items)}/21")
+        console.print(9,26,f"unique words: {str(unique_word_count)}")
+        console.print(9,27,f"longest word: {longest_word}")
+
+        floors = set([event[1] for event in shistory if event[0] == "descend stairs"])
+        highest_floor = max(floors) if len(floors) > 0 else 1
+        win_p = math.floor( 
+            (
+                len([i for i in shistory if i[0] == "win"]) 
+                / 
+                len([i for i in shistory if i[0] in ["win","lose"]])
+            ) * 100
+        ) / 100
+
+        console.print(8,29,f"highest floor reached: {str(highest_floor)}")
+        console.print(8,30,f"win %: {str(win_p)}")
+
+        wins = [i for i in history if i[-1][0] == "win"]
+        last_words = []
+        for w in wins:
+            last_words.append([i[1] for i in w if i[0] == "form word"][-1])
+
+        console.print(8,32,f"Winning words: ")
+        if len(wins) > 0:
+            y = 34
+            for w in last_words:
+                console.print(9,y,f"@{w}",color.player)
+                y += 1
+                if y > 47:
+                    break
+        else:
+            console.print(9,34,"n/a")
 
     
 class OptionsMenu(SubMenu):
@@ -224,8 +308,8 @@ class Meta():
         self._fullscreen = new_val
         self.save()
 
-    def log_run(self, words, kills, turns, last_level, win):
-        self.old_runs.append({'words':words,'kills':kills,'turns':turns,'last_level':last_level, 'win':win})
+    def log_run(self, history):
+        self.old_runs.append(history)
         self.save()
 
     def save(self):

@@ -486,6 +486,7 @@ class Item(Entity):
             return
         factory._identified = self._identified = new_val
         n = 'n' if self.label[0].lower() in ('a','e','i','o','u') else ''
+        self.engine.history.append(("identify item", self.label, self.engine.turn_count))
         self.engine.message_log.add_message(f"The {self.char} was a{n} ? segment.", Color.offwhite, self.label, self.color)
 
     @property
