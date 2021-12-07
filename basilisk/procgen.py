@@ -484,6 +484,9 @@ def place_entities(
         if dungeon.tiles[x,y] == tile_types.down_stairs:
             continue
 
+        if dungeon.engine.player.xy == (x,y):
+            continue
+
         if not any(entity.x == x and entity.y == y and isinstance(entity, Item) for entity in dungeon.entities):
             item = random.choice(factory_set)
             cost = {'c':1,'u':2,'r':3}[item.rarity] if item.rarity else 1
