@@ -215,78 +215,115 @@ class HistoryMenu(SubMenu):
                 # form word
                 # win
                 # lose
+    def __init__(self, parent):
+        super().__init__(parent)
 
-    def on_render(self, console:tcod.Console) -> None:
-        super().on_render(console)
-        console.print(7,7,"HISTORY")
-        
         history = self.parent.meta.old_runs
+        shistory = [event for run in history for event in run]
+        last_run = history[-1]
 
+        stats = {}
+
+        # LAST RUN STATS
         last_run = history[-1]
         words = [i for i in last_run if i[0] == "form word"]
-        word = words[-1][1] if len(words) else ""
-        unique_kills = len(set([i[1] for i in last_run if i[0] == "kill enemy"]))
-        turns = last_run[-1][2]
-        level = len([i for i in last_run if i[0] == "descend stairs"])+1
-        items_identified = len([i for i in last_run if i[0] == "identify item"])
-        longest_w = max([i[1] for i in words], key=len) if len(words) > 0 else "n/a"
-        unique_ws = len(set([i[1] for i in words]))
 
-        console.print(8,10,"Last run:")
-        console.print(9,12,f"@{word} the basilisk",color.player)
-        if last_run[-1][0] == "win":
-            s = "CONSTRICTED THE ONE BELOW"
-        else:
-            s = f"defeated on floor {str(level)}"
-        console.print(9,13,s)
-        console.print(9,15,f"turns: {str(turns)}")
-        console.print(9,16,f"unique kills: {str(unique_kills)}/12")
-        console.print(9,17,f"items identified: {str(items_identified)}/21")
-        console.print(9,18,f"longest word: {longest_w}")
-        console.print(9,19,f"unique words: {str(unique_ws)}")
+        stats['Last run'] = [
+            ('name', words[-1][1] if len(words) else ""),
+            ('won', last_run[-1][0] == "win"),
+            ('level', len([i for i in last_run if i[0] == "descend stairs"])+1),
+            ('turns', last_run[-1][2]),
+            ('unique kills', len(set([i[1] for i in last_run if i[0] == "kill enemy"]))),
+            ('items identified', len([i for i in last_run if i[0] == "identify item"])),
+            ('longest word', max([i[1] for i in words], key=len) if len(words) > 0 else "n/a"),
+            ('unique words', len(set([i[1] for i in words])))
+        ]
 
-        shistory = [event for run in history for event in run]
-
-        all_kills = len(set([event[1] for event in shistory if event[0] == "kill enemy"]))
-        all_items = len(set([event[1] for event in shistory if event[0] == "identify item"]))
+        # ALL TIME STATS
         unique_words = set([event[1] for event in shistory if event[0] == "form word"])
-        unique_word_count = len(unique_words)
-        longest_word = max(unique_words, key=len) if unique_word_count > 0 else ""
 
-        console.print(8,22,"All time:")
-        console.print(9,24,f"unique kills: {str(all_kills)}/12")
-        console.print(9,25,f"items identified: {str(all_items)}/21")
-        console.print(9,26,f"unique words: {str(unique_word_count)}")
-        console.print(9,27,f"longest word: {longest_word}")
+        stats['All time'] = [
+            ('turns', sum([i[-1][2] for i in history])),
+            ('unique kills', len(set([event[1] for event in shistory if event[0] == "kill enemy"]))), 
+            ('items identified', len(set([event[1] for event in shistory if event[0] == "identify item"]))),
+            ('unique words', len(unique_words)),
+            ('longest word', max(unique_words, key=len) if len(unique_words) > 0 else "")
+        ]
 
+        # RECORDS
         floors = set([event[1] for event in shistory if event[0] == "descend stairs"])
         highest_floor = max(floors) if len(floors) > 0 else 1
-        win_p = math.floor( 
-            (
-                len([i for i in shistory if i[0] == "win"]) 
-                / 
-                len([i for i in shistory if i[0] in ["win","lose"]])
-            ) * 100
-        ) / 100
-
-        console.print(8,29,f"highest floor reached: {str(highest_floor)}")
-        console.print(8,30,f"win %: {str(win_p)}")
-
         wins = [i for i in history if i[-1][0] == "win"]
+
+        stats['Records'] = [
+            ('lowest floor', max(floors) if len(floors) > 0 else 1),
+            ('wins', len(wins)),
+            ('win %', math.floor((len([i for i in shistory if i[0] == "win"])/len([i for i in shistory if i[0] in ["win","lose"]]))*100)/100),
+            ('fastest win', min([i[-1][2] for i in wins]) if wins else "n/a")
+        ]
+
+        # WINNING WORDS
         last_words = []
         for w in wins:
             last_words.append([i[1] for i in w if i[0] == "form word"][-1])
 
-        console.print(8,32,f"Winning words: ")
-        if len(wins) > 0:
-            y = 34
-            for w in last_words:
+        stats['Winning words'] = last_words
+
+        self.stats = stats
+
+
+    def on_render(self, console:tcod.Console) -> None:
+        super().on_render(console)
+        c2 = color.grey
+        c3 = color.offwhite
+
+        console.print(7,7,"HISTORY")
+
+        console.print(8,10,"Last run:")
+        s = self.stats['Last run']
+        console.print(9,12,f"@{s[0][1]}",color.player)
+        console.print(10+len(s[0][1]),12," the basilisk",c2)
+        if s[1][1]:
+            console.print(9,13,"CONSTRICTED THE ONE BELOW",color.purple)
+        else:
+            console.print(9,13,f"defeated on floor",c2)
+            console.print(27,13,str(s[2][1]),c3)
+        y = self.print_subsection(console,s[3:],15,c2,c3)
+        
+        console.print(8,y+2,"All time:")
+        y = self.print_subsection(console,self.stats['All time'],y+4,c2,c3)
+
+        y = self.print_subsection(console,self.stats['Records'],y+1,c2,c3)
+        
+        console.print(8,y+2,f"Winning words: ")
+        wins = self.stats['Records'][1][1] | 0
+        if wins > 0:
+            y += 4
+            for w in self.stats['Winning words']:
                 console.print(9,y,f"@{w}",color.player)
                 y += 1
                 if y > 47:
                     break
         else:
-            console.print(9,34,"n/a")
+            console.print(9,y+5,"n/a",c2)
+
+    def print_subsection(self,console,s,y,c2,c3):
+        indent = max([len(i[0]) for i in s])+11
+        for k,v in enumerate(s):
+            console.print(9,y,f"{v[0]}: ",c2)
+            i = str(v[1])
+            c = c3 if i in ['0','n/a','0.0'] else c3
+            if v[0] == 'unique kills':
+                i += '/12'
+                if v[0] == 12:
+                    c = color.purple
+            if v[0] == 'items identified':
+                i += '/21'
+                if v[0] == 21:
+                    c = color.purple
+            console.print(indent,y,i,c)
+            y += 1
+        return y
 
     
 class OptionsMenu(SubMenu):
