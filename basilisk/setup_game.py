@@ -246,8 +246,8 @@ class HistoryMenu(SubMenu):
             ('turns', sum([i[-1][2] for i in history])),
             ('unique kills', len(set([event[1] for event in shistory if event[0] == "kill enemy"]))), 
             ('items identified', len(set([event[1] for event in shistory if event[0] == "identify item"]))),
-            ('unique words', len(unique_words)),
-            ('longest word', max(unique_words, key=len) if len(unique_words) > 0 else "")
+            ('longest word', max(unique_words, key=len) if len(unique_words) > 0 else ""),
+            ('unique words', len(unique_words))
         ]
 
         # RECORDS
@@ -279,7 +279,7 @@ class HistoryMenu(SubMenu):
 
         console.print(7,7,"HISTORY")
 
-        console.print(8,10,"Last run:")
+        console.print(8,10,"Last run")
         s = self.stats['Last run']
         console.print(9,12,f"@{s[0][1]}",color.player)
         console.print(10+len(s[0][1]),12," the basilisk",c2)
@@ -290,12 +290,12 @@ class HistoryMenu(SubMenu):
             console.print(27,13,str(s[2][1]),c3)
         y = self.print_subsection(console,s[3:],15,c2,c3)
         
-        console.print(8,y+2,"All time:")
+        console.print(8,y+2,"All time")
         y = self.print_subsection(console,self.stats['All time'],y+4,c2,c3)
 
         y = self.print_subsection(console,self.stats['Records'],y+1,c2,c3)
         
-        console.print(8,y+2,f"Winning words: ")
+        console.print(8,y+2,f"Winning words")
         wins = self.stats['Records'][1][1] | 0
         if wins > 0:
             y += 4
@@ -305,12 +305,12 @@ class HistoryMenu(SubMenu):
                 if y > 47:
                     break
         else:
-            console.print(9,y+5,"n/a",c2)
+            console.print(9,y+4,"n/a",c2)
 
     def print_subsection(self,console,s,y,c2,c3):
         indent = max([len(i[0]) for i in s])+11
         for k,v in enumerate(s):
-            console.print(9,y,f"{v[0]}: ",c2)
+            console.print(9,y,f"{v[0]}",c2)
             i = str(v[1])
             c = c3 if i in ['0','n/a','0.0'] else c3
             if v[0] == 'unique kills':
