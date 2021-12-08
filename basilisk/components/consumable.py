@@ -430,7 +430,7 @@ class HookshotProjectile(Projectile):
         consumer = action.entity
         target = None
 
-        if action.target_actor and action.target_actor is not consumer:
+        if action.target_actor and action.target_actor is not consumer and not action.target_actor.is_boss:
             target = action.target_actor
             self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
             tile = self.get_path_to(*action.target_xy)[0]
@@ -498,7 +498,7 @@ class KnockbackConsumable(Consumable):
     def knockback_from_segment(self,segment,consumer) -> None:
         pushed = False
         for actor in segment.get_adjacent_actors():
-            if actor is consumer:
+            if actor is consumer or actor.is_boss:
                 continue
             d = (actor.x-segment.x,actor.y-segment.y)
             destination = None

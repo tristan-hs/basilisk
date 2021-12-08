@@ -278,7 +278,8 @@ class Actor(Entity):
             self.is_shielded or
             ( 
                 any( isinstance(s,PetrifEyes) for s in self.engine.player.statuses ) and
-                not self is self.engine.player
+                not self is self.engine.player and
+                not self.is_boss
             )
         ):
             return Color.grey
