@@ -313,7 +313,7 @@ class AskUserEventHandler(EventHandler):
                 wx += len(word)+1
 
 class GameOverEventHandler(EventHandler):
-    def __init__(self,engine):
+    def __init__(self,engine,loss=True):
         super().__init__(engine)
         if os.path.exists(utils.get_resource("savegame.sav")):
             os.remove(utils.get_resource("savegame.sav"))  # Deletes the active save file.
@@ -321,7 +321,8 @@ class GameOverEventHandler(EventHandler):
         for s in snapshots:
             os.remove(s)
 
-        self.engine.history.append(("lose",True,self.engine.turn_count))
+        event = 'lose' if loss else 'win'
+        self.engine.history.append((event,True,self.engine.turn_count))
         self.engine.log_run()
 
     def on_quit(self) -> None:
@@ -336,9 +337,7 @@ class GameOverEventHandler(EventHandler):
 
 class VictoryEventHandler(GameOverEventHandler):
     def __init__(self,engine):
-        super().__init__(engine)
-        engine.message_log.add_message("Congratulations! You've trapped the One Below and saved the world from annihilation!", color.purple)
-        engine.history.append(("win", True, engine.turn_count))
+        super().__init__(engine,False)
         self.render_tally = 0
         self.frame_interval = 60
         self.min_frame_interval = 1
@@ -351,6 +350,8 @@ class VictoryEventHandler(GameOverEventHandler):
         last_seg = [i for i in inv if all(x in i.get_adjacent_actors() for x in [self.engine.boss,p])][-1]
         if last_seg is not inv[-1]:
             inv[inv.index(last_seg)+1].die()
+
+        self.engine.message_log.add_message("Congratulations! You've trapped the One Below and saved the world from annihilation!", color.purple)
 
         raise exceptions.VictoryAnimation(self)
 
