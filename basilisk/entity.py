@@ -5,16 +5,20 @@ import math
 import random
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union, Set
 
+from tcod.map import compute_fov
+
 from basilisk.render_order import RenderOrder
 
 from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
-from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut, ThirdEyeBlind
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
+
+from basilisk.actions import ActionWithDirection
 
 if TYPE_CHECKING:
     from basilisk.components.ai import BaseAI
@@ -308,6 +312,53 @@ class Actor(Entity):
     @property
     def is_phasing(self) -> bool:
         return any(isinstance(s,Phasing) for s in self.statuses)
+
+    @property
+    def in_danger(self) -> bool:
+        # check if any entity intends to move into this location
+        for entity in self.gamemap.actors:
+            # don't check actors that can't getcha
+            if(
+                entity is self or
+                any(isinstance(s,Petrified) for s in entity.statuses) or
+                any(isinstance(s,PhasedOut) for s in entity.statuses) or
+                (
+                    any(isinstance(s,PetrifEyes) for s in self.engine.player.statuses) and
+                    self.gamemap.visible[entity.x,entity.y]
+                )
+            ):
+                continue
+
+            # check fom if you can't see intents
+            if not self.engine.word_mode or any(isinstance(s,ThirdEyeBlind) for s in self.statuses):
+                if not self.gamemap.visible[entity.x,entity.y]:
+                    continue
+
+                fom = compute_fov(
+                    self.gamemap.tiles["transparent"],
+                    (entity.x,entity.y),
+                    radius=entity.move_speed,
+                    light_walls=False
+                )
+
+                for x,row in enumerate(fom):
+                    for y,cel in enumerate(row):
+                        if cel and self.xy == (x,y):
+                            return True
+
+            # otherwise check intents
+            else:
+                if not any(isinstance(intent, ActionWithDirection) for intent in entity.ai.intent):
+                    continue
+
+                x, y = entity.xy
+                for intent in entity.ai.intent:
+                    x += intent.dx
+                    y += intent.dy
+                    if self.xy == (x,y):
+                        return True
+
+        return False
 
     def hit_shield(self):
         [s for s in self.statuses if isinstance(s, Shielded)][0].decrement(False)

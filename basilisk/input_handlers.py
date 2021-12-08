@@ -233,7 +233,10 @@ class MainGameEventHandler(EventHandler):
             dx, dy = MOVE_KEYS[key]
             action = BumpAction(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = WaitAction(player)
+            if player.in_danger:
+                return Confirm(self, lambda: WaitAction(player), "Wait while enemies intend to attack?", None, self.engine)
+            else:
+                action = WaitAction(player)
         elif key == tcod.event.K_ESCAPE:
             return PlayMenuHandler(self.engine, self)
         elif key == tcod.event.K_v:
@@ -311,6 +314,31 @@ class AskUserEventHandler(EventHandler):
                     wy += 1
                 console.print(wx,wy,word,part[1])
                 wx += len(word)+1
+
+class Confirm(EventHandler):
+    def __init__(self,parent,callback,prompt,cancel_callback=None,engine=None):
+        if(engine):
+            super().__init__(engine)
+        self.parent = parent
+        self.callback = callback
+        self.prompt = prompt
+        self.cancel_callback = cancel_callback
+
+    def on_render(self,console):
+        self.parent.on_render(console)
+
+        console.draw_frame(7,7,40,5, fg=color.tongue, bg=color.black)
+        console.print_box(9,8,40,3,self.prompt, fg=color.offwhite, bg=color.black)
+        console.print_box(7,11,40,1,"(y/n)",alignment=tcod.CENTER, fg=color.offwhite)
+
+    def ev_keydown(self,event):
+        if event.sym == tcod.event.K_n:
+            if self.cancel_callback:
+                return cancel_callback()
+            else:
+                return self.parent
+        elif event.sym == tcod.event.K_y:
+            return self.callback()
 
 class GameOverEventHandler(EventHandler):
     def __init__(self,engine,loss=True):
