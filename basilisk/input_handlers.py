@@ -162,7 +162,7 @@ class EventHandler(BaseEventHandler):
                 return GameOverEventHandler(self.engine)
             if self.engine.boss_killed:
                 return VictoryEventHandler(self.engine)
-            if self.engine.in_combat and not self.engine.confirmed_in_combat:
+            if self.engine.in_combat and not self.engine.confirmed_in_combat and self.engine.meta.do_combat_confirm:
                 return ConfirmCombatHandler(self.engine)
             if not self.engine.in_combat and self.engine.confirmed_in_combat:
                 self.engine.confirmed_in_combat = False
@@ -1135,7 +1135,12 @@ class PlayMenuHandler(AskUserEventHandler):
         for i,o in enumerate(self.options):
             bg = (0,100,0) if i == self.selected else None
 
-            console.print(x,y,o[0],fg=color.offwhite,bg=bg,alignment=tcod.CENTER)
+            if o[0].startswith('Confirm Combat Start'):
+                s = o[0]+' (ON)' if self.engine.meta.do_combat_confirm else o[0]+' (OFF)'
+            else:
+                s = o[0]
+
+            console.print(x,y,s,fg=color.offwhite,bg=bg,alignment=tcod.CENTER)
             y += 2
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1172,7 +1177,8 @@ class PlayMenuHandler(AskUserEventHandler):
 
     def onOptions(self):
         options = [
-            ("Full Screen",self.onFullScreen)
+            ("Full Screen",self.onFullScreen),
+            ("Confirm Combat Start",self.onCombatConfirm)
         ]
         return PlayMenuHandler(self.engine,self,options,header="OPTIONS")
 
@@ -1186,7 +1192,8 @@ class PlayMenuHandler(AskUserEventHandler):
     def onFullScreen(self):
         raise exceptions.ToggleFullscreen()
 
-
+    def onCombatConfirm(self):
+        self.engine.meta.do_combat_confirm = not self.engine.meta.do_combat_confirm
 
 
 class InspectHandler(AskUserEventHandler):

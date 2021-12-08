@@ -345,16 +345,21 @@ class OptionsMenu(SubMenu):
         super().on_render(console)
         console.print(7,7,"OPTIONS")
         console.print(8,10,"(f)ullscreen")
+        ccstatus = "ON" if self.engine.meta.do_combat_confirm else "OFF"
+        console.print(8,11,"(c)onfirm combat start - "+ccstatus)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[input_handlers.BaseEventHandler]:
         if event.sym == tcod.event.K_f:
             raise exceptions.ToggleFullscreen()
+        if event.sym == tcod.event.K_c:
+            self.engine.meta.do_combat_confirm = not self.engine.meta.do_combat_confirm
         return super().ev_keydown(event)
 
 
 class Meta():
     def __init__(self):
         self._fullscreen = True
+        self.do_combat_confirm = True
         self.old_runs = []
 
     @property
