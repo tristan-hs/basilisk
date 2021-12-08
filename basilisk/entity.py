@@ -331,8 +331,11 @@ class Actor(Entity):
             self.die()
             return
         if self.is_boss and self.how_next_to_player() > 7:
-            self.engine.boss_killed = True
-            return
+            if self.engine.word_mode:
+                self.engine.boss_killed = True
+                return
+            elif self.engine.message_log.messages[-1].text != "You hope to defeat me with this incoherent jibberish???":
+                self.engine.message_log.add_message(f"You hope to defeat me with this incoherent jibberish???", Color.red)
         self.char = str(new_char)
 
     def pre_turn(self) -> None:
