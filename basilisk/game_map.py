@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, engine: Engine, width: int, height: int, floor_number: int, items: Iterable, entities: Iterable[Entity] = (), vowel = None, decoy = None
+        self, engine: Engine, width: int, height: int, floor_number: int, items: Iterable, entities: Iterable[Entity] = (), vowel = None, decoy = None, game_mode = 'default'
     ):
         self.engine = engine
         self.width, self.height = width, height
@@ -44,6 +44,7 @@ class GameMap:
         self.vowel = vowel
         self.decoy = decoy
         self._next_id = 1
+        self.game_mode = game_mode
 
     @property
     def actors(self) -> Iterable[Actor]:
@@ -325,9 +326,12 @@ class GameWorld:
         max_items_per_room: int,
         current_floor: int = 0,
         ooze_factor: float,
-        vault_chance: float
+        vault_chance: float,
+        game_mode: str
     ):
         from basilisk.procgen import generate_item_identities
+        self.game_mode = game_mode
+
         self.items = generate_item_identities()
 
         self.engine = engine
@@ -348,7 +352,7 @@ class GameWorld:
         self.vault_chance = vault_chance
 
     def generate_floor(self) -> None:
-        from basilisk.procgen import generate_dungeon
+        from basilisk.procgen import generate_dungeon, generate_consumable_testing_ground
 
         self.current_floor += 1
 
@@ -357,6 +361,10 @@ class GameWorld:
 
         room_dice = max(5,self.current_floor)
         room_buffer = int(round((random.randint(1,room_dice) + random.randint(1,room_dice) + random.randint(1,room_dice))/2))
+
+        if self.game_mode == 'consumable testing':
+            self.engine.game_map = generate_consumable_testing_ground(engine=self.engine, items=self.items)
+            return
 
         self.engine.game_map = generate_dungeon(
             max_rooms=self.current_floor*2+room_buffer,

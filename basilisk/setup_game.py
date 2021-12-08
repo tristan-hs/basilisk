@@ -20,7 +20,6 @@ import utils
 # Load the background image and remove the alpha channel.
 background_image = tcod.image.load(utils.get_resource("menu_background.png"))[:, :, :3]
 
-
 def new_game(meta) -> Engine:
     """Return a brand new game session as an Engine instance."""
 
@@ -52,6 +51,9 @@ def new_game(meta) -> Engine:
 
     ooze_factor = 0.9
 
+    game_mode = 'default'
+    # game_mode = 'consumable testing'
+
     engine.game_world = GameWorld(
         engine=engine,
         max_rooms=max_rooms,
@@ -62,7 +64,8 @@ def new_game(meta) -> Engine:
         max_monsters_per_room=max_monsters_per_room,
         max_items_per_room=max_items_per_room,
         ooze_factor=ooze_factor,
-        vault_chance=0.02
+        vault_chance=0.02,
+        game_mode=game_mode
     )
 
     engine.game_world.generate_floor()

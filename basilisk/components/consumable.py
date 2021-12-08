@@ -254,7 +254,7 @@ class TimeReverseConsumable(Consumable):
     @property
     def description_parts(self):
         d = self.turns + self.engine.player.MIND
-        return [("wrinkle ",color.offwhite), (d,color.MIND), (" turns worth of time",color.offwhite)]
+        return [("wrinkle ",color.offwhite), (d,color.mind), (" turns worth of time",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("You feel intense deja-vu.")
@@ -591,7 +591,7 @@ class DamageAllConsumable(Consumable):
 
     @property
     def description_parts(self):
-        return [("rain acid on all nearby enemies",color.offwhite), (self.modified_damage,color.bile), (" dmg",color.offwhite)]
+        return [("rain acid on all nearby enemies, ",color.offwhite), (self.modified_damage,color.bile), (" dmg",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
@@ -613,7 +613,7 @@ class ShieldingConsumable(Consumable):
         self.do_snake = False
 
     @property
-    def description(self):
+    def description_parts(self):
         d = self.duration + self.engine.player.MIND
         n = ' '+str(d) if d > 1 else ''
         s = 's' if d > 1 else ''

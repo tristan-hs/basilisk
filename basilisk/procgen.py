@@ -402,6 +402,53 @@ def generate_dungeon(
 
     return dungeon
 
+def generate_consumable_testing_ground(engine,items):
+    # wide open space with all consumables scattered around
+    player = engine.player
+    entities = set(player.inventory.items)
+    entities.update([player])
+    dungeon = GameMap(engine, 76, 40, 1, entities=entities, items=items, vowel=entity_factories.vowel_segment, decoy=entity_factories.decoy, game_mode='consumable testing')
+    rooms: List[RectangularRoom] = []
+    vaults: List[RectangularRoom] = []
+    center_of_last_room = (0, 0)
+    attempts = 0
+
+    x = int(76/2)
+    y = int(40/2)
+    x_dir = y_dir = 0
+    door2 = None
+
+    attempts = 0
+    while attempts < 1000:
+        attempts += 1
+        room = RectangularRoom(x, y, x_dir, y_dir, 76, 40, [], 35, 30, 0.9, door2)
+        if room.width < 30 or room.height < 30:
+            continue
+        else:
+            break
+
+    dungeon.tiles[room.inner] = tile_types.floor
+    player.place(*room.center, dungeon)
+    dungeon.upstairs_location = room.center
+    for item in player.inventory.items:
+        item.blocks_movement = False
+        item.place(*room.center, dungeon)
+
+    for i in dungeon.item_factories:
+        attempts = 0
+        while attempts < 1000:
+            attempts += 1
+            x = random.randint(room.x1+1,room.x2-1)
+            y = random.randint(room.y1+1,room.y2-1)
+
+            if any(entity.xy == (x,y) for entity in dungeon.entities):
+                continue
+
+            i.spawn(dungeon,x,y)
+            break
+
+    return dungeon
+
 def tunnel_between(
     start: Tuple[int, int], end: Tuple[int, int]
 ) -> Iterator[Tuple[int, int]]:
