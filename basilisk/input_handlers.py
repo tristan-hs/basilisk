@@ -324,6 +324,8 @@ class Confirm(EventHandler):
     def __init__(self,parent,callback,prompt,cancel_callback=None,engine=None,type='y/n'):
         if(engine):
             super().__init__(engine)
+        else:
+            self.engine = None
         self.parent = parent
         self.callback = callback
         self.prompt = prompt
@@ -332,9 +334,13 @@ class Confirm(EventHandler):
     def on_render(self,console):
         self.parent.on_render(console)
 
-        console.draw_frame(7,7,40,5, fg=color.tongue, bg=color.black)
-        console.print_box(9,8,40,3,self.prompt, fg=color.offwhite, bg=color.black)
-        console.print_box(7,11,40,1,"(y/n)",alignment=tcod.CENTER, fg=color.offwhite)
+        x, y = (7,7) if not self.engine else (1,37)
+        h = 5 if not self.engine else 3
+        w = 40 if not self.engine else len(self.prompt)+2
+
+        console.draw_frame(x,y,w,h, fg=color.white, bg=color.black)
+        console.print_box(x+1,y+1,w-2,3,self.prompt, fg=color.offwhite, bg=color.black)
+        console.print_box(x,y+h-1,w,1,"(y/n)",alignment=tcod.CENTER, fg=color.white)
 
     def ev_keydown(self,event):
         if event.sym == tcod.event.K_n:
@@ -349,7 +355,9 @@ class Confirm(EventHandler):
 class ConfirmCombatHandler(EventHandler):
     def on_render(self,console):
         super().on_render(console)
-        console.print_box(0,39,80,1, "ENEMIES NEARBY (spacebar to confirm)", fg=color.white, bg=color.black)
+        console.draw_frame(0,37,16,3,fg=color.offwhite, bg=color.black)
+        console.print_box(1,38,79,1, "ENEMIES NEARBY", fg=color.offwhite, bg=color.black)
+        console.print_box(0,39,16,1, "(space)", fg=color.offwhite, bg=color.black,alignment=tcod.CENTER)
 
     def ev_keydown(self,event):
         if event.sym == tcod.event.K_SPACE:
