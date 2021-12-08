@@ -331,7 +331,7 @@ class Actor(Entity):
 
             # check fom if you can't see intents
             if not self.engine.word_mode or any(isinstance(s,ThirdEyeBlind) for s in self.statuses):
-                if not self.gamemap.visible[entity.x,entity.y]:
+                if not self.gamemap.visible[entity.x,entity.y] or entity.move_speed < 1:
                     continue
 
                 fom = compute_fov(

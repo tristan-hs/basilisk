@@ -162,6 +162,10 @@ class EventHandler(BaseEventHandler):
                 return GameOverEventHandler(self.engine)
             if self.engine.boss_killed:
                 return VictoryEventHandler(self.engine)
+            if self.engine.in_combat and not self.engine.confirmed_in_combat:
+                return ConfirmCombatHandler(self.engine)
+            if not self.engine.in_combat and self.engine.confirmed_in_combat:
+                self.engine.confirmed_in_combat = False
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
 
@@ -315,8 +319,9 @@ class AskUserEventHandler(EventHandler):
                 console.print(wx,wy,word,part[1])
                 wx += len(word)+1
 
+
 class Confirm(EventHandler):
-    def __init__(self,parent,callback,prompt,cancel_callback=None,engine=None):
+    def __init__(self,parent,callback,prompt,cancel_callback=None,engine=None,type='y/n'):
         if(engine):
             super().__init__(engine)
         self.parent = parent
@@ -340,6 +345,18 @@ class Confirm(EventHandler):
         elif event.sym == tcod.event.K_y:
             return self.callback()
 
+
+class ConfirmCombatHandler(EventHandler):
+    def on_render(self,console):
+        super().on_render(console)
+        console.print_box(0,39,80,1, "ENEMIES NEARBY (spacebar to confirm)", fg=color.white, bg=color.black)
+
+    def ev_keydown(self,event):
+        if event.sym == tcod.event.K_SPACE:
+            self.engine.confirmed_in_combat = True
+            return MainGameEventHandler(self.engine)
+
+
 class GameOverEventHandler(EventHandler):
     def __init__(self,engine,loss=True):
         super().__init__(engine)
@@ -362,6 +379,7 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown):
         if event.sym == tcod.event.K_ESCAPE:
             return self.on_quit()
+
 
 class VictoryEventHandler(GameOverEventHandler):
     def __init__(self,engine):
@@ -395,7 +413,6 @@ class VictoryEventHandler(GameOverEventHandler):
             self.render_tally = 0
             self.frame_interval = max(min(self.frame_interval // 1.1, self.frame_interval-1),self.min_frame_interval)
             self.animate_frame()
-
 
 
 class GameOverStatScreen(EventHandler):
@@ -545,6 +562,7 @@ class BigHistoryViewer(HistoryViewer):
             content.append(tc+ty+str(i[1]))
 
         return "\n".join(content)
+
 
 class InventoryEventHandler(AskUserEventHandler):
     """This handler lets the user select an item.

@@ -14,7 +14,7 @@ from basilisk.actions import WaitAction
 from basilisk.message_log import MessageLog
 from basilisk.components.status_effect import PetrifEyes, Petrified, PhasedOut
 import basilisk.color as color
-from basilisk.components.ai import Constricted
+from basilisk.components.ai import Constricted, Statue
 from basilisk.render_order import RenderOrder
 from basilisk.exceptions import Impossible
 from basilisk.components.consumable import TimeReverseConsumable
@@ -40,6 +40,7 @@ class Engine:
         self.boss_killed = False
         self.time_turned = False
         self.meta = meta
+        self.confirmed_in_combat = False
 
         #RUN STATS
         self.history = []
@@ -76,6 +77,13 @@ class Engine:
     @property
     def help_text(self):
         return render_functions.full_help_text
+
+    @property
+    def in_combat(self):
+        for a in self.game_map.actors:
+            if a.ai._intent and any(isinstance(i,ActionWithDirection) for i in a.ai._intent):
+                return True
+        return len([a for a in self.fov_actors if not isinstance(a.ai,Statue)]) > 0
 
     def turn_back_time(self, turns, turner):
         turn = self.turn_count - turns
