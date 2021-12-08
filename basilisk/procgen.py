@@ -434,10 +434,13 @@ def generate_consumable_testing_ground(engine,items, has_boss=False):
         item.blocks_movement = False
         item.place(*room.center, dungeon)
 
+    factory_set = dungeon.item_factories + ([entity_factories.vowel_segment]*5)
+
     if has_boss:
         engine.boss = entity_factories.final_boss.spawn(dungeon,room.x2-2,room.y2-2)
+        factory_set *= 2
 
-    for i in dungeon.item_factories:
+    for i in factory_set:
         attempts = 0
         while attempts < 1000:
             attempts += 1
