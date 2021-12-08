@@ -184,13 +184,38 @@ class MainMenu(input_handlers.BaseEventHandler):
             else:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
         elif event.sym == tcod.event.K_n:
-            return input_handlers.MainGameEventHandler(new_game(self.meta))
+            if self.engine:
+                return Confirm(parent=self,callback=self.start_new_game,prompt="Start a new game? Your existing save will be overwritten and marked as a loss.")
+            else: return self.start_new_game()
         elif event.sym == tcod.event.K_h and len(self.meta.old_runs):
             return HistoryMenu(self)
         elif event.sym == tcod.event.K_o:
             return OptionsMenu(self, self.engine)
 
         return None
+
+    def start_new_game(self):
+        return input_handlers.MainGameEventHandler(new_game(self.meta))
+
+
+class Confirm(input_handlers.BaseEventHandler):
+    def __init__(self,parent,callback,prompt):
+        self.parent = parent
+        self.callback = callback
+        self.prompt = prompt
+
+    def on_render(self,console):
+        self.parent.on_render(console)
+
+        console.draw_frame(7,7,40,5, fg=color.tongue)
+        console.print_box(9,8,40,3,self.prompt, fg=color.offwhite)
+        console.print_box(7,11,40,1,"(y/n)",alignment=tcod.CENTER, fg=color.offwhite)
+
+    def ev_keydown(self,event):
+        if event.sym == tcod.event.K_n:
+            return self.parent
+        elif event.sym == tcod.event.K_y:
+            return self.callback()
 
 
 class SubMenu(input_handlers.BaseEventHandler):
