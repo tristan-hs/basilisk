@@ -362,8 +362,9 @@ class GameWorld:
         room_dice = max(5,self.current_floor)
         room_buffer = int(round((random.randint(1,room_dice) + random.randint(1,room_dice) + random.randint(1,room_dice))/2))
 
-        if self.game_mode == 'consumable testing':
-            self.engine.game_map = generate_consumable_testing_ground(engine=self.engine, items=self.items)
+        has_boss = self.game_mode == 'boss testing'
+        if self.game_mode in ['consumable testing','boss testing']:
+            self.engine.game_map = generate_consumable_testing_ground(engine=self.engine, items=self.items, has_boss=has_boss)
             return
 
         self.engine.game_map = generate_dungeon(

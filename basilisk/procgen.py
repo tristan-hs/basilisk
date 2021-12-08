@@ -402,7 +402,7 @@ def generate_dungeon(
 
     return dungeon
 
-def generate_consumable_testing_ground(engine,items):
+def generate_consumable_testing_ground(engine,items, has_boss=False):
     # wide open space with all consumables scattered around
     player = engine.player
     entities = set(player.inventory.items)
@@ -433,6 +433,9 @@ def generate_consumable_testing_ground(engine,items):
     for item in player.inventory.items:
         item.blocks_movement = False
         item.place(*room.center, dungeon)
+
+    if has_boss:
+        engine.boss = entity_factories.final_boss.spawn(dungeon,room.x2-2,room.y2-2)
 
     for i in dungeon.item_factories:
         attempts = 0

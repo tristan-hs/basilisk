@@ -470,7 +470,7 @@ class Item(Entity):
     def identified(self):
         if self.item_type != 'c':
             return True
-        if self.gamemap.game_mode == 'consumable testing':
+        if self.gamemap.game_mode in ['consumable testing','boss testing']:
             return True
         return [i for i in self.gamemap.item_factories if i.char == self.char][0]._identified
 
