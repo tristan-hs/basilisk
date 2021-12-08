@@ -10,7 +10,7 @@ from tcod.console import Console
 from tcod.map import compute_fov
 
 from basilisk import exceptions, render_functions
-from basilisk.actions import WaitAction
+from basilisk.actions import WaitAction, BumpAction
 from basilisk.message_log import MessageLog
 from basilisk.components.status_effect import PetrifEyes, Petrified, PhasedOut
 import basilisk.color as color
@@ -81,7 +81,7 @@ class Engine:
     @property
     def in_combat(self):
         for a in self.game_map.actors:
-            if a.ai._intent and any(isinstance(i,ActionWithDirection) for i in a.ai._intent):
+            if a.ai.intent and any(isinstance(i,BumpAction) for i in a.ai.intent):
                 return True
         return len([a for a in self.fov_actors if not isinstance(a.ai,Statue)]) > 0
 
