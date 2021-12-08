@@ -10,6 +10,7 @@ from tcod.console import Console
 from tcod.map import compute_fov
 
 from basilisk import exceptions, render_functions
+from basilisk.actions import WaitAction
 from basilisk.message_log import MessageLog
 from basilisk.components.status_effect import PetrifEyes, Petrified, PhasedOut
 import basilisk.color as color
@@ -114,7 +115,8 @@ class Engine:
 
         if not self.word_mode:
             for entity in enemies:
-                entity.ai.clear_intent()
+                if not isinstance(entity.ai.intent[0],WaitAction):
+                    entity.ai.clear_intent()
 
         # enemy pre turns
         for entity in enemies:
