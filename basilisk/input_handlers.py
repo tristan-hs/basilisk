@@ -854,7 +854,7 @@ class CompendiumHandler(AskUserEventHandler):
                         return True
             return False
         i_f.sort(key=lambda x:x.name)
-        known_items = [(i+index,'?',c.name,c._color,c) for i,c in enumerate(j for j in i_f if not j._identified and known(j) and j.char != 'y')]
+        known_items = [(i+index,'?',c.name,color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and known(j) and j.char != 'y')]
         # then the rest
         index += len(known_items)
         unknown_items = [(i+index,'?','???',color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and not known(j) and j.char != 'y')]
@@ -882,8 +882,8 @@ class CompendiumHandler(AskUserEventHandler):
         x = w
         i = self.rows.index(item)
         y = min(max(2,i), 15)
-        console.draw_frame(x,y,35,17,fg=item[3],bg=c2)
-        console.print_box(x,y,35,1,item[2],alignment=tcod.CENTER,fg=c2,bg=item[3])
+        console.draw_frame(x,y,35,17,fg=c1,bg=c2)
+        console.print_box(x,y,35,1,item[2],alignment=tcod.CENTER,fg=c2,bg=c1)
         console.print(x+1,y+1,"Digest:",fg=c1)
         console.print(x+1,y+5,"Spit:",fg=c1)
         console.print(x+1,y+9,"Passive:",fg=c1)
@@ -908,9 +908,10 @@ class CompendiumHandler(AskUserEventHandler):
             console.print_box(x+1,y+13,33,3,"Careful -- sometimes y is a vowel, but each game it can also duplicate one other consonant.",fg=color.grey)
 
         console.draw_frame(1,1,w,h,fg=c1,bg=c2)
+        console.print_box(1,h,w,1,"(↑/↓)",fg=c1,bg=c2,alignment=tcod.CENTER)
         for i,r in enumerate(self.rows):
             console.print(2,2+i,r[1],fg=r[3],bg=c2)
-            fg,bg = (r[3],c2) if not self.cursor == r[0] else (c2,c1)
+            fg,bg = (c1,c2) if not self.cursor == r[0] else (c2,c1)
             console.print(4,2+i,r[2],fg=fg,bg=bg)
 
     def ev_keydown(self,event):

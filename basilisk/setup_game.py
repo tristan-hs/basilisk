@@ -75,6 +75,8 @@ def new_game(meta) -> Engine:
     engine.message_log.add_message(
         "Salutations, ?. The dungeon awaits!", color.purple, "Basilisk", color.snake_green
     )
+
+    engine.message_log.add_message("You now have a dicti(o)nary and a com(p)endium!")
     return engine
 
 def load_game(filename: str) -> Engine:
