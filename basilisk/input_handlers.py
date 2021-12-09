@@ -346,7 +346,7 @@ class DictionaryEventHandler(AskUserEventHandler):
         super().on_render(console)
         v = self.valid_word
         # dictionary on top
-        console.draw_frame(1,1,29,3,color.offwhite)
+        console.draw_frame(1,1,29,3,fg=color.offwhite)
         console.print_box(1,1,29,1,"Dictionary",fg=color.black,bg=color.offwhite,alignment=tcod.CENTER)
 
         console.print(2,2,self.input,fg=color.offwhite)
@@ -853,6 +853,7 @@ class CompendiumHandler(AskUserEventHandler):
                     if e[1] == item.name:
                         return True
             return False
+        i_f.sort(key=lambda x:x.name)
         known_items = [(i+index,'?',c.name,c._color,c) for i,c in enumerate(j for j in i_f if not j._identified and known(j) and j.char != 'y')]
         # then the rest
         index += len(known_items)
