@@ -35,6 +35,10 @@ class Consumable(BaseComponent):
         self.do_snake = False
 
     @property
+    def template(self):
+        return not hasattr(self.parent,'parent')
+
+    @property
     def modified_damage(self):
         return self.damage + self.engine.player.BILE
 
@@ -210,7 +214,8 @@ class Projectile(Consumable):
 class DamagingProjectile(Projectile):
     @property
     def description_parts(self):
-        return [("projectile, ", color.offwhite), (self.modified_damage, color.bile), (" dmg", color.offwhite)]
+        d = self.modified_damage if not self.template else f"{self.damage}+BILE"
+        return [("projectile, ", color.offwhite), (d, color.bile), (" dmg", color.offwhite)]
 
 
 class DecoyConsumable(Projectile):
@@ -220,7 +225,7 @@ class DecoyConsumable(Projectile):
 
     @property
     def description_parts(self):
-        d = 10 + (self.engine.player.MIND*2)
+        d = 10 + (self.engine.player.MIND*2) if not self.template else "10+MIND"
         return [("spawn a decoy for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -253,7 +258,7 @@ class TimeReverseConsumable(Consumable):
 
     @property
     def description_parts(self):
-        d = self.turns + self.engine.player.MIND
+        d = self.turns + self.engine.player.MIND if not self.template else f"{self.turns}+MIND"
         return [("wrinkle ",color.offwhite), (d,color.mind), (" turns worth of time",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -524,7 +529,8 @@ class DrillingProjectile(Projectile):
 
     @property
     def description_parts(self):
-        return [("pierce the dungeons and anything else, ",color.offwhite), (self.modified_damage,color.bile), (" dmg",color.offwhite)]
+        d = self.modified_damage if not self.template else f"{self.damage}+BILE"
+        return [("pierce the dungeons and anything else, ",color.offwhite), (d,color.bile), (" dmg",color.offwhite)]
 
     def get_throw_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         if not self.parent.identified:
@@ -591,7 +597,8 @@ class DamageAllConsumable(Consumable):
 
     @property
     def description_parts(self):
-        return [("rain acid on all nearby enemies, ",color.offwhite), (self.modified_damage,color.bile), (" dmg",color.offwhite)]
+        d = self.modified_damage if not self.template else f"{self.damage}+BILE"
+        return [("rain acid on all nearby enemies, ",color.offwhite), (d,color.bile), (" dmg",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
@@ -614,10 +621,14 @@ class ShieldingConsumable(Consumable):
 
     @property
     def description_parts(self):
-        d = self.duration + self.engine.player.MIND
-        n = ' '+str(d) if d > 1 else ''
-        s = 's' if d > 1 else ''
-        return [("shrug off the next",color.offwhite), (f"{n} hit{s}",color.mind), (" you take",color.offwhite)]
+        if not self.template:
+            d = self.duration + self.engine.player.MIND
+            n = ' '+str(d) if d > 1 else ''
+            s = 's' if d > 1 else ''
+            d = f"{n} hit{s}"
+        else:
+            d = f"{self.duration}+MIND hits"
+        return [("shrug off the next",color.offwhite), (d,color.mind), (" you take",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,Shielded,1)
@@ -626,7 +637,8 @@ class ShieldingConsumable(Consumable):
 class PhasingConsumable(Consumable):
     @property
     def description_parts(self):
-        return [("phase through walls ",color.offwhite), (2+self.engine.player.MIND,color.mind), (" times",color.offwhite)]
+        d = 2+self.engine.player.MIND if not self.template else "2+MIND"
+        return [("phase through walls ",color.offwhite), (d,color.mind), (" times",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,Phasing,2)
@@ -638,7 +650,7 @@ class PhasingProjectile(Projectile):
 
     @property
     def description_parts(self):
-        duration = 10 + (2*self.engine.player.MIND)
+        duration = 10 + (2*self.engine.player.MIND) if not self.template else "10+(MINDx2)"
         return [("derealize an enemy for ",color.offwhite), (duration,color.mind), (" turns",color.offwhite)]
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
@@ -695,7 +707,7 @@ class StatBoostConsumable(Consumable):
 
     @property
     def description_parts(self):
-        n = 9 + self.engine.player.MIND
+        n = 9 + self.engine.player.MIND if not self.template else "9+MIND"
         duration = [("permanently",color.offwhite)] if self.permanent else [("for ",color.offwhite), (n,color.mind), (" turns",color.offwhite)]
         stat_color = color.stats[self.stat] if self.stat != "a random stat" else color.offwhite
         return [("increase ",color.offwhite), (self.stat,stat_color), (f" by {self.amount} ",color.offwhite)] + duration
@@ -717,7 +729,8 @@ class StatBoostConsumable(Consumable):
 class FreeSpitConsumable(Consumable):
     @property
     def description_parts(self):
-        return [("spit without consuming ",color.offwhite), (2+self.engine.player.MIND,color.mind), (" times",color.offwhite)]
+        d = 2+self.engine.player.MIND if not self.template else "2+MIND"
+        return [("spit without consuming ",color.offwhite), (d,color.mind), (" times",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.apply_status(action,FreeSpit,2)
@@ -726,7 +739,8 @@ class FreeSpitConsumable(Consumable):
 class PetrifEyesConsumable(Consumable):
     @property
     def description_parts(self):
-        return [("petrify all you see for ",color.offwhite), (4+self.engine.player.MIND,color.mind), (" turns",color.offwhite)]
+        d = 4+self.engine.player.MIND if not self.template else "4+MIND"
+        return [("petrify all you see for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:        
         self.apply_status(action, PetrifEyes, 4)
@@ -916,7 +930,8 @@ class NothingConsumable(Consumable):
 class ThirdEyeBlindConsumable(Consumable):
     @property
     def description_parts(self):
-        return [("blind your third eye for ",color.offwhite), (10-self.engine.player.MIND,color.mind), (" turns",color.offwhite)]
+        d = 10-self.engine.player.MIND if not self.template else "10-MIND"
+        return [("blind your third eye for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("It dissolves in a shroud of temporal ambiguity.")
@@ -926,7 +941,8 @@ class ThirdEyeBlindConsumable(Consumable):
 class PetrifyConsumable(Consumable):
     @property
     def description_parts(self):
-        return [("petrify thyself for ",color.offwhite), (max(0,3-self.engine.player.MIND),color.mind), (" turns",color.offwhite)]
+        d = max(0,3-self.engine.player.MIND) if not self.template else "3-MIND"
+        return [("petrify thyself for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The taste of earth and bone permeates your being.")
@@ -951,7 +967,7 @@ class PetrifyEnemyConsumable(Projectile):
 
     @property
     def description_parts(self):
-        duration = 10 + (self.engine.player.MIND*2)
+        duration = 10 + (self.engine.player.MIND*2) if not self.template else "10+(MINDx2)"
         return [("petrify an enemy for ",color.offwhite), (duration,color.mind), (" turns",color.offwhite)]
 
 
@@ -1036,7 +1052,8 @@ class FireballDamageConsumable(Projectile):
 
     @property
     def description_parts(self):
-        return [("lob explosive, ",color.offwhite), (self.modified_damage,color.bile), (" dmg",color.offwhite)]
+        d = self.modified_damage if not self.template else f"{self.damage}+BILE"
+        return [("lob explosive, ",color.offwhite), (d,color.bile), (" dmg",color.offwhite)]
 
     def get_throw_action(self, consumer: Actor) -> AreaRangedAttackHandler:
         if not self.parent.identified:

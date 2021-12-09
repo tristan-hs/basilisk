@@ -203,6 +203,7 @@ class EventHandler(BaseEventHandler):
     def on_render(self, console: tcod.Console) -> None:
         self.engine.render(console)
 
+
 class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
@@ -264,6 +265,9 @@ class MainGameEventHandler(EventHandler):
 
         elif key == tcod.event.K_o:
             return DictionaryEventHandler(self.engine)
+
+        elif key == tcod.event.K_p:
+            return CompendiumHandler(self.engine)
 
         # No valid key was pressed
         return action
@@ -342,7 +346,7 @@ class DictionaryEventHandler(AskUserEventHandler):
         super().on_render(console)
         v = self.valid_word
         # dictionary on top
-        console.draw_frame(1,1,29,3)
+        console.draw_frame(1,1,29,3,color.offwhite)
         console.print_box(1,1,29,1,"Dictionary",fg=color.black,bg=color.offwhite,alignment=tcod.CENTER)
 
         console.print(2,2,self.input,fg=color.offwhite)
@@ -819,6 +823,107 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def eat_item(self, item):
         return item.edible.get_eat_action(self.engine.player)
+
+
+class CompendiumHandler(AskUserEventHandler):
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+
+        # vowels take up one index
+        self.rows = [
+            (0,'a','vowel',color.vowel,self.engine.game_map.vowel),
+            (0,'e','vowel',color.vowel,self.engine.game_map.vowel),
+            (0,'i','vowel',color.vowel,self.engine.game_map.vowel),
+            (0,'o','vowel',color.vowel,self.engine.game_map.vowel),
+            (0,'u','vowel',color.vowel,self.engine.game_map.vowel),
+            (-1,'','',color.black,None),
+            (1,'y','vowel?',color.vowel,self.engine.game_map.vowel)
+        ]
+        i_f = self.engine.game_map.item_factories
+        i_f.sort(key=lambda x: x.char)
+
+        # identified items come next
+        index = 2
+        identified_items = [(i+index,c.char,c.name,c._color,c) for i,c in enumerate(j for j in i_f if j._identified and j.char != 'y')]
+        # then known unidentified items
+        index += len(identified_items)
+        def known(item):
+            for r in self.engine.meta.old_runs:
+                for e in r:
+                    if e[1] == item.name:
+                        return True
+            return False
+        known_items = [(i+index,'?',c.name,c._color,c) for i,c in enumerate(j for j in i_f if not j._identified and known(j) and j.char != 'y')]
+        # then the rest
+        index += len(known_items)
+        unknown_items = [(i+index,'?','???',color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and not known(j) and j.char != 'y')]
+
+        spacer = [(-1,'','',color.black,None)]
+        self.rows += spacer + identified_items
+        if len(identified_items) > 0:
+            self.rows += spacer
+        self.rows += known_items
+        if len(known_items) > 0:
+            self.rows += spacer
+        self.rows += unknown_items
+
+        self.cursor = 0
+
+    def on_render(self,console):
+        super().on_render(console)
+        c1 = color.offwhite
+        c2 = color.black
+
+        w = max(len(i[2]) for i in self.rows)+4
+        h = len(self.rows)+2
+
+        item = [i for i in self.rows if i[0] == self.cursor][0]
+        x = w
+        i = self.rows.index(item)
+        y = min(max(2,i), 15)
+        console.draw_frame(x,y,35,17,fg=item[3],bg=c2)
+        console.print_box(x,y,35,1,item[2],alignment=tcod.CENTER,fg=c2,bg=item[3])
+        console.print(x+1,y+1,"Digest:",fg=c1)
+        console.print(x+1,y+5,"Spit:",fg=c1)
+        console.print(x+1,y+9,"Passive:",fg=c1)
+
+        if item[2] == '???':
+            digest,spit,passive = ([('???',color.grey)],[('???',color.grey)],[('???',color.grey)])
+        else:
+            digest,spit = item[4].edible.description_parts, item[4].spitable.description_parts
+            if not item[2].startswith('vowel'):
+                passive = [("+1 to ",color.offwhite),(item[4].stat,color.stats[item[4].stat]),(" while in WORD MODE",color.offwhite)]
+            else:
+                passive = [('n/a',color.grey)]
+
+
+        self.print_multicolor_box(console,x+11,y+1,22,3,digest)
+        self.print_multicolor_box(console,x+11,y+5,22,3,spit)
+        self.print_multicolor_box(console,x+11,y+9,22,3,passive)
+
+        if item[1] != "y":
+            console.print_box(x+1,y+13,33,3,item[4]._flavor,fg=color.grey)
+        else:
+            console.print_box(x+1,y+13,33,3,"Careful -- sometimes y is a vowel, but each game it can also duplicate one other consonant.",fg=color.grey)
+
+        console.draw_frame(1,1,w,h,fg=c1,bg=c2)
+        for i,r in enumerate(self.rows):
+            console.print(2,2+i,r[1],fg=r[3],bg=c2)
+            fg,bg = (r[3],c2) if not self.cursor == r[0] else (c2,c1)
+            console.print(4,2+i,r[2],fg=fg,bg=bg)
+
+    def ev_keydown(self,event):
+        if event.sym in CURSOR_Y_KEYS:
+            self.cursor += CURSOR_Y_KEYS[event.sym]
+            m = max(i[0] for i in self.rows)
+            if self.cursor > m:
+                self.cursor = 0
+            if self.cursor < 0:
+                self.cursor = m
+            return
+        return super().ev_keydown(event)
+
+
 
 class InventorySelectHandler(InventoryEventHandler):
     TITLE = "Select a segment"
