@@ -262,6 +262,9 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_c:
             self.engine.show_instructions = not self.engine.show_instructions
 
+        elif key == tcod.event.K_o:
+            return DictionaryEventHandler(self.engine)
+
         # No valid key was pressed
         return action
 
@@ -318,6 +321,56 @@ class AskUserEventHandler(EventHandler):
                     wy += 1
                 console.print(wx,wy,word,part[1])
                 wx += len(word)+1
+
+
+class DictionaryEventHandler(AskUserEventHandler):
+    def __init__(self,engine):
+        super().__init__(engine)
+        self.input = ''
+        self.first_o = False
+
+    @property
+    def valid_word(self):
+        # lookup self.input
+        return self.engine.is_valid_word(self.input)
+
+    @property
+    def cursor(self):
+        return len(self.input)
+
+    def on_render(self,console):
+        super().on_render(console)
+        v = self.valid_word
+        # dictionary on top
+        console.draw_frame(1,1,29,3)
+        console.print_box(1,1,29,1,"Dictionary",fg=color.black,bg=color.offwhite,alignment=tcod.CENTER)
+
+        console.print(2,2,self.input,fg=color.offwhite)
+        if not v:
+            console.print(2+self.cursor,2,'_'*(26-self.cursor),fg=color.offwhite)
+
+        if self.cursor > 0:
+            n = '☑' if v else 'x'
+            c = color.player if v else color.red
+            console.print(2+self.cursor,2,n,fg=c)
+        else:
+            console.print(2,2,'_',fg=color.black,bg=color.offwhite)
+
+    def ev_textinput(self,event):
+        # type to look stuff up
+        if event.text.isalpha() and len(self.input) < 26:
+            if event.text == 'o' and not self.first_o:
+                self.first_o = True
+                return
+            self.input += event.text.lower()
+
+    def ev_keydown(self,event):
+        if event.sym == tcod.event.K_BACKSPACE and len(self.input) > 0:
+            self.input = self.input[:-1]
+            return
+        if event.sym == tcod.event.K_ESCAPE:
+            return self.on_exit()
+        super().ev_keydown(event)
 
 
 class Confirm(EventHandler):

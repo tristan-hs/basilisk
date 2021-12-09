@@ -114,9 +114,12 @@ class Engine:
             self.word_mode = False
             return
         p_word = ''.join([i.char for i in self.player.inventory.items])
-        self.word_mode = p_word in open(utils.get_resource("words.txt")).read().splitlines()
+        self.word_mode = self.is_valid_word(p_word)
         if self.word_mode:
             self.history.append(('form word',p_word,self.turn_count))
+
+    def is_valid_word(self,word):
+        return word in open(utils.get_resource("words.txt")).read().splitlines()
 
     def handle_enemy_turns(self) -> None:
         enemies = sorted(set(self.game_map.actors) - {self.player}, key=lambda x: x.id)
