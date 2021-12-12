@@ -375,7 +375,7 @@ def generate_dungeon(
 			# otherwise build the room on the map normally
 			else:
 				dungeon.tiles[room.inner] = tile_types.floor
-				door_tile = tile_types.door if random.random() > snakestone_door_chance else tile_types.snake_only
+				door_tile = tile_types.floor if random.random() > snakestone_door_chance else tile_types.snake_only
 				dungeon.tiles[room.door[0],room.door[1]] = door_tile
 				if room.door2 and room.has_tile(room.door2):
 					dungeon.tiles[room.door2[0],room.door2[1]] = door_tile
