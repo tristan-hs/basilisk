@@ -36,20 +36,11 @@ def new_game(meta) -> Engine:
     map_width = 76
     map_height = 40
 
-    room_max_size = 30
-    room_min_size = 7
-    max_rooms = 100
-
-    max_monsters_per_room = 5
-    max_items_per_room = 1
-
     player = copy.deepcopy(entity_factories.player)
     player.id = 0
 
     engine = Engine(player=player, meta=meta)
     engine.meta = meta
-
-    ooze_factor = 0.9
 
     game_mode = 'default'
     # game_mode = 'consumable testing'
@@ -57,15 +48,8 @@ def new_game(meta) -> Engine:
 
     engine.game_world = GameWorld(
         engine=engine,
-        max_rooms=max_rooms,
-        room_min_size=room_min_size,
-        room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
-        max_monsters_per_room=max_monsters_per_room,
-        max_items_per_room=max_items_per_room,
-        ooze_factor=ooze_factor,
-        vault_chance=0.02,
         game_mode=game_mode
     )
 

@@ -319,14 +319,7 @@ class GameWorld:
         engine: Engine,
         map_width: int,
         map_height: int,
-        max_rooms: int,
-        room_min_size: int,
-        room_max_size: int,
-        max_monsters_per_room: int,
-        max_items_per_room: int,
-        current_floor: int = 0,
-        ooze_factor: float,
-        vault_chance: float,
+        current_floor: int=0,
         game_mode: str
     ):
         from basilisk.procgen import generate_item_identities
@@ -339,28 +332,12 @@ class GameWorld:
         self.map_width = map_width
         self.map_height = map_height
 
-        self.max_rooms = max_rooms
-
-        self.room_min_size = room_min_size
-        self.room_max_size = room_max_size
-
-        self.max_monsters_per_room = max_monsters_per_room
-        self.max_items_per_room = max_items_per_room
-
         self.current_floor = current_floor
-        self.ooze_factor = ooze_factor
-        self.vault_chance = vault_chance
 
     def generate_floor(self) -> None:
         from basilisk.procgen import generate_dungeon, generate_consumable_testing_ground
 
         self.current_floor += 1
-
-        ooze_factor = self.ooze_factor - (0.5*self.current_floor*0.02) + (random.random()*self.current_floor*0.02)
-        vault_chance = self.vault_chance + (self.current_floor*0.005)
-
-        room_dice = max(5,self.current_floor)
-        room_buffer = int(round((random.randint(1,room_dice) + random.randint(1,room_dice) + random.randint(1,room_dice))/2))
 
         has_boss = self.game_mode == 'boss testing'
         if self.game_mode in ['consumable testing','boss testing']:
@@ -368,16 +345,9 @@ class GameWorld:
             return
 
         self.engine.game_map = generate_dungeon(
-            max_rooms=self.current_floor*2+room_buffer,
-            room_min_size=self.room_min_size,
-            room_max_size=self.room_max_size,
             map_width=self.map_width,
             map_height=self.map_height,
-            max_monsters_per_room=self.max_monsters_per_room,
-            max_items_per_room=self.max_items_per_room,
             engine=self.engine,
             floor_number=self.current_floor,
             items=self.items,
-            ooze_factor = ooze_factor,
-            vault_chance = vault_chance
         )
