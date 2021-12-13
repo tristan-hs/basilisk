@@ -1,7 +1,7 @@
 
 # place entities map-wide at the end
 
-# write generate_maze and generate_final_maze
+# write generate_final_maze
 
 # 6x6 = 0-1 -- maybe each 6x6 chunk has 0-2 monsters w/ 0 in room 1 and w/ 1-3 in vaults?
 # so for chunk in chunks:
@@ -30,6 +30,7 @@ import random
 from typing import Iterator, List, Tuple, TYPE_CHECKING, Iterable
 
 import tcod
+import math
 import numpy
 import copy
 import random
@@ -259,6 +260,229 @@ def generate_item_identities():
 	return all_items
 
 
+class MazeCell():
+	def __init__(self,maze,x,y):
+		self.L = self.R = self.U = self.D = self.visited = False
+		self.x = x
+		self.y = y
+		self.maze = maze
+		self.char_override = None
+
+	def step_to(self,other):
+		x = self.x - other.x
+		y = self.y - other.y
+		if x < 0: 
+			self.R = other.L = True
+		if x > 0:
+			self.L = other.R = True
+		if y < 0:
+			self.D = other.U = True
+		if y > 0:
+			self.U = other.D = True
+		other.visited = True
+
+	@property
+	def neighbors(self):
+		dirs = [(0,1),(0,-1),(1,0),(-1,0)]
+		n = []
+		for d in dirs:
+			cell = self.x + d[0], self.y + d[1]
+			if cell[0] < 0 or cell[1] < 0 or cell[0] >= self.maze.width or cell[1] >= self.maze.height:
+				continue
+			cell = self.maze.cells[cell[0]][cell[1]]
+			n.append(cell)
+		return n
+
+	@property
+	def unvisited_neighbors(self):
+		return [i for i in self.neighbors if not i.visited]
+
+	@property
+	def visited_neighbors(self):
+		return [i for i in self.neighbors if i.visited]
+
+	@property
+	def chunk(self):
+		dirs = [self.L,self.R,self.U,self.D]
+		if dirs in [
+			[True,True,False,False],
+			[False,True,False,True],
+			[True,True,False,True],
+			[False,True,False,False]
+		]:
+			return ["xxxxx",".....",".....",".....","....."]
+
+		if dirs in [
+			[True,False,False,True],
+			[True,False,False,False],
+			[False,False,False,True]
+		]:
+			return ["xxxxx","....x","....x","....x","....x"]
+
+		if dirs in [
+			[False,True,True,False],
+			[True,True,True,False],
+			[False,True,True,True],
+			[True,True,True,True]
+		]:
+			return ["....x",".....",".....",".....","....."]
+
+		if dirs in [
+			[True,False,True,False],
+			[False,False,True,True],
+			[True,False,True,True],
+			[False,False,True,False]
+		]:
+
+			return ["....x","....x","....x","....x","....x"]
+
+	def solidify(self,dungeon):
+		for y,row in enumerate(self.chunk):
+			for x,tile in enumerate(row):
+				cx = self.x*5 + x + 1
+				cy = self.y*5 + y
+
+				dungeon.tiles[(cx,cy)] = tile_types.wall if tile == 'x' else tile_types.floor
+
+	@property
+	def map_coords(self):
+		return (self.x*5+3,self.y*5+2)
+
+
+	@property
+	def char(self):
+		if self.char_override:
+			return self.char_override
+		
+		dirs = [self.L,self.R,self.U,self.D]
+		
+		if dirs == [True,True,True,True]:
+			return '╬'
+		if dirs == [False,True,True,False]:
+			return '╚'
+		if dirs == [False,True,False,True]:
+			return '╔'
+		if dirs == [True,True,True,False]:
+			return '╩'
+		if dirs == [True, True, False, True]:
+			return '╦'
+		if dirs == [False,True,True,True]:
+			return '╠'
+		if dirs == [True,True,False,False]:
+			return '═'
+		if dirs == [True,False,True,True]:
+			return '╣'
+		if dirs == [False,False,True,True]:
+			return '║'
+		if dirs == [True,False,False,True]:
+			return '╗'
+		if dirs == [True,False,True,False]:
+			return '╝'
+		if dirs == [True,False,False,False]:
+			return '╡'
+		if dirs == [False,True,False,False]:
+			return '╞'
+		if dirs == [False,False,True,False]:
+			return '╨'
+		if dirs == [False,False,False,True]:
+			return '╥'
+		if dirs == [False,False,False,False]:
+			return 'x'
+
+
+class Maze():
+	def __init__(self, maze_width, maze_height):
+		self.width = maze_width
+		self.height = maze_height
+		# grid of cells
+		self.cells = [[MazeCell(self,x,y) for y in range(maze_height)] for x in range(maze_width)]
+		self.last_cell = self.start = self.cells[random.choice(range(maze_width))][random.choice(range(maze_height))]
+		self.start.visited = True
+		self.start.char_override = 'S'
+
+		self.path = []
+
+		while len(self.unvisited_cells):
+			start = self.last_good_cell if not len(self.last_cell.unvisited_neighbors) else self.last_cell
+			if start == self.start and True in [start.L,start.R,start.U,start.D]:
+				break
+			step = random.choice(start.unvisited_neighbors)
+			start.step_to(step)
+			self.last_cell = step
+			self.path += [step]
+
+			# random branching to existing places
+			if random.random() < 0.1 and len(step.visited_neighbors) > 1:
+				step.step_to(random.choice(step.visited_neighbors))
+
+
+			# self.print()
+			# time.sleep(0.01)
+
+		self.last_cell.char_override = 'E'
+
+		# self.print()
+
+
+	@property
+	def last_good_cell(self):
+		for i in reversed(self.path):
+			if len(i.unvisited_neighbors):
+				return i
+		return self.path[0]
+
+
+	@property
+	def unvisited_cells(self):
+		return [cell for row in self.cells for cell in row if not cell.visited]
+
+	@property
+	def visited_cells(self):
+		return [cell for row in self.cells for cell in row if cell.visited]
+
+	@property
+	def viable_cells(self):
+		return [cell for cell in self.visited_cells if len(cell.unvisited_neighbors)]
+
+	@property
+	def rows(self):
+		return [list(i) for i in list(zip(*self.cells))]
+
+	def print(self):
+		print('='*self.width)
+		for row in self.rows:
+			print( ''.join([cell.char for cell in row]) )
+		print('='*self.width)
+
+def generate_maze(floor_number,map_width,map_height,engine,items):
+	player = engine.player
+	entities = set(player.inventory.items)
+	entities.update([player])
+	dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items, vowel=entity_factories.vowel_segment, decoy=entity_factories.decoy)
+
+	maze_width = math.floor((map_width-1)/5)
+	maze_height = math.floor((map_height-1)/5)
+	maze = Maze(maze_width//2,maze_height)
+	start = maze.start.map_coords
+	end = maze.last_cell.map_coords
+
+	for row in maze.rows:
+		for cell in row:
+			cell.solidify(dungeon)
+
+	player.place(*start,dungeon)
+	dungeon.upstairs_location = start
+	for item in player.inventory.items:
+		item.blocks_movement = False
+		item.place(*start,dungeon)
+
+	dungeon.tiles[end] = tile_types.down_stairs
+	dungeon.downstairs_location = end
+
+	return dungeon
+
+
+
 def generate_dungeon(
 	floor_number: int,
 	map_width: int,
@@ -267,6 +491,7 @@ def generate_dungeon(
 	items: Iterable,
 ) -> GameMap:
 	"""Generate a new dungeon map"""
+
 	if floor_number == 6:
 		return generate_maze(floor_number,map_width,map_height,engine,items)
 	if floor_number == 10:
@@ -274,7 +499,7 @@ def generate_dungeon(
 
 	# set a bunch of parameters based on the given arguments
 	room_range = {
-		1:(4,5), 2:(5,6), 3:(5,6), 4:(6,7), 5:(5,6), 7:(8,9), 8:(6,7), 9:(8,9)
+		1:(4,5), 2:(5,6), 3:(5,6), 4:(6,7), 5:(5,6), 7:(12,13), 8:(6,7), 9:(8,9)
 	}[floor_number]
 	room_target = random.choice(range(room_range[0],room_range[1]+1))
 
