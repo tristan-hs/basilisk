@@ -1,7 +1,8 @@
 
 # place entities map-wide at the end
 
-# write generate_final_maze
+# always have snakestone on room 1 ?
+# reconfigure d6 start + end ?
 
 # 6x6 = 0-1 -- maybe each 6x6 chunk has 0-2 monsters w/ 0 in room 1 and w/ 1-3 in vaults?
 # so for chunk in chunks:
@@ -18,10 +19,6 @@
 
 	# maybe add a chance to autofail to both of the above
 
-""" boss placement code
-engine.boss = entity_factories.final_boss.spawn(dungeon,center_of_last_room[0],center_of_last_room[1])
-dungeon.tiles[rooms[-1].inner] = tile_types.boss_vault_floor 
-"""  
 
 
 from __future__ import annotations
@@ -30,7 +27,6 @@ import random
 from typing import Iterator, List, Tuple, TYPE_CHECKING, Iterable
 
 import tcod
-import math
 import numpy
 import copy
 import random
@@ -339,14 +335,15 @@ class MazeCell():
 	def solidify(self,dungeon):
 		for y,row in enumerate(self.chunk):
 			for x,tile in enumerate(row):
-				cx = self.x*5 + x + 1
-				cy = self.y*5 + y
+				cx = self.x*5 + x + self.maze.x_offset
+				cy = self.y*5 + y + self.maze.y_offset
+				floor_tile = tile_types.floor if not self.maze.boss_maze else tile_types.boss_vault_floor
 
 				dungeon.tiles[(cx,cy)] = tile_types.wall if tile == 'x' else tile_types.floor
 
 	@property
 	def map_coords(self):
-		return (self.x*5+3,self.y*5+2)
+		return ((self.x*5)+2+self.maze.x_offset,(self.y*5)+2+self.maze.y_offset)
 
 
 	@property
@@ -391,9 +388,12 @@ class MazeCell():
 
 
 class Maze():
-	def __init__(self, maze_width, maze_height):
+	def __init__(self, maze_width, maze_height, x_offset=1, y_offset=0, ends_at_edge=False, boss_maze=False):
 		self.width = maze_width
 		self.height = maze_height
+		self.x_offset = x_offset
+		self.y_offset = y_offset
+		self.boss_maze = boss_maze
 		# grid of cells
 		self.cells = [[MazeCell(self,x,y) for y in range(maze_height)] for x in range(maze_width)]
 		self.last_cell = self.start = self.cells[random.choice(range(maze_width))][random.choice(range(maze_height))]
@@ -419,9 +419,34 @@ class Maze():
 			# self.print()
 			# time.sleep(0.01)
 
+		if ends_at_edge:
+			x = random.choice([0,maze_width-1])
+			y = random.choice(range(maze_height))
+			self.last_cell = self.cells[x][y]
+
+			x = maze_width-1 if x == 0 else 0
+			y = random.choice(range(maze_height))
+			self.start = self.cells[x][y]
+
 		self.last_cell.char_override = 'E'
 
 		# self.print()
+
+	@property
+	def x1(self):
+		return self.x_offset-1
+
+	@property
+	def x2(self):
+		return self.x1 + (self.width*5)
+
+	@property
+	def y1(self):
+		return self.y_offset
+
+	@property
+	def y2(self):
+		return self.y1 + (self.height*5)
 
 
 	@property
@@ -460,9 +485,10 @@ def generate_maze(floor_number,map_width,map_height,engine,items):
 	entities.update([player])
 	dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items, vowel=entity_factories.vowel_segment, decoy=entity_factories.decoy)
 
-	maze_width = math.floor((map_width-1)/5)
-	maze_height = math.floor((map_height-1)/5)
-	maze = Maze(maze_width//2,maze_height)
+	maze_width = (map_width-1)//10
+	maze_height = (map_height-1)//5
+	maze_x_offset = (map_width//2) - ((maze_width*5)//2)
+	maze = Maze(maze_width,maze_height,maze_x_offset)
 	start = maze.start.map_coords
 	end = maze.last_cell.map_coords
 
@@ -470,17 +496,49 @@ def generate_maze(floor_number,map_width,map_height,engine,items):
 		for cell in row:
 			cell.solidify(dungeon)
 
-	player.place(*start,dungeon)
+	place_player(dungeon,start,player)
 	dungeon.upstairs_location = start
-	for item in player.inventory.items:
-		item.blocks_movement = False
-		item.place(*start,dungeon)
 
 	dungeon.tiles[end] = tile_types.down_stairs
 	dungeon.downstairs_location = end
 
 	return dungeon
 
+def generate_final_maze(floor_number,map_width,map_height,engine,items):
+	player = engine.player
+	entities = set(player.inventory.items)
+	entities.update([player])
+	dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items, vowel=entity_factories.vowel_segment, decoy=entity_factories.decoy)
+
+	maze_width = ((map_width-1)//10) + random.choice([0,1,2,3])
+	maze_height = ((map_height-1)//5) - 2
+	maze_x_offset = (map_width//2) - ((maze_width*5)//2)
+	maze_y_offset = (map_height//2) - ((maze_height*5)//2)
+
+	maze = Maze(maze_width,maze_height,maze_x_offset,maze_y_offset,ends_at_edge=True,boss_maze=True)
+	start = maze.start.map_coords
+	end = maze.last_cell.map_coords
+
+	for row in maze.rows:
+		for cell in row:
+			cell.solidify(dungeon)
+
+	dungeon.downstairs_location = start
+	engine.boss = entity_factories.final_boss.spawn(dungeon,*start)
+
+	room_target = 99
+	rooms_chain = False
+	room_min_size, room_max_size = (6,13)
+	snakestone_door_chance = 0
+	vault_target = 0
+	vault_chance = 0
+
+	vaults = [maze]
+	frl_x = end[0] + 2 if end[0] > map_width//2 else end[0] - 3
+	room_dir = 1 if end[0] > map_width//2 else -1
+	first_room_location = [frl_x,end[1],room_dir]
+
+	return generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults,first_room_location)
 
 
 def generate_dungeon(
@@ -519,7 +577,6 @@ def generate_dungeon(
 	entities.update([player])
 	dungeon = GameMap(engine, map_width, map_height, floor_number, entities=entities, items=items, vowel=entity_factories.vowel_segment, decoy=entity_factories.decoy)
 
-	rooms: List[RectangularRoom] = []
 	vaults: List[RectangularRoom] = []
 
 	center_of_last_room = (0,0)
@@ -534,15 +591,29 @@ def generate_dungeon(
 	vault_target = random.choice(vault_targets)
 	vault_chance = 1 / (4-vault_target)
 
-	max_attempts = 10000
+	return generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults)
+
+
+def generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults,first_room_location=None):
+	vault_count = 0
+	attempts = 0
+	center_of_last_room = (0,0)
+	rooms: List[RectangularRoom] = []
+	max_attempts = 5000
 
 	while len(rooms) < room_target and attempts < max_attempts:
 		attempts += 1
 		# if this is the first room, start at a random point at least 2 away from the borders of the map
-		if len(rooms) == 0:
+		if len(rooms) == 0 and not first_room_location:
 			x = random.choice(range(map_width)[2:-2])
 			y = random.choice(range(map_height)[2:-2])
 			x_dir = y_dir = 0
+			door2 = None
+		elif len(rooms) == 0:
+			x = first_room_location[0]
+			y = first_room_location[1]
+			x_dir = first_room_location[2]
+			y_dir = 0
 			door2 = None
 		else:
 			other_room = random.choice(rooms) if not rooms_chain else rooms[-1]
@@ -574,19 +645,19 @@ def generate_dungeon(
 				x_dir = -1 if x == other_room.x1 else 1
 				door2 = (x,y2)
 
+		if floor_number == 10:
+			door2 = None
+
 		# generate a room with the chosen parameters
 		room = RectangularRoom(x, y, x_dir, y_dir, map_width, map_height, rooms+vaults, room_max_size, room_min_size, door2)
 		if not room.valid:
 			continue
 
 		# if this is the first room, place the player here
-		if len(rooms) == 0:
+		if len(rooms) == 0 and floor_number != 10:
+			place_player(dungeon,room.center,player)
 			dungeon.tiles[room.inner] = tile_types.floor
-			player.place(*room.center,dungeon)
 			dungeon.upstairs_location = room.center
-			for item in player.inventory.items:
-				item.blocks_movement = False
-				item.place(*room.center,dungeon)
 
 		else:
 			room.is_vault = random.random() < vault_chance and room.is_vault_worthy and vault_count < vault_target
@@ -612,13 +683,23 @@ def generate_dungeon(
 			vaults.append(room)
 
 	# start over if this attempt was botched
-	if attempts == max_attempts:
-		return generate_dungeon(floor_number,map_width,map_height,engine,items)
+	if attempts == max_attempts and floor_number != 10:
+		return generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults,first_room_location)
+	elif attempts == max_attempts:
+		place_player(dungeon,rooms[-1].center,player)
 
-	dungeon.tiles[center_of_last_room] = tile_types.down_stairs
-	dungeon.downstairs_location = center_of_last_room
+
+	if floor_number != 10:
+		dungeon.tiles[center_of_last_room] = tile_types.down_stairs
+		dungeon.downstairs_location = center_of_last_room
 
 	return dungeon    
+
+def place_player(dungeon,xy,player):
+	player.place(*xy,dungeon)
+	for item in player.inventory.items:
+		item.blocks_movement = False
+		item.place(*xy,dungeon)
 
 def generate_consumable_testing_ground(engine,items, has_boss=False):
 	# wide open space with all consumables scattered around
@@ -646,11 +727,8 @@ def generate_consumable_testing_ground(engine,items, has_boss=False):
 			break
 
 	dungeon.tiles[room.inner] = tile_types.floor
-	player.place(*room.center, dungeon)
+	place_player(dungeon,room.center,player)
 	dungeon.upstairs_location = room.center
-	for item in player.inventory.items:
-		item.blocks_movement = False
-		item.place(*room.center, dungeon)
 
 	factory_set = dungeon.item_factories + ([entity_factories.vowel_segment]*5)
 
