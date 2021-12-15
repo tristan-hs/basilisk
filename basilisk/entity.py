@@ -288,9 +288,6 @@ class Actor(Entity):
         ):
             return Color.grey
 
-        if not self.engine.game_map.tiles["walkable"][self.x,self.y]:
-            return Color.purple
-
         if isinstance(self.ai, Constricted):
             return Color.statue
 

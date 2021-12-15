@@ -82,7 +82,7 @@ snake_only = new_tile(
     walkable=False,
     transparent=True,
     dark=(ord(" "), (50,50,50), (7,7,7)),
-    light=(ord("~"), (25,50,25), (10,10,10))
+    light=(ord("~"), (0,100,255), (10,10,10))
 )
 wall = new_tile(
     name='wall',

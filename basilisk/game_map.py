@@ -248,8 +248,10 @@ class GameMap:
         x,y = location
 
         if item in self.engine.player.inventory.items or item is self.engine.player:
-            if not self.tiles['walkable'][item.x,item.y]:
+            if not self.tiles['snakeable'][item.x,item.y]:
                 fg = color.purple
+            elif not self.tiles['walkable'][item.x,item.y]:
+                fg = (50,150,255)
             elif self.engine.player.is_shielded:
                 fg = color.grey
             elif self.visible[item.x,item.y]:

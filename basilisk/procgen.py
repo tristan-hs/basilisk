@@ -187,7 +187,6 @@ class RectangularRoom:
 
 		self.barrier = barrier
 		self.foyer = [(x,y) for y in fy for x in fx]
-		print(self.foyer)
 
 
 class Tunnel(RectangularRoom):
