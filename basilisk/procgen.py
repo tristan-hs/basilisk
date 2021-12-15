@@ -1,4 +1,3 @@
-# first room gets at least 1 vowel -- do that separate
 # reconfigure d6 start + end ?
 # other room shapes?
 # no vault foyer spawning
@@ -12,10 +11,14 @@
 
 # make drop chances higher?? maybe? maybe that was just a really dry run.. maybe up it in d3 only
 # not using items still feels optimal a lot of the time bc of identification
-# remove identification ? make saliva more common ? maybe make vowels give 1 saliva
+# remove identification ? make saliva more common ? maybe make vowels give 1 saliva and/or spit to identify
+# eh I think eat to identify is very worth it through most of the game
 # confirm to phase ?
 # mid-game upgrade changes how vowels work -- saliva / petrify / +1 to TAIL / etc
 # or species change how vowels work ?
+# change snakestone color
+# combining bile and mind prolly fixes a lot of the incentive problems
+# access dictionary during reordering ?
 
 from __future__ import annotations
 
@@ -659,6 +662,11 @@ def generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_tar
 			place_player(dungeon,room.center,player)
 			dungeon.tiles[room.inner] = tile_types.floor
 			dungeon.upstairs_location = room.center
+
+			xmods = random.choice([[-1,0,1],[-1,1]])
+			ymods = [-1,0,1] if 0 not in xmods else [-1,1]
+			vowel_spawn = (room.center[0] + random.choice(xmods), room.center[1] + random.choice(ymods))
+			entity_factories.vowel_segment.spawn(dungeon,*vowel_spawn)
 
 		else:
 			room.is_vault = random.random() < vault_chance and room.is_vault_worthy and vault_count < vault_target
