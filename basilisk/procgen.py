@@ -1,25 +1,21 @@
-
-# place entities map-wide at the end
-
-# always have snakestone on room 1 ?
+# first room gets at least 1 vowel -- do that separate
 # reconfigure d6 start + end ?
-
-# 6x6 = 0-1 -- maybe each 6x6 chunk has 0-2 monsters w/ 0 in room 1 and w/ 1-3 in vaults?
-# so for chunk in chunks:
-	# if there's a valid vault section
-		# put a monster there for sure
-		# put an item there for sure
-
-	# now, twice:
-		# try to place a monster at random
-		# if the tile has anything there already, move on (wall, door, stairs, vault foyer, etc)
-		# if the tile is w/in sight of the player, move on
-
-	# try to place an item, same principle goes
-
-	# maybe add a chance to autofail to both of the above
+# other room shapes?
+# no vault foyer spawning
+# D1 too small?
+# big rooms are huge and scary
+# big vault way too full
+# d4 difficulty jump is huge without an arsenal + word mode being prioritized previously
+	# maybe make d3 bigger + varied and/or have a 2-3 str 2 spd enemy
+# d9 bigger rooms due to dire mongoose ?
 
 
+# make drop chances higher?? maybe? maybe that was just a really dry run.. maybe up it in d3 only
+# not using items still feels optimal a lot of the time bc of identification
+# remove identification ? make saliva more common ? maybe make vowels give 1 saliva
+# confirm to phase ?
+# mid-game upgrade changes how vowels work -- saliva / petrify / +1 to TAIL / etc
+# or species change how vowels work ?
 
 from __future__ import annotations
 
@@ -502,6 +498,7 @@ def generate_maze(floor_number,map_width,map_height,engine,items):
 	dungeon.tiles[end] = tile_types.down_stairs
 	dungeon.downstairs_location = end
 
+	place_entities(dungeon,map_width,map_height)
 	return dungeon
 
 def generate_final_maze(floor_number,map_width,map_height,engine,items):
@@ -538,7 +535,9 @@ def generate_final_maze(floor_number,map_width,map_height,engine,items):
 	room_dir = 1 if end[0] > map_width//2 else -1
 	first_room_location = [frl_x,end[1],room_dir]
 
-	return generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults,first_room_location)
+	dungeon = generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults,first_room_location)
+	place_entities(dungeon,map_width,map_height)
+	return dungeon
 
 
 def generate_dungeon(
@@ -557,7 +556,7 @@ def generate_dungeon(
 
 	# set a bunch of parameters based on the given arguments
 	room_range = {
-		1:(4,5), 2:(5,6), 3:(5,6), 4:(6,7), 5:(5,6), 7:(12,13), 8:(6,7), 9:(8,9)
+		1:(4,5), 2:(5,6), 3:(6,7), 4:(6,7), 5:(5,6), 7:(12,13), 8:(6,7), 9:(8,9)
 	}[floor_number]
 	room_target = random.choice(range(room_range[0],room_range[1]+1))
 
@@ -565,7 +564,7 @@ def generate_dungeon(
 
 	small, msmall, mlarge, large, varied = ((6,8),(8,9),(9,10),(10,13),(6,13))
 	room_min_size, room_max_size = {
-		1:msmall, 2:msmall, 3:mlarge, 4:varied, 5:large, 7:small, 8:large, 9:varied
+		1:msmall, 2:msmall, 3:varied, 4:varied, 5:large, 7:small, 8:large, 9:varied
 	}[floor_number]
 
 	snakestone_door_chance = {
@@ -591,7 +590,9 @@ def generate_dungeon(
 	vault_target = random.choice(vault_targets)
 	vault_chance = 1 / (4-vault_target)
 
-	return generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults)
+	dungeon = generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults)
+	place_entities(dungeon,map_width,map_height)
+	return dungeon
 
 
 def generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_target,rooms_chain,room_min_size,room_max_size,snakestone_door_chance,player,entities,dungeon,vault_target,vault_chance,vaults,first_room_location=None):
@@ -692,6 +693,8 @@ def generate_dungeon_map(floor_number,map_width,map_height,engine,items,room_tar
 	if floor_number != 10:
 		dungeon.tiles[center_of_last_room] = tile_types.down_stairs
 		dungeon.downstairs_location = center_of_last_room
+	else:
+		dungeon.upstairs_location = center_of_last_room
 
 	return dungeon    
 
@@ -751,96 +754,112 @@ def generate_consumable_testing_ground(engine,items, has_boss=False):
 
 	return dungeon
 
-def tunnel_between(
-	start: Tuple[int, int], end: Tuple[int, int]
-) -> Iterator[Tuple[int, int]]:
-	"""Return an L-shaped tunnel between these two points."""
-	x1, y1 = start
-	x2, y2 = end
-	if random.random() < 0.5:  # 50% chance.
-		# Move horizontally, then vertically.
-		corner_x, corner_y = x2, y1
-	else:
-		# Move vertically, then horizontally.
-		corner_x, corner_y = x1, y2
 
-	# Generate the coordinates for this tunnel.
-	for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
-		yield x, y
-	for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
-		yield x, y
-
-def place_entities(
-	room: RectangularRoom, dungeon: GameMap, maximum_monsters: int, maximum_items: int, first_room: bool
-) -> None:
-
-
-	enemy_set = entity_factories.enemy_sets[dungeon.floor_number-1][:]
-	monster_points = 0
-	factor = dungeon.floor_number+1
-
-	if random.random() > 0.3:
-		monster_points += factor
-		if random.random() > 0.3 or dungeon.floor_number < 4:
-			monster_points *= factor
-			if random.random() > 0.3 or dungeon.floor_number < 3:
-				monster_points += factor
-
-	if room.is_vault:
-		monster_points += random.randint(1,factor*factor)
-		if entity_factories.enemy_sets[dungeon.floor_number]:
-			enemy_set.append(random.choice(entity_factories.enemy_sets[dungeon.floor_number]))
-
-	def calc_mp(monster):
-		return int(monster.char) * monster.move_speed + 1
-
-	attempts = 0
-	monsters = 0
-	while monster_points > min(calc_mp(p) for p in enemy_set) and attempts < 1000 and monsters < maximum_monsters:
-		attempts += 1
-		monster = random.choice(enemy_set)
-		mp = calc_mp(monster)
-		if mp > monster_points:
-			continue
-
-		x = random.randint(room.x1 + 1, room.x2-1)
-		y = random.randint(room.y1+1, room.y2-1)
-
-		# nothing else is there and the space is out of fov of the stairs
-		if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and max(abs(dungeon.upstairs_location[0]-x),abs(dungeon.upstairs_location[1]-y)) > 9:
-			monster.spawn(dungeon,x,y)
-			monster_points -= calc_mp(monster)
-			monsters += 1
-
-
-	item_points = 0
-	if random.random() < 0.4 or first_room:
-		item_points = 1
-
-	if room.is_vault:
-		item_points += random.randint(1,factor)
-		factory_set = dungeon.item_factories
-	else:
-		factory_set = [entity_factories.vowel_segment]
-
-	attempts = 0
-	while item_points > 0 and attempts < 1000:
-		attempts += 1
-
-		x = random.randint(room.x1 + 1, room.x2 - 1)
-		y = random.randint(room.y1 + 1, room.y2 - 1)
-
-		if dungeon.tiles[x,y] == tile_types.down_stairs:
-			continue
-
-		if dungeon.engine.player.xy == (x,y):
-			continue
-
-		if not any(entity.x == x and entity.y == y and isinstance(entity, Item) for entity in dungeon.entities):
-			item = random.choice(factory_set)
-			cost = {'c':1,'u':2,'r':3}[item.rarity] if item.rarity else 1
-			if cost > item_points:
+class SpawnChunk():
+	def __init__(self,chunk_coords,dungeon,map_width,map_height):
+		tiles = []
+		for x in range(6):
+			map_x = (chunk_coords[0]) + x
+			if map_x > map_width-1:
 				continue
-			item.spawn(dungeon,x,y)
-			item_points -= cost
+			for y in range(6):
+				map_y = (chunk_coords[1]) + y
+				if map_y > map_height-1:
+					continue
+				tiles.append((map_x,map_y))
+		self.tiles = tiles
+		self.dungeon = dungeon
+		self.enemy_set = entity_factories.enemy_sets[dungeon.floor_number-1][:]
+		self.vault_enemy = random.choice(entity_factories.enemy_sets[dungeon.floor_number][:])
 
+	@property
+	def has_vault(self):
+		return any(self.dungeon.tiles[i] == tile_types.vault_floor for i in self.tiles)
+
+	def place_monster_in_vault(self):
+		potential_tiles = [i for i in self.tiles if self.dungeon.tiles[i] == tile_types.vault_floor]
+		random.shuffle(potential_tiles)
+
+		for tile in potential_tiles:
+			# don't spawn on other monsters or in sight of the upstairs
+			if (
+				any(entity.xy == tile for entity in self.dungeon.entities) or
+				max(abs(self.dungeon.upstairs_location[0]-tile[0]),abs(self.dungeon.upstairs_location[1]-tile[1])) < 10	
+			):
+				continue
+
+			monster = random.choice(self.enemy_set + [self.vault_enemy])
+			return monster.spawn(self.dungeon,*tile)
+
+	def attempt_monster_placement(self):
+		potential_tiles = self.tiles[:]
+		random.shuffle(potential_tiles)
+
+		for tile in potential_tiles:
+			# use bad tile density as a spawn chance since crowded areas suck
+			if (
+				self.tile_name(tile) != 'floor' or 
+				self.dungeon.tiles[tile] == tile_types.boss_vault_floor or 
+				any(entity.xy == tile for entity in self.dungeon.entities) or 
+				max(abs(self.dungeon.upstairs_location[0]-tile[0]),abs(self.dungeon.upstairs_location[1]-tile[1])) < 10
+			):
+				break
+
+			eset = self.enemy_set
+			if self.dungeon.tiles[tile] == tile_types.vault_floor:
+				eset += [self.vault_enemy]
+
+			monster = random.choice(eset)
+			return monster.spawn(self.dungeon,*tile)
+
+	def tile_name(self,tile):
+		return tile_types.NAMES[self.dungeon.tiles[tile][5]]
+
+	def attempt_item_placement(self):
+		potential_tiles = [i for i in self.tiles if self.tile_name(i) == 'floor' and self.dungeon.tiles[i] != tile_types.boss_vault_floor]
+		random.shuffle(potential_tiles)
+
+		for tile in potential_tiles:
+			if (
+				self.dungeon.tiles[tile] == tile_types.down_stairs or
+				self.dungeon.engine.player.xy == tile or
+				any(entity.xy == tile and isinstance(entity,Item) for entity in self.dungeon.entities)
+			):
+				break
+
+			if random.random() < 0.85 and self.dungeon.tiles[tile] != tile_types.vault_floor:
+				break
+
+			item = entity_factories.vowel_segment if self.dungeon.tiles[tile] != tile_types.vault_floor else random.choice(self.dungeon.item_factories)
+			return item.spawn(self.dungeon,*tile)
+
+
+	def place_item_in_vault(self):
+		potential_tiles = [i for i in self.tiles if self.dungeon.tiles[i] == tile_types.vault_floor]
+		random.shuffle(potential_tiles)
+
+		for tile in potential_tiles:
+			if (
+				self.dungeon.tiles[tile] == tile_types.down_stairs or
+				self.dungeon.engine.player.xy == tile or
+				any(entity.xy == tile and isinstance(entity,Item) for entity in self.dungeon.entities)
+			):
+				continue
+			item = random.choice(self.dungeon.item_factories)
+			return item.spawn(self.dungeon,*tile)
+		return
+
+
+def place_entities(dungeon,map_width,map_height):
+	chunks = []
+	for x in range(map_width):
+		for y in range(map_height):
+			if x % 6 == 0 and y % 6 == 0:
+				chunks.append(SpawnChunk((x,y),dungeon,map_width,map_height))
+
+	for chunk in chunks:
+		if chunk.has_vault:
+			chunk.place_monster_in_vault()
+		else:
+			chunk.attempt_monster_placement()
+		chunk.attempt_item_placement()
