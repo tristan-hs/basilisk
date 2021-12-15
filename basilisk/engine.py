@@ -235,7 +235,8 @@ class Engine:
             console=console,
             dungeon_level=self.game_world.current_floor,
             location=(76,0),
-            word_mode = self.word_mode
+            word_mode = self.word_mode,
+            turn_count = self.turn_count
         )
 
         render_functions.render_player_drawer(
