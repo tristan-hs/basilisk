@@ -1,26 +1,3 @@
-# no vault foyer spawns
-	# items in foyer at top
-# maybe guarantee rares in vaults -- huge risk
-
-# d9 bigger rooms due to dire mongoose ?
-# balance big rooms + enemy count -- seems like maybe a tiny bit more enemies would be better
-# was thinking that during a dive run w/ inviable last word though
-
-# LATER
-# other room shapes?
-
-# OTHER PLAYTEST NOTES
-# make drop chances higher?? maybe? maybe that was just a really dry run.. maybe up it in d3 only
-# not using items still feels optimal a lot of the time bc of identification
-# remove identification ? make saliva more common ? maybe make vowels give 1 saliva and/or spit to identify
-# eh I think eat to identify is very worth it through most of the game
-# confirm to phase ?
-# mid-game upgrade changes how vowels work -- saliva / petrify / +1 to TAIL / etc
-# or species change how vowels work ?
-# change snakestone color
-# combining bile and mind prolly fixes a lot of the incentive problems
-# access dictionary during reordering ?
-
 from __future__ import annotations
 
 import random
