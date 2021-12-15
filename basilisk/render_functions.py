@@ -61,10 +61,10 @@ def render_dungeon_level(
         width=8,
         height=3,
         clear=True,
-        fg=c,
+        fg=color.grey,
         bg=(0,0,0)
     )
-    console.print(x=x-1,y=y+3,string=f"T{turn_count}", fg=c)
+    console.print(x=x-1,y=y+3,string=f"T{turn_count}", fg=color.grey)
 
     console.draw_frame(
         x=x,
