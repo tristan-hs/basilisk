@@ -320,6 +320,7 @@ class Actor(Entity):
             # don't check actors that can't getcha
             if(
                 entity is self or
+                isinstance(entity.ai,Constricted) or
                 any(isinstance(s,Petrified) for s in entity.statuses) or
                 any(isinstance(s,PhasedOut) for s in entity.statuses) or
                 (
