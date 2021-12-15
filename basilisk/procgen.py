@@ -1,14 +1,14 @@
-# reconfigure d6 start + end ?
-# other room shapes?
-# no vault foyer spawning
-# D1 too small?
-# big rooms are huge and scary
-# big vault way too full
-# d4 difficulty jump is huge without an arsenal + word mode being prioritized previously
-	# maybe make d3 bigger + varied and/or have a 2-3 str 2 spd enemy
+# no vault foyer spawns
+# maybe guarantee rares in vaults -- huge risk
+
 # d9 bigger rooms due to dire mongoose ?
+# balance big rooms + enemy count -- seems like maybe a tiny bit more enemies would be better
+# was thinking that during a dive run w/ inviable last word though
 
+# LATER
+# other room shapes?
 
+# OTHER PLAYTEST NOTES
 # make drop chances higher?? maybe? maybe that was just a really dry run.. maybe up it in d3 only
 # not using items still feels optimal a lot of the time bc of identification
 # remove identification ? make saliva more common ? maybe make vowels give 1 saliva and/or spit to identify
