@@ -41,6 +41,7 @@ class Engine:
         self.time_turned = False
         self.meta = meta
         self.confirmed_in_combat = False
+        self.just_turned_back_time = False
 
         #RUN STATS
         self.history = []
@@ -104,6 +105,10 @@ class Engine:
                 i.edible.snake()
             else:
                 i.consume()
+
+        self.check_word_mode()
+        self.just_turned_back_time = True
+
 
     def save_turn_snapshot(self):
         self.save_as(utils.get_resource(f"snapshot_{self.turn_count}.sav"))

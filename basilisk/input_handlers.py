@@ -189,7 +189,10 @@ class EventHandler(BaseEventHandler):
             while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
                 self.engine.handle_enemy_turns()
 
-            self.engine.handle_enemy_turns()
+            if not self.engine.just_turned_back_time:
+                self.engine.handle_enemy_turns()
+            else:
+                self.engine.just_turned_back_time = False
 
         self.engine.update_fov()
         return True
