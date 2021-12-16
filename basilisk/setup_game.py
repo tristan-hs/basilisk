@@ -30,8 +30,11 @@ def new_game(meta) -> Engine:
         engine = None
 
     if engine:
+        # make sure there's meta continuity when logging the run
+        engine.meta = meta
         engine.history.append(("lose","scumming",engine.turn_count))
         engine.log_run()
+        meta = engine.meta
 
     map_width = 76
     map_height = 40
@@ -40,7 +43,6 @@ def new_game(meta) -> Engine:
     player.id = 0
 
     engine = Engine(player=player, meta=meta)
-    engine.meta = meta
 
     game_mode = 'default'
     # game_mode = 'consumable testing'
@@ -89,6 +91,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             self.meta = load_settings(utils.get_resource("savemeta.sav"))
         except FileNotFoundError:
             self.meta = Meta()
+            self.meta.save()
 
         if self.engine:
             self.engine.meta = self.meta
@@ -176,7 +179,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         elif event.sym == tcod.event.K_h and len(self.meta.old_runs):
             return HistoryMenu(self)
         elif event.sym == tcod.event.K_o:
-            return OptionsMenu(self, self.engine)
+            return OptionsMenu(self, self.meta)
 
         return None
 
@@ -326,23 +329,41 @@ class HistoryMenu(SubMenu):
 
     
 class OptionsMenu(SubMenu):
-    def __init__(self, parent, engine):
+    def __init__(self, parent, meta):
         super().__init__(parent)
-        self.engine = engine
+        self.meta = meta
+        self.reset_tutorial_events = False
 
     def on_render(self, console:tcod.Console) -> None:
         super().on_render(console)
         console.print(7,7,"OPTIONS")
         console.print(8,10,"(f)ullscreen")
-        ccstatus = "ON" if self.engine.meta.do_combat_confirm else "OFF"
+        ccstatus = "ON" if self.meta.do_combat_confirm else "OFF"
         console.print(8,11,"(c)onfirm combat start - "+ccstatus)
+        tstatus = "ON" if self.meta.tutorials else "OFF"
+        console.print(8,12,"(t)utorial messages    - "+tstatus)
+
+        if len(self.meta.tutorial_events) > 0 or self.reset_tutorial_events:
+            console.print(8,13,"(r)eset tutorial")
+        if self.reset_tutorial_events:
+            console.print(31,13,"☑",fg=color.player)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[input_handlers.BaseEventHandler]:
         if event.sym == tcod.event.K_f:
+            self.meta.fullscreen = not self.meta.fullscreen
             raise exceptions.ToggleFullscreen()
         if event.sym == tcod.event.K_c:
-            self.engine.meta.do_combat_confirm = not self.engine.meta.do_combat_confirm
+            self.meta.do_combat_confirm = not self.meta.do_combat_confirm
+        if event.sym == tcod.event.K_t:
+            self.meta.tutorials = not self.meta.tutorials
+        if event.sym == tcod.event.K_r:
+            return input_handlers.Confirm(self,self.do_reset_tutorial_events,"Enable all old tutorial messages?")
         return super().ev_keydown(event)
+
+    def do_reset_tutorial_events(self):
+        self.meta.tutorial_events = []
+        self.reset_tutorial_events = True
+        return self
 
 
 class Meta():
@@ -350,6 +371,9 @@ class Meta():
         self._fullscreen = True
         self.do_combat_confirm = True
         self.old_runs = []
+        self._tutorials = True
+        self.tutorial_events = []
+        self.version = "1.1"
 
     @property
     def fullscreen(self):
@@ -358,6 +382,19 @@ class Meta():
     @fullscreen.setter
     def fullscreen(self, new_val):
         self._fullscreen = new_val
+        self.save()
+
+    @property
+    def tutorials(self):
+        return self._tutorials
+
+    @tutorials.setter
+    def tutorials(self,new_val):
+        self._tutorials = new_val
+        self.save()
+
+    def log_tutorial_event(self,event):
+        self.tutorial_events.append(event)
         self.save()
 
     def log_run(self, history):

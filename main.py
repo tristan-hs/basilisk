@@ -74,7 +74,8 @@ def main() -> None:
 
                     except exceptions.ToggleFullscreen:
                         toggle_fullscreen(context)
-                        handler.engine.meta.fullscreen = not handler.engine.meta.fullscreen
+                        if hasattr(handler,'engine'):
+                            handler.engine.meta.fullscreen = not handler.engine.meta.fullscreen
 
                     except exceptions.QuitToMenu:
                         save_game(handler, utils.get_resource("savegame.sav"))

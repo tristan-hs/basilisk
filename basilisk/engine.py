@@ -84,7 +84,19 @@ class Engine:
         for a in self.game_map.actors:
             if a.ai.intent and any(isinstance(i,BumpAction) for i in a.ai.intent):
                 return True
+        return self.can_see_enemies
+
+    @property
+    def can_see_enemies(self):
         return len([a for a in self.fov_actors if not isinstance(a.ai,Statue)]) > 0
+
+    @property
+    def an_enemy_is_constricted(self):
+        return len([i for i in self.game_map.actors if isinstance(i.ai,Constricted)]) > 0
+
+    @property
+    def stairs_visible(self):
+        return self.game_map.visible[self.game_map.downstairs_location]
 
     def turn_back_time(self, turns, turner):
         turn = self.turn_count - turns
