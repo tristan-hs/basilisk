@@ -435,7 +435,7 @@ class GameOverEventHandler(EventHandler):
             os.remove(s)
 
         event = 'lose' if loss else 'win'
-        self.engine.history.append((event,True,self.engine.turn_count))
+        self.engine.history.append((event,self.engine.player.cause_of_death,self.engine.turn_count))
         self.engine.log_run()
 
     def on_quit(self) -> None:

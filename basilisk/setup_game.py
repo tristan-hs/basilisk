@@ -30,7 +30,7 @@ def new_game(meta) -> Engine:
         engine = None
 
     if engine:
-        engine.history.append(("lose",True,engine.turn_count))
+        engine.history.append(("lose","scumming",engine.turn_count))
         engine.log_run()
 
     map_width = 76
@@ -232,18 +232,21 @@ class HistoryMenu(SubMenu):
             ('unique kills', len(set([i[1] for i in last_run if i[0] == "kill enemy"]))),
             ('items identified', len([i for i in last_run if i[0] == "identify item"])),
             ('longest word', max([i[1] for i in words], key=len) if len(words) > 0 else "n/a"),
-            ('unique words', len(set([i[1] for i in words])))
+            ('unique words', len(set([i[1] for i in words]))),
+            ('killed by', last_run[-1][1])
         ]
 
         # ALL TIME STATS
         unique_words = set([event[1] for event in shistory if event[0] == "form word"])
+        killed_bys = [i[-1][1] for i in history if i[-1][0] == "lose"]
 
         stats['All time'] = [
             ('turns', sum([i[-1][2] for i in history])),
             ('unique kills', len(set([event[1] for event in shistory if event[0] == "kill enemy"]))), 
             ('items identified', len(set([event[1] for event in shistory if event[0] == "identify item"]))),
             ('longest word', max(unique_words, key=len) if len(unique_words) > 0 else ""),
-            ('unique words', len(unique_words))
+            ('unique words', len(unique_words)),
+            ('nemesis', max(set(killed_bys),key=killed_bys.count) if len(killed_bys) > 0 else "")
         ]
 
         # RECORDS
@@ -310,11 +313,11 @@ class HistoryMenu(SubMenu):
             i = str(v[1])
             c = c3 if i in ['0','n/a','0.0'] else c3
             if v[0] == 'unique kills':
-                i += '/12'
+                i += '/11'
                 if v[0] == 12:
                     c = color.purple
             if v[0] == 'items identified':
-                i += '/21'
+                i += '/20'
                 if v[0] == 21:
                     c = color.purple
             console.print(indent,y,i,c)
