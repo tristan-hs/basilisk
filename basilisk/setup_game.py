@@ -373,7 +373,7 @@ class Meta():
         self.old_runs = []
         self._tutorials = True
         self.tutorial_events = []
-        self.version = "1.1"
+        self.version = "0.2"
 
     @property
     def fullscreen(self):

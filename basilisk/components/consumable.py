@@ -438,8 +438,13 @@ class HookshotProjectile(Projectile):
         if action.target_actor and action.target_actor is not consumer and not action.target_actor.is_boss:
             target = action.target_actor
             self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
-            tile = self.get_path_to(*action.target_xy)[0]
-            target.place(*tile)
+            path = self.get_path_to(*action.target_xy)
+            pull_to = None
+            for tile in path:
+                if not any(i.xy == tile for i in self.engine.player.inventory.items):
+                    pull_to = tile
+                    break
+            target.place(*pull_to)
             target.constrict()
 
         if not target and action.target_item and action.target_item not in consumer.inventory.items:
