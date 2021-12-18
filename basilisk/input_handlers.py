@@ -840,15 +840,17 @@ class InventoryEventHandler(AskUserEventHandler):
             console.print(self.frame_x+1,self.frame_y+1,"(None)", color.grey)
 
     def render_items_drawer(self, console: tcod.Console):
+        w = self.frame_width-2 if self.frame_width % 2 != 0 else self.frame_width - 3
         console.draw_frame(
             x=self.frame_x+1,
             y=self.frame_y+self.frame_height-1,
-            width=self.frame_width-2 if self.frame_width % 2 != 0 else self.frame_width - 3,
+            width=w,
             height=3,
             clear=True,
             fg=(100,100,100),
             bg=(0,0,0)
         )
+        console.print_box(self.frame_x+1,self.frame_y+self.frame_height+1,w,1,'(←/→)',fg=(100,100,100),bg=(0,0,0),alignment=tcod.CENTER)
 
         space = self.frame_width-6 if self.frame_width % 2 == 0 else self.frame_width-5
         start_at = min(self.cursor - (space/2), len(self.items)-space-1)
