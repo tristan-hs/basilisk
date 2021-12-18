@@ -80,14 +80,14 @@ def render_dungeon_level(
 
 def render_instructions(console: Console, location: Tuple[int,int]) -> None:
     x, y = location
-    l0 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (i)nventory"
-    l1 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (s)pit"
-    l2 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (d)igest"
-    l3 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (>)descend"
-    l4 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (.)wait"
-    l5 = "      (?)help"
-    l7 = "    re(v)iew"
-    l6 = "     e(x)amine"
+    l0 = f"{D_KEYS[2]} {D_KEYS[0]} {D_KEYS[5]} (?)info"
+    l1 = f" {D_ARROWS[2]}{D_ARROWS[0]}{D_ARROWS[5]}  (.)wait"
+    l2 = f"{D_KEYS[3]}{D_ARROWS[3]}.{D_ARROWS[6]}{D_KEYS[6]} (>)descend"
+    l3 = f" {D_ARROWS[4]}{D_ARROWS[1]}{D_ARROWS[7]}  (i)nventory"
+    l4 = f"{D_KEYS[4]} {D_KEYS[1]} {D_KEYS[7]} (s)pit"
+    l5 = "      (d)igest"
+    l7 = "     e(x)amine"
+    l6 = "    re(v)iew"
     l8 = f"   per(c)eive"
 
     for i,l in enumerate([l0,l1,l2,l3,l4,l5,l6,l7,l8]):
@@ -306,57 +306,4 @@ def print_fov_actors(console,player,xy):
         console.print(x+5,y,name,fg=fg)
 
     console.print(6,49,"(c)ontrols",color.dark_grey)
-
-
-full_help_text = """
- BASILISK                                               ATTRIBUTES              
-                                                                                
- You are a modular dungeon-crawling       .s...s...     BILE makes your spit    
- machine tasked with delving through      k.i.i.a.@     deal more damage.       
- ever-more-dangerous floors to the        ...l...b.                             
- Thing Below, which must be destroyed                   MIND alters status      
- at any cost.                                           effect durations to     
-                                           .....        your advantage.         
- Do not let your parts or your foes        .isa.                                
- surround you. Like a shark, you must      .l@b.        TAIL increases your     
- keep moving to breathe.                   .isk.        base constrict damage.  
-                                           .....                                
- Your head (@) is fragile. One hit will                 TONGUE increases your   
- usually destroy it. Your other parts                   field-of-view and       
- break easily too, but are replaceable.                 field-of-smell.         
-                                                                                
- CONSTRICT                                              MOVEMENT                
-                                                                                
- You will automatically constrict any     ksilisab@.2   In addition to the      
- hostile creature your head moves next    ...........   controls displayed in-  
- to. This will deal constrict damage                    game, you can move      
- and prevent it from acting for as long   .ksilisab@1   with the numpad or      
- as some part of you is next to it. The   ...........   arrow keys (with HOME,  
- more parts of you surround an enemy,                   END, PGUP and PGDWN as  
- the more constrict damage it takes.      ..ksilisab0   diagonals).             
-                                          .........@.                           
- Once no part of you is next to a foe,                                          
- constrict damage is removed and it can   ...ksilisa%                           
- act freely.                              .........b@                           
-                                                                                
- WORD MODE                                              EXAMINE                 
-                                                                                
- When all your parts spell out one word    .......      While e(x)amining the   
- you're in word mode. In this state you    .@word. :)   world, press the index  
- possess the insight to see your foes'     .......      displayed next to an    
- intentions as well as the speed to act                 object for more info    
- after those intentions have solidified.   .......      about that object.      
- Outside word mode, foes will decide       .edom@. :)                           
- what to do after you have acted.          .......      eg, if you see:         
-                                                                                
- Word mode also activates your iden-       .......       A) . floor             
- tified items' passive abilities.          .@wwww. :(                           
-                                           .......      press A to learn more   
- ITEMS                                                  about the floor.        
-                                                                                
- Each lowercase letter is an item. Move                 Inspect enemies to      
- over one to add it to the end of your                  see their fov, move      
- tail. (s)pit, (d)igest, destroy, or                    radius, and more.        
- identify it to learn its effects.                                              
-"""
 

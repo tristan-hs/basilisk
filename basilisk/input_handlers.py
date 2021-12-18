@@ -19,6 +19,8 @@ from basilisk.render_functions import DIRECTIONS, D_ARROWS
 from basilisk.components.status_effect import PetrifiedSnake
 from basilisk.tile_types import NAMES, FLAVORS
 
+import basilisk.help_pages as help_pages
+
 if TYPE_CHECKING:
     from basilisk.engine import Engine
     from basilisk.entity import Item
@@ -314,7 +316,7 @@ class MainGameEventHandler(EventHandler):
     # upgrading tcod will also fix
     def ev_textinput(self, event: tcod.event.TextInput):
         if event.text == '?':
-            return PopupMessage(self, self.engine.help_text, 'top')
+            return HelpMenuHandler(self.engine)
         if event.text == '>':
             return actions.TakeStairsAction(self.engine.player)
 
@@ -363,6 +365,36 @@ class AskUserEventHandler(EventHandler):
                     wy += 1
                 console.print(wx,wy,word,part[1])
                 wx += len(word)+1
+
+    def print_multicolor(self,console,x,y,body):
+        wx = x
+        wy = y
+        fg = color.grey
+
+        fgs = body[1]
+        fg_index = 0
+
+        for c in body[0]:
+            if c == "\n":
+                wy += 1
+                wx = x
+                continue
+            if c == "$":
+                if fg == color.grey:
+                    fg = color.offwhite
+                else:
+                    fg = color.grey
+                continue
+            if c == "^":
+                if fg == color.grey:
+                    fg = fgs[fg_index]
+                    fg_index += 1
+                else:
+                    fg = color.grey
+                continue
+            console.print(wx,wy,c,fg)
+            wx += 1
+
 
 
 class DictionaryEventHandler(AskUserEventHandler):
@@ -899,6 +931,67 @@ class InventoryEventHandler(AskUserEventHandler):
         return item.edible.get_eat_action(self.engine.player)
 
 
+class HelpMenuHandler(AskUserEventHandler):
+    def __init__(self,engine:Engine):
+        super().__init__(engine)
+
+        # moving, enemies, constriction, items, stats, other
+        self.rows = [
+            (0,'movement',help_pages.moving),
+            (1,'enemies', help_pages.enemies),
+            (2,'constriction', help_pages.constriction),
+            (3,'items', help_pages.items),
+            (4,'stats', help_pages.stats),
+            (5,'other', help_pages.other)
+        ]
+        self.cursor = 0
+
+    def on_render(self,console):
+        super().on_render(console)
+        c1 = color.offwhite
+        c2 = color.black
+        c3 = color.grey
+
+        item = [i for i in self.rows if i[0] == self.cursor][0]
+
+        x = 1
+        item_x = 0
+        item_w = 0
+        for i,r in enumerate(self.rows):
+            tab_width = len(r[1])+2
+            if r == item:
+                item_x = x
+                item_w = tab_width
+                fg = c1
+            else:
+                fg = c3
+            console.draw_frame(x,0,tab_width,3,fg=c1,bg=c2)
+            console.print(x+1,1,r[1],fg=fg,bg=c2)
+            x += tab_width
+
+        console.draw_frame(1,2,70,39,fg=c1,bg=c2)
+
+        self.print_multicolor(console,3,3,item[2])
+
+        lchar = '│' if item[0] == 0 else '┘'
+        rchar = '└'
+        console.print(item_x,2,lchar,fg=c1,bg=c2)
+        console.print(item_x+item_w-1,2,rchar,fg=c1,bg=c2)
+        console.print(item_x+1,2,' '*len(item[1]),fg=c1,bg=c2)
+        console.print_box(1,40,70,1,"(←/→)",fg=c1,bg=c2,alignment=tcod.CENTER)
+
+    def ev_keydown(self,event):
+        if event.sym in CURSOR_X_KEYS:
+            self.cursor += CURSOR_X_KEYS[event.sym]
+            m = max(i[0] for i in self.rows)
+            if self.cursor > m:
+                self.cursor = 0
+            if self.cursor < 0:
+                self.cursor = m
+            return
+        return super().ev_keydown(event)
+        
+
 class CompendiumHandler(AskUserEventHandler):
     def __init__(self, engine: Engine):
         super().__init__(engine)
@@ -955,12 +1048,12 @@ class CompendiumHandler(AskUserEventHandler):
         item = [i for i in self.rows if i[0] == self.cursor][0]
         x = w
         i = self.rows.index(item)
-        y = min(max(2,i), 15)
-        console.draw_frame(x,y,35,17,fg=c1,bg=c2)
-        console.print_box(x,y,35,1,item[2],alignment=tcod.CENTER,fg=c2,bg=c1)
-        console.print(x+1,y+1,"Digest:",fg=c1)
-        console.print(x+1,y+5,"Spit:",fg=c1)
-        console.print(x+1,y+9,"Passive:",fg=c1)
+        y = min(max(2,i), 13)
+        console.draw_frame(x,y,36,19,fg=c1,bg=c2)
+        console.print_box(x,y,36,1,item[2],alignment=tcod.CENTER,fg=c2,bg=c1)
+        console.print(x+1,y+2,"Digest:",fg=c1)
+        console.print(x+1,y+6,"Spit:",fg=c1)
+        console.print(x+1,y+10,"Passive:",fg=c1)
 
         if item[2] == '???':
             digest,spit,passive = ([('???',color.grey)],[('???',color.grey)],[('???',color.grey)])
@@ -972,14 +1065,14 @@ class CompendiumHandler(AskUserEventHandler):
                 passive = [('n/a',color.grey)]
 
 
-        self.print_multicolor_box(console,x+11,y+1,22,3,digest)
-        self.print_multicolor_box(console,x+11,y+5,22,3,spit)
-        self.print_multicolor_box(console,x+11,y+9,22,3,passive)
+        self.print_multicolor_box(console,x+11,y+2,22,3,digest)
+        self.print_multicolor_box(console,x+11,y+6,22,3,spit)
+        self.print_multicolor_box(console,x+11,y+10,22,3,passive)
 
         if item[1] != "y":
-            console.print_box(x+1,y+13,33,3,item[4]._flavor,fg=color.grey)
+            console.print_box(x+1,y+14,33,3,item[4]._flavor,fg=color.grey)
         else:
-            console.print_box(x+1,y+13,33,3,"Careful -- sometimes y is a vowel, but each game it can also duplicate one other consonant.",fg=color.grey)
+            console.print_box(x+1,y+14,33,3,"Careful -- sometimes y is a vowel, but each game it can also duplicate one other consonant.",fg=color.grey)
 
         console.draw_frame(1,1,w,h,fg=c1,bg=c2)
         console.print_box(1,h,w,1,"(↑/↓)",fg=c1,bg=c2,alignment=tcod.CENTER)
