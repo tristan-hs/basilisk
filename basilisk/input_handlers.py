@@ -564,7 +564,8 @@ class VictoryEventHandler(GameOverEventHandler):
         p = self.engine.player
         inv = p.inventory.items
 
-        last_seg = [i for i in inv if all(x in i.get_adjacent_actors() for x in [self.engine.boss,p])][-1]
+        # get the last segment that is adjacent to both the player and the boss
+        last_seg = [i for i in inv if all(x in i.get_adjacent_actors() for x in [self.engine.game_map.boss,p])][-1]
         if last_seg is not inv[-1]:
             inv[inv.index(last_seg)+1].die()
 

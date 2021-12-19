@@ -68,6 +68,10 @@ class GameMap:
         self._next_id += 1
         return self._next_id
 
+    @property
+    def boss(self):
+        return [a for a in self.actors if a.is_boss][0]
+
     def bloody_floor(self,x,y):
         if self.tiles[x,y] == tile_types.floor:
             self.tiles[x,y] = tile_types.bloody_floor

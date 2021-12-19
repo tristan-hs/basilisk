@@ -44,7 +44,7 @@ def render_dungeon_level(
     x, y = location
     x -= 1
     c = color.offwhite if word_mode else color.grey
-    dungeon_level = dungeon_level if len(str(dungeon_level)) > 9 else f"0{dungeon_level}"
+    dungeon_level = dungeon_level if len(str(dungeon_level)) > 1 else f"0{dungeon_level}"
 
     turn_count = str(turn_count)
     for i in [9,99,999]:

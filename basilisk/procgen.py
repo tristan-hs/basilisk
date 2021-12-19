@@ -514,7 +514,7 @@ def generate_final_maze(floor_number,map_width,map_height,engine,items):
 			cell.solidify(dungeon)
 
 	dungeon.downstairs_location = start
-	engine.boss = entity_factories.final_boss.spawn(dungeon,*start)
+	entity_factories.final_boss.spawn(dungeon,*start)
 
 	room_target = 99
 	rooms_chain = False
@@ -718,7 +718,7 @@ def generate_consumable_testing_ground(engine,items, has_boss=False):
 	attempts = 0
 	while attempts < 1000:
 		attempts += 1
-		room = RectangularRoom(x, y, x_dir, y_dir, 76, 40, [], 35, 30, 0.9, door2)
+		room = RectangularRoom(x, y, x_dir, y_dir, 76, 40, [], 35, 30, door2)
 		if room.width < 30 or room.height < 30:
 			continue
 		else:
@@ -731,7 +731,7 @@ def generate_consumable_testing_ground(engine,items, has_boss=False):
 	factory_set = dungeon.item_factories + ([entity_factories.vowel_segment]*5)
 
 	if has_boss:
-		engine.boss = entity_factories.final_boss.spawn(dungeon,room.x2-2,room.y2-2)
+		entity_factories.final_boss.spawn(dungeon,room.x2-2,room.y2-2)
 		factory_set *= 2
 
 	for i in factory_set:
@@ -774,7 +774,7 @@ class SpawnChunk():
 
 	@property
 	def vaults(self):
-		return [vault for vault in self.all_vaults if any(vault.has_tile(tile) for tile in self.tiles)]
+		return [vault for vault in self.all_vaults if isinstance(vault,RectangularRoom) and any(vault.has_tile(tile) for tile in self.tiles)]
 
 	@property
 	def vault_tiles(self):
@@ -836,8 +836,12 @@ class SpawnChunk():
 			):
 				break
 
-			if random.random() < 0.85 and self.dungeon.tiles[tile] != tile_types.vault_floor:
-				break
+			if self.dungeon.tiles[tile] == tile_types.vault_floor:
+				if random.random() < 0.5:
+					break
+			else:
+				if random.random() < 0.95:
+					break
 
 			item = entity_factories.vowel_segment if self.dungeon.tiles[tile] != tile_types.vault_floor else random.choice(self.dungeon.item_factories)
 			return item.spawn(self.dungeon,*tile)

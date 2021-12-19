@@ -44,9 +44,9 @@ def new_game(meta) -> Engine:
 
     engine = Engine(player=player, meta=meta)
 
-    game_mode = 'default'
+    # game_mode = 'default'
     # game_mode = 'consumable testing'
-    # game_mode = 'boss testing'
+    game_mode = 'boss testing'
 
     engine.game_world = GameWorld(
         engine=engine,
@@ -301,10 +301,10 @@ class HistoryMenu(SubMenu):
         wins = self.stats['Records'][1][1] | 0
         if wins > 0:
             y += 4
-            for w in self.stats['Winning words']:
+            for w in set(self.stats['Winning words']):
                 console.print(9,y,f"@{w}",color.player)
                 y += 1
-                if y > 47:
+                if y > 45:
                     break
         else:
             console.print(9,y+4,"n/a",c2)
