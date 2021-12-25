@@ -36,7 +36,7 @@ def render_bar(
     )
 
 def render_dungeon_level(
-    console: Console, dungeon_level: int, location: Tuple[int, int], word_mode: bool, turn_count: int
+    console: Console, dungeon_level: int, location: Tuple[int, int], word_mode: bool, turn_count: int, do_turn_count: bool
 ) -> None:
     """
     Render the level the player is currently on, at the given location.
@@ -46,25 +46,26 @@ def render_dungeon_level(
     c = color.offwhite if word_mode else color.grey
     dungeon_level = dungeon_level if len(str(dungeon_level)) > 1 else f"0{dungeon_level}"
 
-    turn_count = str(turn_count)
-    for i in [9,99,999]:
-        if int(turn_count) < i:
-            turn_count = '0' + turn_count
-    if int(turn_count) > 99999:
-        turn_count = ' bruh'
-    if int(turn_count) > 9999:
-        turn_count = turn_count[0]+turn_count[1]+'.'+turn_count[2]+'k'
+    if do_turn_count:
+        turn_count = str(turn_count)
+        for i in [9,99,999]:
+            if int(turn_count) < i:
+                turn_count = '0' + turn_count
+        if int(turn_count) > 99999:
+            turn_count = ' bruh'
+        if int(turn_count) > 9999:
+            turn_count = turn_count[0]+turn_count[1]+'.'+turn_count[2]+'k'
 
-    console.draw_frame(
-        x=x-2,
-        y=+2,
-        width=8,
-        height=3,
-        clear=True,
-        fg=color.grey,
-        bg=(0,0,0)
-    )
-    console.print(x=x-1,y=y+3,string=f"T{turn_count}", fg=color.grey)
+        console.draw_frame(
+            x=x-2,
+            y=+2,
+            width=8,
+            height=3,
+            clear=True,
+            fg=color.grey,
+            bg=(0,0,0)
+        )
+        console.print(x=x-1,y=y+3,string=f"T{turn_count}", fg=color.grey)
 
     console.draw_frame(
         x=x,

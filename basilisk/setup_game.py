@@ -13,6 +13,7 @@ import tcod
 from basilisk.engine import Engine
 from basilisk import color, entity_factories, exceptions, input_handlers
 from basilisk.game_map import GameWorld
+from basilisk.components.status_effect import Phasing,Shielded,PetrifEyes,FreeSpit
 
 import utils
 
@@ -47,6 +48,7 @@ def new_game(meta) -> Engine:
     game_mode = 'default'
     # game_mode = 'consumable testing'
     # game_mode = 'boss testing'
+    # game_mode = 'god mode'
 
     engine.game_world = GameWorld(
         engine=engine,
@@ -63,6 +65,11 @@ def new_game(meta) -> Engine:
     )
 
     engine.message_log.add_message("You now have a dicti(o)nary and a com(p)endium!")
+
+    if game_mode == 'god mode':
+        for s in [Phasing,PetrifEyes,FreeSpit,Shielded]:
+            s(99,player)
+
     return engine
 
 def load_game(filename: str) -> Engine:

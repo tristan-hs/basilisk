@@ -18,9 +18,9 @@ from basilisk.components.ai import Constricted, Statue
 from basilisk.render_order import RenderOrder
 from basilisk.exceptions import Impossible
 from basilisk.components.consumable import TimeReverseConsumable
+from basilisk.entity import Actor
 
 if TYPE_CHECKING:
-    from basilisk.entity import Actor
     from basilisk.game_map import GameMap, GameWorld
 
 import utils
@@ -240,6 +240,14 @@ class Engine:
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
+    @property
+    def do_turn_count(self):
+        for e in self.game_map.entities:
+            visible = self.game_map.visible[e.x,e.y] if isinstance(e,Actor) else self.game_map.explored[e.x,e.y]
+            if e.x>72 and e.y<5 and visible:
+                return False
+        return True
+
     def render(self, console: Console) -> None:
         # all boxes 9 high
         # left box: 20 w (0,41)
@@ -253,7 +261,8 @@ class Engine:
             dungeon_level=self.game_world.current_floor,
             location=(76,0),
             word_mode = self.word_mode,
-            turn_count = self.turn_count
+            turn_count = self.turn_count,
+            do_turn_count = self.do_turn_count
         )
 
         render_functions.render_player_drawer(
