@@ -213,7 +213,7 @@ class MainGameEventHandler(EventHandler):
     def handle_events(self, event):
         te = self.engine.meta.tutorial_events
 
-        if not self.engine.meta.tutorials or len(te) >= 14:
+        if not self.engine.meta.tutorials or len(te) >= 13:
             return super().handle_events(event)
 
         if not "new game" in te:
