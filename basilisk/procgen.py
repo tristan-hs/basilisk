@@ -174,14 +174,14 @@ class RectangularRoom:
 
 			# foyer = (barrier w/o edges trimmed) + (same thing minus 1/2 b_dir)
 			fx = range(self.x1,self.x2)
-			f_dir = (-1,0) if d_dir[1] == 2 else (0,1)
+			f_dir = (-1,0) if d_dir[1] == 2 else (1,2)
 			fy = range(b_start[1]+f_dir[0]-1,b_start[1]+f_dir[1]+1)
 
 
 		else:
 			barrier = slice(b_start[0],b_start[0]+1), slice(self.y1+2,self.y2-1)
 			
-			f_dir = (-1,0) if d_dir[0] == 2 else (0,1)
+			f_dir = (-1,0) if d_dir[0] == 2 else (1,2)
 			fx = range(b_start[0]+f_dir[0]-1,b_start[0]+f_dir[1]+1)
 			fy = range(self.y1,self.y2)
 
