@@ -642,11 +642,11 @@ class ShieldingConsumable(Consumable):
 class PhasingConsumable(Consumable):
     @property
     def description_parts(self):
-        d = 2+self.engine.player.MIND if not self.template else "2+MIND"
+        d = 1+self.engine.player.MIND if not self.template else "1+MIND"
         return [("phase through walls ",color.offwhite), (d,color.mind), (" times",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,Phasing,2)
+        self.apply_status(action,Phasing,1)
 
 
 class PhasingProjectile(Projectile):
@@ -734,11 +734,11 @@ class StatBoostConsumable(Consumable):
 class FreeSpitConsumable(Consumable):
     @property
     def description_parts(self):
-        d = 2+self.engine.player.MIND if not self.template else "2+MIND"
+        d = 1+self.engine.player.MIND if not self.template else "1+MIND"
         return [("spit without consuming ",color.offwhite), (d,color.mind), (" times",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,FreeSpit,2)
+        self.apply_status(action,FreeSpit,1)
 
 
 class PetrifEyesConsumable(Consumable):

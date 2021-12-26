@@ -230,7 +230,7 @@ class FreeSpit(StatusEffect):
 		self.engine.message_log.add_message("All your spit replenishes.", color.snake_green)
 
 	def strengthen(self):
-		super().strengthen(2)
+		super().strengthen(1)
 		self.engine.message_log.add_message("Your bile wells up within you.", color.snake_green)
 
 
