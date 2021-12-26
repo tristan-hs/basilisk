@@ -100,6 +100,8 @@ class Engine:
 
     def turn_back_time(self, turns, turner):
         turn = self.turn_count - turns
+        if turn < 1:
+            turn = 1
         with open(utils.get_resource(f"snapshot_{turn}.sav"), "rb") as f:
             engine = pickle.loads(lzma.decompress(f.read()))
         assert isinstance(engine, Engine)
