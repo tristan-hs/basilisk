@@ -699,7 +699,7 @@ def place_player(dungeon,xy,player):
 		item.blocks_movement = False
 		item.place(*xy,dungeon)
 
-def generate_consumable_testing_ground(engine,items, has_boss=False):
+def generate_consumable_testing_ground(engine,items, has_boss=False, mongeese=False):
 	# wide open space with all consumables scattered around
 	player = engine.player
 	entities = set(player.inventory.items)
@@ -734,18 +734,32 @@ def generate_consumable_testing_ground(engine,items, has_boss=False):
 		entity_factories.final_boss.spawn(dungeon,room.x2-2,room.y2-2)
 		factory_set *= 2
 
-	for i in factory_set:
-		attempts = 0
-		while attempts < 1000:
-			attempts += 1
-			x = random.randint(room.x1+1,room.x2-1)
-			y = random.randint(room.y1+1,room.y2-1)
+	if not mongeese:
+		for i in factory_set:
+			attempts = 0
+			while attempts < 1000:
+				attempts += 1
+				x = random.randint(room.x1+1,room.x2-1)
+				y = random.randint(room.y1+1,room.y2-1)
 
-			if any(entity.xy == (x,y) for entity in dungeon.entities):
-				continue
+				if any(entity.xy == (x,y) for entity in dungeon.entities):
+					continue
 
-			i.spawn(dungeon,x,y)
-			break
+				i.spawn(dungeon,x,y)
+				break
+	else:
+		for i in range(60):
+			attempts = 0
+			while attempts < 1000:
+				attempts += 1
+				x = random.randint(room.x1+1,room.x2-1)
+				y = random.randint(room.y1+1,room.y2-1)
+
+				if any(entity.xy == (x,y) for entity in dungeon.entities):
+					continue
+
+				entity_factories.decider.spawn(dungeon,x,y)
+				break
 
 	return dungeon
 

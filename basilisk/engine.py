@@ -182,6 +182,9 @@ class Engine:
                 except exceptions.Impossible:
                     pass
 
+                if not self.player.is_alive:
+                    return
+
         # enemy post-turns
         for entity in enemies:
             if entity.ai:

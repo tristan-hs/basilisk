@@ -48,6 +48,7 @@ def new_game(meta) -> Engine:
     game_mode = 'default'
     # game_mode = 'consumable testing'
     # game_mode = 'boss testing'
+    # game_mode = 'mongoose testing'
     # game_mode = 'god mode'
 
     engine.game_world = GameWorld(

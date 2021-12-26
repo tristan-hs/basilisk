@@ -346,8 +346,9 @@ class GameWorld:
         self.current_floor += 1
 
         has_boss = self.game_mode == 'boss testing'
-        if self.game_mode in ['consumable testing','boss testing']:
-            self.engine.game_map = generate_consumable_testing_ground(engine=self.engine, items=self.items, has_boss=has_boss)
+        mongeese = self.game_mode == 'mongoose testing'
+        if self.game_mode in ['consumable testing','boss testing','mongoose testing']:
+            self.engine.game_map = generate_consumable_testing_ground(engine=self.engine, items=self.items, has_boss=has_boss, mongeese=mongeese)
             return
 
         if self.game_mode == 'god mode':
