@@ -247,10 +247,13 @@ class Engine:
 
     @property
     def do_turn_count(self):
-        for e in self.game_map.entities:
-            visible = self.game_map.visible[e.x,e.y] if isinstance(e,Actor) else self.game_map.explored[e.x,e.y]
-            if e.x>72 and e.y<5 and visible:
+        for e in self.game_map.items:
+            if e.x > 72 and e.y < 5 and self.game_map.explored[e.x,e.y]:
                 return False
+        for x in range(72,76):
+            for y in range(5):
+                if self.game_map.visible[x,y]:
+                    return False
         return True
 
     def render(self, console: Console) -> None:
