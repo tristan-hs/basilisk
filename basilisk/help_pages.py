@@ -16,7 +16,7 @@ moving = ("""
 .  $BJN   /↓\\$      .   Press $.$ or $5$ to wait.
 .                 .
 .  $YU      \\/$     .   Press $>$ to use stairs.
-.   $HJKL =  ←↑↓→$  .  
+.   $HJKL =  ←↓↑→$  .  
 .  $BN      /\\$     .   Full mouse support is planned for a future
 .                 .   version.
 .                 .
