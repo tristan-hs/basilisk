@@ -1223,7 +1223,12 @@ class OrderPickupHandler(InventoryRearrangeHandler):
         for i in self.selected_items:
             if i in self.engine.player.inventory.items:
                 continue
+            if len(self.engine.player.inventory.items) + len(items) >= 26:
+                self.engine.message_log.add_message("Inventory full.",color.grey)
+                break
             items.append(i)
+        if not items:
+            return MainGameEventHandler(self.engine)
         return actions.PickupAction(self.engine.player, items)
 
 

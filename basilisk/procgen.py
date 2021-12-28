@@ -735,18 +735,19 @@ def generate_consumable_testing_ground(engine,items, has_boss=False, mongeese=Fa
 		factory_set *= 2
 
 	if not mongeese:
-		for i in factory_set:
-			attempts = 0
-			while attempts < 1000:
-				attempts += 1
-				x = random.randint(room.x1+1,room.x2-1)
-				y = random.randint(room.y1+1,room.y2-1)
+		for j in range(2):
+			for i in factory_set:
+				attempts = 0
+				while attempts < 1000:
+					attempts += 1
+					x = random.randint(room.x1+1,room.x2-1)
+					y = random.randint(room.y1+1,room.y2-1)
 
-				if any(entity.xy == (x,y) for entity in dungeon.entities):
-					continue
+					if any(entity.xy == (x,y) for entity in dungeon.entities):
+						continue
 
-				i.spawn(dungeon,x,y)
-				break
+					i.spawn(dungeon,x,y)
+					break
 	else:
 		for i in range(60):
 			attempts = 0
