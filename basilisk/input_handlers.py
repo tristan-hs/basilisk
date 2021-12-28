@@ -396,7 +396,6 @@ class AskUserEventHandler(EventHandler):
             wx += 1
 
 
-
 class DictionaryEventHandler(AskUserEventHandler):
     def __init__(self,engine):
         super().__init__(engine)
@@ -1011,11 +1010,12 @@ class CompendiumHandler(AskUserEventHandler):
         ]
         i_f = self.engine.game_map.item_factories
         i_f.sort(key=lambda x: x.char)
+        y = [i for i in i_f if i.char == 'y'][0]
 
         # identified items come next
         index = 2
-        identified_items = [(i+index,c.char,c.name,c._color,c) for i,c in enumerate(j for j in i_f if j._identified and j.char != 'y')]
-        # then known unidentified items
+        identified_items = [(i+index,c.char,c.name,c._color,c) for i,c in enumerate(j for j in i_f if j._identified)]
+        # then known unidentified items, excluding y, and excluding y's dup if y's identified
         index += len(identified_items)
         def known(item):
             for r in self.engine.meta.old_runs:
@@ -1023,11 +1023,15 @@ class CompendiumHandler(AskUserEventHandler):
                     if e[1] == item.name:
                         return True
             return False
+
+        def not_y(item):
+            return item.char != 'y' and (item.name != y.name or not y._identified)
+
         i_f.sort(key=lambda x:x.name)
-        known_items = [(i+index,'?',c.name,color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and known(j) and j.char != 'y')]
-        # then the rest
+        known_items = [(i+index,'?',c.name,color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and known(j) and not_y(j))]
+        # then the rest, excluding y, and excluding y's dup if y's identified
         index += len(known_items)
-        unknown_items = [(i+index,'?','???',color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and not known(j) and j.char != 'y')]
+        unknown_items = [(i+index,'?','???',color.grey,c) for i,c in enumerate(j for j in i_f if not j._identified and not known(j) and not_y(j))]
 
         spacer = [(-1,'','',color.black,None)]
         self.rows += spacer + identified_items

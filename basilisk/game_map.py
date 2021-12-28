@@ -351,9 +351,6 @@ class GameWorld:
             self.engine.game_map = generate_consumable_testing_ground(engine=self.engine, items=self.items, has_boss=has_boss, mongeese=mongeese)
             return
 
-        if self.game_mode == 'god mode':
-            self.current_floor = 10
-
         self.engine.game_map = generate_dungeon(
             map_width=self.map_width,
             map_height=self.map_height,
