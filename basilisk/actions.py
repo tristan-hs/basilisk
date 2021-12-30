@@ -92,6 +92,8 @@ class ItemAction(Action):
 
 class ThrowItem(ItemAction):
     def perform(self, at="actor") -> None:
+        if self.engine.player.is_choking:
+            raise exceptions.Impossible("Can't spit while choking!")
         target = self.target_actor if at == "actor" else self.target_item
         at = f" at the {target.name}" if target and target is not self.engine.player else ''        
         self.engine.message_log.add_message(f"You spit the ? segment{at}.", color.offwhite, self.item.label, self.item.color)

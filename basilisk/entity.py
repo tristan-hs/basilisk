@@ -13,7 +13,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted
-from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut, ThirdEyeBlind
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut, ThirdEyeBlind, Choking
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -309,6 +309,10 @@ class Actor(Entity):
     @property
     def is_phasing(self) -> bool:
         return any(isinstance(s,Phasing) for s in self.statuses)
+
+    @property
+    def is_choking(self) -> bool:
+        return any(isinstance(s,Choking) for s in self.statuses)
 
     @property
     def in_danger(self) -> bool:
