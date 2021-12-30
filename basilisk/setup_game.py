@@ -96,7 +96,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             self.engine = None
 
         try:
-            self.meta = load_settings(utils.get_resource("savemeta.sav"))
+            self.meta = Meta(load_settings(utils.get_resource("savemeta.sav")))
         except FileNotFoundError:
             self.meta = Meta()
             self.meta.save()
@@ -343,20 +343,28 @@ class OptionsMenu(SubMenu):
         super().__init__(parent)
         self.meta = meta
         self.reset_tutorial_events = False
+        self.difficulty_changed = False
 
     def on_render(self, console:tcod.Console) -> None:
         super().on_render(console)
         console.print(7,7,"OPTIONS")
         console.print(8,10,"(f)ullscreen")
         ccstatus = "ON" if self.meta.do_combat_confirm else "OFF"
-        console.print(8,11,"(c)onfirm combat start - "+ccstatus)
+        console.print(8,12,"(c)onfirm combat start - "+ccstatus)
         tstatus = "ON" if self.meta.tutorials else "OFF"
-        console.print(8,12,"(t)utorial messages    - "+tstatus)
+        console.print(8,14,"(t)utorial messages    - "+tstatus)
 
         if len(self.meta.tutorial_events) > 0 or self.reset_tutorial_events:
-            console.print(8,13,"(r)eset tutorial")
+            console.print(8,16,"(r)eset tutorial")
         if self.reset_tutorial_events:
-            console.print(31,13,"☑",fg=color.player)
+            console.print(31,16,"☑",fg=color.player)
+
+        dstatus = "EASY" if self.meta.difficulty == "easy" else "NORMAL"
+        console.print(8,18,"(d)ifficulty           - "+dstatus)
+        if dstatus == "NORMAL":
+            console.print(40,18,"(WORD MODE required to use stairs)",color.grey)
+        if self.difficulty_changed:
+            console.print(8,20,"difficulty change takes effect on new game",color.grey)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[input_handlers.BaseEventHandler]:
         if event.sym == tcod.event.K_f:
@@ -368,6 +376,9 @@ class OptionsMenu(SubMenu):
             self.meta.tutorials = not self.meta.tutorials
         if event.sym == tcod.event.K_r:
             return input_handlers.Confirm(self,self.do_reset_tutorial_events,"Enable all old tutorial messages?")
+        if event.sym == tcod.event.K_d:
+            self.meta.difficulty = "normal" if self.meta.difficulty == "easy" else "easy"
+            self.difficulty_changed = not self.difficulty_changed
         return super().ev_keydown(event)
 
     def do_reset_tutorial_events(self):
@@ -377,13 +388,32 @@ class OptionsMenu(SubMenu):
 
 
 class Meta():
-    def __init__(self):
-        self._fullscreen = True
-        self.do_combat_confirm = True
-        self.old_runs = []
-        self._tutorials = True
-        self.tutorial_events = []
-        self.version = "0.2"
+    version = "0.2"
+
+    _fullscreen = True
+    _do_combat_confirm = True
+    _tutorials = True
+    _difficulty = "easy"
+    old_runs = []
+    tutorial_events = []
+
+    def __init__(self, old_meta=None):
+        def override(name):
+            if hasattr(old_meta,name):
+                setattr(self,name,getattr(old_meta,name))
+
+        if old_meta:
+            for i in ['_fullscreen','_do_combat_confirm','_tutorials','_difficulty','old_runs','tutorial_events']:
+                override(i)
+
+    @property
+    def do_combat_confirm(self):
+        return self._do_combat_confirm
+
+    @do_combat_confirm.setter
+    def do_combat_confirm(self,new_val):
+        self._do_combat_confirm = new_val
+        self.save()
 
     @property
     def fullscreen(self):
@@ -401,6 +431,15 @@ class Meta():
     @tutorials.setter
     def tutorials(self,new_val):
         self._tutorials = new_val
+        self.save()
+
+    @property
+    def difficulty(self):
+        return self._difficulty
+
+    @difficulty.setter
+    def difficulty(self, new_val):
+        self._difficulty = new_val
         self.save()
 
     def log_tutorial_event(self,event):

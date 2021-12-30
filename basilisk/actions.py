@@ -203,6 +203,9 @@ class TakeStairsAction(Action):
         """
         
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
+            if self.engine.difficulty == "normal" and not self.engine.word_mode:
+                raise exceptions.Impossible("Must be in WORD MODE to use stairs.")
+
             self.engine.game_world.generate_floor()
             self.engine.message_log.add_message(
                 "You descend the staircase.", color.purple

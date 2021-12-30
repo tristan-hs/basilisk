@@ -1492,6 +1492,10 @@ class PlayMenuHandler(AskUserEventHandler):
             console.print(x,y,s,fg=color.offwhite,bg=bg,alignment=tcod.CENTER)
             y += 2
 
+        if self.header == "OPTIONS":
+            difficulty = "EASY" if self.engine.difficulty == "easy" else "NORMAL"
+            console.print(x,y,f"Difficulty ({difficulty})",color.grey,alignment=tcod.CENTER)
+
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
 

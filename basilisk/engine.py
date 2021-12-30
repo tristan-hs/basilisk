@@ -42,6 +42,7 @@ class Engine:
         self.meta = meta
         self.confirmed_in_combat = False
         self.just_turned_back_time = False
+        self.difficulty = meta.difficulty
 
         #RUN STATS
         self.history = []
