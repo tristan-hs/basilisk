@@ -268,7 +268,7 @@ class HistoryMenu(SubMenu):
         stats['Records'] = [
             ('lowest floor', max(floors) if len(floors) > 0 else 1),
             ('wins', len(wins)),
-            ('win %', math.floor((len([i for i in shistory if i[0] == "win"])/len([i for i in shistory if i[0] in ["win","lose"]]))*100)/100),
+            ('win %', math.floor((len([i for i in shistory if i[0] == "win"])/len([i for i in shistory if i[0] in ["win","lose"]]))*10000)/100),
             ('fastest win', min([i[-1][2] for i in wins]) if wins else "n/a")
         ]
 
