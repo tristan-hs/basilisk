@@ -325,7 +325,7 @@ class WormholeConsumable(Projectile):
         elif not self.parent.identified:
             wormhole = action.target_xy
 
-        if self.parent.identified and self.engine.game_map.tile_is_walkable(*action.target_xy):
+        if self.parent.identified and self.engine.game_map.tile_is_snakeable(*action.target_xy):
             wormhole = action.target_xy
 
         if not wormhole:
