@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
 class Consumable(BaseComponent):
     parent: Item
+    saved_stats=False
 
     def __init__(self):
         self.do_snake = False
@@ -40,7 +41,7 @@ class Consumable(BaseComponent):
 
     @property
     def modified_damage(self):
-        return self.damage + self.engine.player.BILE
+        return self.damage + self.BILE
 
     # MUST OVERRIDE ONE OF THESE TWO PROPERTIES:
 
@@ -63,10 +64,39 @@ class Consumable(BaseComponent):
         return actions.ItemAction(consumer, self.parent)
 
     def start_activation(self,action):
+        self.save_stats()
         self.consume()
         self.activate(action)
         self.identify()
         self.snake()
+        self.unsave_stats()
+
+    # ensure pre-consumption stats are used to modify item effects
+    def save_stats(self):
+        self._BILE = self.engine.player.BILE
+        self._MIND = self.engine.player.MIND
+        self._TONG = self.engine.player.TONG
+        self._TAIL = self.engine.player.TAIL
+        self.saved_stats = True
+
+    def unsave_stats(self):
+        self.saved_stats = False
+
+    @property
+    def BILE(self):
+        return self._BILE if self.saved_stats else self.engine.player.BILE
+
+    @property
+    def MIND(self):
+        return self._MIND if self.saved_stats else self.engine.player.MIND
+
+    @property
+    def TAIL(self):
+        return self._TAIL if self.saved_stats else self.engine.player.TAIL
+
+    @property
+    def TONG(self):
+        return self._TONG if self.saved_stats else self.engine.player.TONG
 
     def activate(self, action: actions.ItemAction) -> None:
         """Invoke this items ability.
@@ -93,14 +123,14 @@ class Consumable(BaseComponent):
             return
         self.engine.player.snake(self.footprint, self.start_at)
 
-    def apply_status(self, action, status, duration=10) -> None:
+    def apply_status(self, action, status) -> None:
         if action.target_actor.is_boss:
             return
         st = [s for s in action.target_actor.statuses if isinstance(s,status)]
         if st:
-            st[0].strengthen()
+            st[0].strengthen(self.MIND)
         else:
-            st = status(duration, action.target_actor)
+            st = status(self.MIND, action.target_actor)
 
 
 class Projectile(Consumable):
@@ -225,7 +255,7 @@ class DecoyConsumable(Projectile):
 
     @property
     def description_parts(self):
-        d = 10 + (self.engine.player.MIND*2) if not self.template else "10+MIND"
+        d = 9 + (self.MIND*2) if not self.template else "9+(MINDx2)"
         return [("spawn a decoy for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -245,7 +275,7 @@ class DecoyConsumable(Projectile):
 
         self.engine.message_log.add_message("It begins taunting your enemies!")
         d = self.engine.game_map.decoy.spawn(self.engine.game_map,x,y)
-        Doomed(10,d)
+        Doomed(self.MIND,d)
         for actor in self.engine.game_map.actors:
             if actor.ai.fov[x,y]:
                 actor.ai.clear_intent()
@@ -258,7 +288,7 @@ class TimeReverseConsumable(Consumable):
 
     @property
     def description_parts(self):
-        d = self.turns + self.engine.player.MIND if not self.template else f"{self.turns}+MIND"
+        d = self.turns + self.MIND if not self.template else f"{self.turns}+MIND"
         return [("wrinkle ",color.offwhite), (d,color.mind), (" turns worth of time",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
@@ -615,7 +645,7 @@ class DamageAllConsumable(Consumable):
             for a in actors:
                 a.take_damage(self.modified_damage)
         else:
-            self.engine.message_log.add_message("It rains acid on the dungoen.",color.grey)
+            self.engine.message_log.add_message("It rains acid on the dungeon.",color.grey)
 
 
 class ShieldingConsumable(Consumable):
@@ -627,7 +657,7 @@ class ShieldingConsumable(Consumable):
     @property
     def description_parts(self):
         if not self.template:
-            d = self.duration + self.engine.player.MIND
+            d = self.duration + self.MIND
             n = ' '+str(d) if d > 1 else ''
             s = 's' if d > 1 else ''
             d = f"{n} hit{s}"
@@ -636,17 +666,18 @@ class ShieldingConsumable(Consumable):
         return [("shrug off the next",color.offwhite), (d,color.mind), (" you take",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,Shielded,1)
+        self.apply_status(action,Shielded)
 
 
 class PhasingConsumable(Consumable):
     @property
     def description_parts(self):
         d = 1+self.engine.player.MIND if not self.template else "1+MIND"
-        return [("phase through walls ",color.offwhite), (d,color.mind), (" times",color.offwhite)]
+        s = 's' if isinstance(d,int) and d > 1 else ''
+        return [("phase through walls ",color.offwhite), (d,color.mind), (f" time{s}",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,Phasing,1)
+        self.apply_status(action,Phasing)
 
 
 class PhasingProjectile(Projectile):
@@ -655,7 +686,7 @@ class PhasingProjectile(Projectile):
 
     @property
     def description_parts(self):
-        duration = 10 + (2*self.engine.player.MIND) if not self.template else "10+(MINDx2)"
+        duration = 9 + (2*self.MIND) if not self.template else "9+(MINDx2)"
         return [("derealize an enemy for ",color.offwhite), (duration,color.mind), (" turns",color.offwhite)]
 
     def get_throw_action(self, consumer: Actor) -> SingleRangedAttackHandler:
@@ -712,7 +743,7 @@ class StatBoostConsumable(Consumable):
 
     @property
     def description_parts(self):
-        n = 9 + self.engine.player.MIND if not self.template else "9+MIND"
+        n = 9 + self.MIND if not self.template else "9+MIND"
         duration = [("permanently",color.offwhite)] if self.permanent else [("for ",color.offwhite), (n,color.mind), (" turns",color.offwhite)]
         stat_color = color.stats[self.stat] if self.stat != "a random stat" else color.offwhite
         return [("increase ",color.offwhite), (self.stat,stat_color), (f" by {self.amount} ",color.offwhite)] + duration
@@ -728,27 +759,28 @@ class StatBoostConsumable(Consumable):
                 6
             )
         else:
-            StatBoost(10, action.target_actor, stat, self.amount)
+            StatBoost(self.MIND, action.target_actor, stat, self.amount)
 
 
 class FreeSpitConsumable(Consumable):
     @property
     def description_parts(self):
-        d = 1+self.engine.player.MIND if not self.template else "1+MIND"
-        return [("spit without consuming ",color.offwhite), (d,color.mind), (" times",color.offwhite)]
+        d = 1+self.MIND if not self.template else "1+MIND"
+        s = 's' if isinstance(d,int) and d > 1 else ''
+        return [("spit without consuming ",color.offwhite), (d,color.mind), (f" time{s}",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.apply_status(action,FreeSpit,1)
+        self.apply_status(action,FreeSpit)
 
 
 class PetrifEyesConsumable(Consumable):
     @property
     def description_parts(self):
-        d = 4+self.engine.player.MIND if not self.template else "4+MIND"
+        d = 3+self.engine.player.MIND if not self.template else "3+MIND"
         return [("petrify all you see for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:        
-        self.apply_status(action, PetrifEyes, 4)
+        self.apply_status(action, PetrifEyes)
 
 
 class ChokingConsumable(Consumable):
@@ -815,8 +847,14 @@ class ReversingConsumable(Consumable):
         # swap with the last /solid/ item
         # any that aren't solid stay at the end in reverse order
         consumer = action.entity
-        tail = [i for i in consumer.inventory.items if i.blocks_movement][-1]
-        x, y = tail.xy
+
+        tail = [i for i in consumer.inventory.items if i.blocks_movement]
+        if not tail:
+            self.consume()
+            self.engine.message_log.add_message("You spin in place.",color.grey)
+            return
+
+        x, y = tail[-1].xy
 
         self.consume()
 
@@ -834,25 +872,6 @@ class ReversingConsumable(Consumable):
         self.engine.check_word_mode()
 
         self.engine.message_log.add_message("You turn tail!", color.offwhite)
-
-
-class ChangelingConsumable(Consumable):
-    description = "???"
-
-    def start_activation(self,action):
-        self.activate(action)
-        self.consume()
-        self.identify()
-
-    def activate(self, action: actions.ItemAction) -> None:
-        # add new item to snake
-        items = action.entity.inventory.items
-        changeset = self.gamemap.item_factories
-        new_i = random.choice(self.gamemap.item_factories).spawn(self.parent.gamemap,self.parent.x,self.parent.y)
-        new_i.parent = action.entity
-        items.insert(items.index(self.parent), new_i)
-        new_i.solidify()
-        self.engine.message_log.add_message(f"It turns into ?!", color.offwhite, new_i.char, new_i.color)
 
 
 class IdentifyingConsumable(Consumable):
@@ -935,8 +954,9 @@ class NothingConsumable(Consumable):
 class ThirdEyeBlindConsumable(Consumable):
     @property
     def description_parts(self):
-        d = 10-self.engine.player.MIND if not self.template else "10-MIND"
-        return [("blind your third eye for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
+        d = 9-self.MIND if not self.template else "9-MIND"
+        s = 's' if isinstance(d,int) and d != 1 else ''
+        return [("blind your third eye for ",color.offwhite), (d,color.mind), (f" turn{s}",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("It dissolves in a shroud of temporal ambiguity.")
@@ -946,24 +966,12 @@ class ThirdEyeBlindConsumable(Consumable):
 class PetrifyConsumable(Consumable):
     @property
     def description_parts(self):
-        d = max(0,3-self.engine.player.MIND) if not self.template else "3-MIND"
+        d = max(0,3-self.MIND) if not self.template else "3-MIND"
         return [("petrify thyself for ",color.offwhite), (d,color.mind), (" turns",color.offwhite)]
 
     def activate(self, action: actions.ItemAction) -> None:
         self.engine.message_log.add_message("The taste of earth and bone permeates your being.")
-        self.apply_status(action, PetrifiedSnake, 3)
-
-
-class RandomProjectile(Projectile):
-    description = "???"
-
-    def __init__(self):
-        self.do_snake = False
-
-    def activate(self, action: actions.ItemAction) -> None:
-        effect = copy.deepcopy(random.choice(self.gamemap.item_factories).spitable)
-        self.parent.spitable = effect
-        self.parent.spitable.activate(action)
+        self.apply_status(action, PetrifiedSnake)
 
 
 class PetrifyEnemyConsumable(Projectile):
@@ -972,7 +980,7 @@ class PetrifyEnemyConsumable(Projectile):
 
     @property
     def description_parts(self):
-        duration = 10 + (self.engine.player.MIND*2) if not self.template else "10+(MINDx2)"
+        duration = 9 + (self.MIND*2) if not self.template else "9+(MINDx2)"
         return [("petrify an enemy for ",color.offwhite), (duration,color.mind), (" turns",color.offwhite)]
 
 

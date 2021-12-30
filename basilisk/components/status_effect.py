@@ -13,15 +13,18 @@ class StatusEffect(BaseComponent):
 	label = "<status>"
 	description = "(no description)"
 	color = color.grey
+	base_duration = 10
+	base_strengthen_duration = 10
 
-	def __init__(self, duration: int, target):
+	def __init__(self, modifier: int, target):
 		self.parent = target
-		self.duration = duration+self.duration_mod
+		self._duration_mod = modifier
+		self.duration = self.base_duration+self.duration_mod
 		self.apply()
 
 	@property
 	def duration_mod(self):
-		return self.engine.player.MIND
+		return self._duration_mod
 
 	def decrement(self):
 		self.duration -= 1
@@ -38,14 +41,15 @@ class StatusEffect(BaseComponent):
 		elif self.label:
 			self.engine.message_log.add_message(f"{self.parent.name} is no longer {self.description}.", color.yellow)
 
-	def strengthen(self, strength: int=10):
-		self.duration += (strength + self.duration_mod)
+	def strengthen(self, modifier:int):
+		self._duration_mod = modifier
+		self.duration += (self.base_strengthen_duration + self.duration_mod)
 
 
 class BadStatusEffect(StatusEffect):
 	@property
 	def duration_mod(self):
-		return 0 - self.engine.player.MIND
+		return 0 - self._duration_mod
 
 
 class EnemyStatusEffect(StatusEffect):
@@ -58,10 +62,10 @@ class _StatBoost(StatusEffect):
 	color = None
 
 class StatBoost(_StatBoost):
-	def __init__(self, duration: int, target, stat, amount):
+	def __init__(self, modifier: int, target, stat, amount):
 		self.amount = amount
 		self.stat = stat
-		super().__init__(duration, target)
+		super().__init__(modifier, target)
 
 		for status in self.parent.statuses:
 			if isinstance(status, _StatBoost) and status.stat == stat:
@@ -78,13 +82,15 @@ class Doomed(StatusEffect):
 
 	@property
 	def duration_mod(self):
-		return self.engine.player.MIND*2
+		return self._duration_mod*2
 
 
 class Phasing(StatusEffect):
 	label="phase"
 	description="phasing"
 	color=color.purple
+	base_duration = 1
+	base_strengthen_duration = 1
 
 	def decrement(self,on_turn=True):
 		if on_turn:
@@ -96,8 +102,8 @@ class Phasing(StatusEffect):
 		msg = "Your vibrations attune to the stone."
 		self.engine.message_log.add_message(msg, color.offwhite)
 
-	def strengthen(self):
-		super().strengthen(1)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		msg = "Your particles continue to whir." if self.parent is self.engine.player else f"The {self.parent.name}'s particles continue to whir."
 		self.engine.message_log.add_message(msg, color.offwhite)
 
@@ -127,7 +133,7 @@ class PhasedOut(StatusEffect):
 
 	@property
 	def duration_mod(self):
-		return self.engine.player.MIND*2
+		return self._duration_mod*2
 
 
 
@@ -135,6 +141,7 @@ class Leaking(EnemyStatusEffect):
 	label="crumble"
 	description="crumbling"
 	color=color.bile
+	base_strengthen_duration = 5
 
 	def decrement(self):
 		self.parent.take_damage(1)
@@ -147,8 +154,8 @@ class Leaking(EnemyStatusEffect):
 		super().apply()
 		self.engine.message_log.add_message(f"The {self.parent.name} starts crumbling!", color.offwhite)
 
-	def strengthen(self):
-		super().strengthen(5)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message(f"The {self.parent.name} will crumble for even longer.", color.offwhite)
 
 
@@ -157,6 +164,8 @@ class Shielded(StatusEffect):
 	label="shield"
 	description="shielded"
 	color=color.grey
+	base_duration=1
+	base_strengthen_duration=1
 
 	def decrement(self, on_turn=True):
 		if on_turn:
@@ -168,8 +177,8 @@ class Shielded(StatusEffect):
 		else:
 			self.engine.message_log.add_message("Your stone coating deflects the attack.", color.grey)
 
-	def strengthen(self):
-		super().strengthen(1)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message("Your stone coating hardens.", color.offwhite)
 
 	def apply(self):
@@ -181,33 +190,36 @@ class Petrified(EnemyStatusEffect):
 	label="petrify"
 	description="petrified"
 	color=color.grey
+	base_strengthen_duration=5
 
 	def apply(self):
 		super().apply()
 		self.parent.ai.clear_intent()
 		self.engine.message_log.add_message(f"The {self.parent.name} turns to stone!", color.offwhite)
 
-	def strengthen(self):
-		super().strengthen(5)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message(f"The {self.parent.name} hardens!", color.offwhite)
 
 	@property
 	def duration_mod(self):
-		return self.engine.player.MIND*2
+		return self._duration_mod*2
 
 
 class PetrifiedSnake(StatusEffect):
 	label="petrify"
 	description="petrified"
 	color=color.grey
+	base_duration=3
+	base_strengthen_duration=3
 
 	def apply(self):
 		super().apply()
 		self.engine.message_log.add_message("You turn to stone!", color.red)
 		self.parent.petrified_on = self.engine.turn_count
 
-	def strengthen(self):
-		super().strengthen(3)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message("You harden!", color.red)
 
 	def remove(self):
@@ -219,6 +231,8 @@ class FreeSpit(StatusEffect):
 	label="saliva"
 	description="salivating"
 	color=color.snake_green
+	base_duration=1
+	base_strengthen_duration=1
 
 	def decrement(self, on_turn=True):
 		if on_turn:
@@ -229,8 +243,8 @@ class FreeSpit(StatusEffect):
 		super().apply()
 		self.engine.message_log.add_message("All your spit replenishes.", color.snake_green)
 
-	def strengthen(self):
-		super().strengthen(1)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message("Your bile wells up within you.", color.snake_green)
 
 
@@ -238,13 +252,15 @@ class PetrifEyes(StatusEffect):
 	label = "petrify"
 	description = "petrifying"
 	color = color.cyan
+	base_duration=4
+	base_strengthen_duration=3
 
 	def apply(self):
 		super().apply()
 		self.engine.message_log.add_message("All you see turns grey and stoney.", color.yellow)
 
-	def strengthen(self):
-		super().strengthen(3)
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message("You feel your gaze grow stronger.", color.yellow)
 
 
@@ -257,8 +273,8 @@ class Choking(BadStatusEffect):
 		super().apply()
 		self.engine.message_log.add_message("You can't spit!", color.red)
 
-	def strengthen(self):
-		super().strengthen()
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message("Your throat is feeling even worse!", color.red)
 
 
@@ -271,6 +287,6 @@ class ThirdEyeBlind(BadStatusEffect):
 		super().apply()
 		self.engine.message_log.add_message("You are blind to enemy intents!", color.red)
 
-	def strengthen(self):
-		super().strengthen()
+	def strengthen(self,modifier:int):
+		super().strengthen(modifier)
 		self.engine.message_log.add_message("Your foresight is weakened further!", color.red)
