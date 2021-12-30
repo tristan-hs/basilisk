@@ -241,7 +241,7 @@ class HistoryMenu(SubMenu):
             ('level', len([i for i in last_run if i[0] == "descend stairs"])+1),
             ('turns', last_run[-1][2]),
             ('unique kills', len(set([i[1] for i in last_run if i[0] == "kill enemy"]))),
-            ('items identified', len([i for i in last_run if i[0] == "identify item"])),
+            ('items identified', len(set([i[1] for i in last_run if i[0] == "identify item"]))),
             ('longest word', max([i[1] for i in words], key=len) if len(words) > 0 else "n/a"),
             ('unique words', len(set([i[1] for i in words]))),
             ('killed by', last_run[-1][1])
@@ -324,13 +324,15 @@ class HistoryMenu(SubMenu):
             i = str(v[1])
             c = c3 if i in ['0','n/a','0.0'] else c3
             if v[0] == 'unique kills':
-                i += '/11'
-                if v[0] == 12:
+                i += '/12'
+                if v[1] == 12:
                     c = color.purple
             if v[0] == 'items identified':
                 i += '/20'
-                if v[0] == 21:
+                if v[1] == 20:
                     c = color.purple
+            if v[0] == 'lowest floor' and v[1] == 10:
+                c = color.purple
             console.print(indent,y,i,c)
             y += 1
         return y
