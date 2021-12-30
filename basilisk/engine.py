@@ -89,7 +89,7 @@ class Engine:
 
     @property
     def can_see_enemies(self):
-        return len([a for a in self.fov_actors if not isinstance(a.ai,Statue)]) > 0
+        return len([a for a in self.fov_actors if not isinstance(a.ai,Statue) and a.name != "Decoy"]) > 0
 
     @property
     def an_enemy_is_constricted(self):
