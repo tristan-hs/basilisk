@@ -5,7 +5,7 @@ import random
 import math
 import numpy as np
 
-from basilisk import actions, color
+from basilisk import actions, color, exceptions
 
 import basilisk.components.ai
 
@@ -66,10 +66,21 @@ class Consumable(BaseComponent):
     def start_activation(self,action):
         self.save_stats()
         self.consume()
-        self.activate(action)
-        self.identify()
-        self.snake()
-        self.unsave_stats()
+
+        try:
+            self.activate(action)
+        except exceptions.UnorderedPickup:
+            self.identify()
+            self.snake()
+            self.unsave_stats()
+            raise
+        except Exception:
+            self.unsave_stats()
+            raise
+        else:
+            self.identify()
+            self.snake()
+            self.unsave_stats()
 
     # ensure pre-consumption stats are used to modify item effects
     def save_stats(self):
