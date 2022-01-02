@@ -405,6 +405,20 @@ class SpittingConsumable(Projectile):
 
         return super().get_throw_action(consumer, thru_tail=False)
 
+    def start_activation(self,action):
+        try:
+            self.activate(action)
+        except exceptions.UnorderedPickup:
+            self.consume()
+            self.snake()
+            self.identify()
+            raise
+        else:
+            self.consume()
+            self.snake()
+            self.identify()
+
+
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         path = self.get_path_to(*action.target_xy)
