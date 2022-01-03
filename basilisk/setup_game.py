@@ -99,7 +99,6 @@ class MainMenu(input_handlers.BaseEventHandler):
             self.meta = Meta(load_settings(utils.get_resource("savemeta.sav")))
         except FileNotFoundError:
             self.meta = Meta()
-            self.meta.save()
 
         if self.engine:
             self.engine.meta = self.meta
@@ -405,6 +404,8 @@ class Meta():
         if old_meta:
             for i in ['_fullscreen','_do_combat_confirm','_tutorials','_difficulty','old_runs','tutorial_events']:
                 override(i)
+
+        self.save()
 
     @property
     def do_combat_confirm(self):
