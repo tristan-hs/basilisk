@@ -1464,7 +1464,6 @@ class PlayMenuHandler(AskUserEventHandler):
         self.options = [
             ("Continue", self.onContinue),
             ("Options", self.onOptions),
-            ("Help", self.onHelp),
             ("Save and Quit", self.onSaveAndQuit)
         ] if not options else options
 
