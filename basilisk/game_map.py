@@ -168,16 +168,22 @@ class GameMap:
             return
 
         x, y = entity.xy
-        bgcolor = color.intent_bg if not highlight else color.highlighted_intent_bg
+
         for intent in entity.ai.intent:
             x += intent.dx
             y += intent.dy
+
+            fg = color.intent_bg if not highlight else color.highlighted_intent_bg
+            attacking_player = (x,y) == self.engine.player.xy or (x,y) in [i.xy for i in self.engine.player.inventory.items]
+            fgcolor = fg if not attacking_player else color.black
+            bgcolor = None if not attacking_player else color.intent_bg
+
             if self.visible[entity.x, entity.y] or self.visible[x, y]:
                 console.print(
                     x=x,
                     y=y,
                     string=D_ARROWS[DIRECTIONS.index((intent.dx,intent.dy))],
-                    fg=color.intent,
+                    fg=fgcolor,
                     bg=bgcolor
                 )
 
@@ -231,15 +237,18 @@ class GameMap:
                 bg = color.purple
                 fg = color.purple
             elif actor.ai.fov[self.engine.player.x,self.engine.player.y] and actor.name != "Decoy":
-                bg = color.enemy_bg
+                bg = None
+                if actor.is_constricted:
+                    fg = color.black
+                    bg = color.grey
 
         elif self.smellable(actor, True):
-            bg=color.grey
+            bg=None
 
         elif self.smellable(actor):
             string = '?'
             fg = color.yellow
-            bg = color.grey
+            bg = None
 
         else:
             return False
@@ -262,6 +271,9 @@ class GameMap:
                 fg = color.player
             else:
                 fg = color.player_dark
+
+            if item is self.engine.player and not item.is_alive:
+                fg = item.color
         elif not self.visible[item.x,item.y] and self.explored[item.x,item.y]:
             fg = tuple(i//2 for i in fg)
         elif not self.visible[item.x,item.y]:

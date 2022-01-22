@@ -292,7 +292,7 @@ class Engine:
         )
 
         # MIDDLE PANEL
-        self.message_log.render(console=console, x=18, y=41, width=43, height=9)
+        self.message_log.render(console=console, x=21, y=41, width=40, height=9)
 
         # RIGHT PANEL
         # todo: this includes stats

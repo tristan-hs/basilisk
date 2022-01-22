@@ -280,15 +280,17 @@ def print_fov_actors(console,player,xy):
     for actor in sorted(list(player.gamemap.actors),key=lambda a:a.id):
         if actor is player:
             continue
+        if not (player.gamemap.visible[actor.x,actor.y] or player.gamemap.smellable(actor,True)):
+            continue
         if player.gamemap.print_actor_tile(actor,(x+3,y),console):
-            known = (player.gamemap.visible[actor.x,actor.y] or player.gamemap.smellable(actor,True))
-            name = actor.name if known else '???'
+            name = actor.name
             if len(name) > 12:
                 name = name[:10]+'..'
-            fg = actor.color if known else color.yellow
-            if known:
-                console.print(x,y,f"{chars.pop(0)})",fg=fg)
+            fg = actor.color
+            console.print(x,y,f"{chars.pop(0)})",fg=fg)
             console.print(x+5,y,name,fg=fg)
+            if actor.ai.description == "asleep":
+                console.print(x+18,y,"z²",fg=color.grey)
             y += 1
             if y > 48:
                 console.print(x+1,y,'...',fg=color.offwhite)

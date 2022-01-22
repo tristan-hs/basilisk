@@ -1663,7 +1663,7 @@ class InspectHandler(AskUserEventHandler):
                     if i <= int(self.thing.char):
                         bg = self.thing._color
                     elif i <= int(self.thing.base_char):
-                        bg = color.statue
+                        bg = color.grey
                     else:
                         bg = color.dark_red
 

@@ -12,7 +12,7 @@ from basilisk.render_order import RenderOrder
 from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
-from basilisk.components.ai import Constricted
+from basilisk.components.ai import Constricted, Statue
 from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut, ThirdEyeBlind, Choking
 from basilisk.components import consumable
 
@@ -288,10 +288,14 @@ class Actor(Entity):
         ):
             return Color.grey
 
-        if isinstance(self.ai, Constricted):
+        if self.is_constricted:
             return Color.statue
 
         return self._color
+
+    @property
+    def is_constricted(self):
+        return isinstance(self.ai,Constricted)
 
     @color.setter
     def color(self, new_val):
@@ -321,7 +325,7 @@ class Actor(Entity):
             # don't check actors that can't getcha
             if(
                 entity is self or
-                isinstance(entity.ai,Constricted) or
+                entity.is_constricted or
                 any(isinstance(s,Petrified) for s in entity.statuses) or
                 any(isinstance(s,PhasedOut) for s in entity.statuses) or
                 (
@@ -393,7 +397,7 @@ class Actor(Entity):
         self.char = str(new_char)
 
     def pre_turn(self) -> None:
-        if isinstance(self.ai, Constricted):
+        if self.is_constricted:
             self.update_constrict()
 
     def on_turn(self) -> None:
@@ -403,7 +407,7 @@ class Actor(Entity):
             status.decrement()
 
     def constrict(self) -> None:
-        if isinstance(self.ai, Constricted) or self.name == "Decoy":
+        if self.is_constricted or self.name == "Decoy":
             return
         self.engine.message_log.add_message(f"You constrict the {self.name}!", Color.offwhite)
         self.ai = Constricted(self, self.ai, self.color)

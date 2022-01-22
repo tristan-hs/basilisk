@@ -66,8 +66,6 @@ highlighted_fom = (50,50,0)
 player = (0,200,0)
 player_dark = (0,100,0)
 
-enemy_bg = (80,10,10)
-
 statue = (200,200,200)
 goblin = (150,150,75)
 jackelope = (0,200,200)

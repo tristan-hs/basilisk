@@ -90,16 +90,16 @@ wall = new_tile(
     walkable=False,
     snakeable=False,
     transparent=False,
-    dark=(ord(" "), (255, 255, 255), (25,0,25)),
-    light=(ord(" "), (255, 255, 255), (50,0,50)),
+    dark=(ord(" "), (255, 255, 255), (40,0,40)),
+    light=(ord(" "), (255, 255, 255), (80,0,80)),
 )
 down_stairs = new_tile(
     name='stairs',
     flavor='Your passage to the next level.',
     walkable=True,
     transparent=True,
-    dark=(ord(">"), (0, 100, 0), (0,5,0)),
-    light=(ord(">"), (0, 255, 0), (0,10,0)),
+    dark=(ord(">"), (100, 0, 100), (7,7,7)),
+    light=(ord(">"), (200, 0, 200), (10,10,10)),
 )
 door = new_tile(
     name='doorway',
