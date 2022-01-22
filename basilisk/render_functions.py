@@ -49,12 +49,12 @@ def render_dungeon_level(
     if do_turn_count:
         turn_count = str(turn_count)
         for i in [9,99,999]:
-            if int(turn_count) < i:
+            if int(turn_count) <= i:
                 turn_count = '0' + turn_count
-        if int(turn_count) > 99999:
-            turn_count = ' bruh'
         if int(turn_count) > 9999:
             turn_count = turn_count[0]+turn_count[1]+'.'+turn_count[2]+'k'
+        if int(turn_count) > 99999:
+            turn_count = ' bruh'
 
         console.draw_frame(
             x=x-2,
