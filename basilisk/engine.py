@@ -3,6 +3,7 @@ from __future__ import annotations
 import lzma
 import pickle
 import os
+import time
 
 from typing import TYPE_CHECKING
 
@@ -30,7 +31,7 @@ class Engine:
     game_map: GameMap
     game_world: GameWorld
  
-    def __init__(self, player: Actor, meta):
+    def __init__(self, player: Actor, meta, terminal, console):
         self.message_log = MessageLog(self)
         self.mouse_location = (0, 0)
         self.player = player
@@ -40,6 +41,8 @@ class Engine:
         self.boss_killed = False
         self.time_turned = False
         self.meta = meta
+        self.terminal = terminal
+        self.console = console
         self.confirmed_in_combat = False
         self.just_turned_back_time = False
         self.difficulty = meta.difficulty
@@ -179,6 +182,13 @@ class Engine:
 
                 # the rest do their thing
                 try: 
+                    # animate moves
+                    if self.fov[entity.x,entity.y] and not isinstance(entity.ai.intent[0],WaitAction):
+                        self.console.clear()
+                        self.render(self.console)
+                        self.terminal.present(self.console)
+                        time.sleep(0.15)
+
                     entity.ai.perform()
                 except exceptions.Impossible:
                     pass
@@ -314,8 +324,14 @@ class Engine:
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
         meta = self.meta
+        terminal = self.terminal
+        console = self.console
         self.meta = None
+        self.terminal = None
+        self.console = None
         save_data = lzma.compress(pickle.dumps(self))
         with open(filename, "wb") as f:
             f.write(save_data)
         self.meta = meta
+        self.terminal = terminal
+        self.console = console

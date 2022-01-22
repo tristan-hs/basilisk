@@ -21,7 +21,7 @@ import utils
 # Load the background image and remove the alpha channel.
 background_image = tcod.image.load(utils.get_resource("menu_background.png"))[:, :, :3]
 
-def new_game(meta) -> Engine:
+def new_game(meta,terminal,console) -> Engine:
     """Return a brand new game session as an Engine instance."""
 
     # If there's an existing save, log it as a game over
@@ -43,7 +43,7 @@ def new_game(meta) -> Engine:
     player = copy.deepcopy(entity_factories.player)
     player.id = 0
 
-    engine = Engine(player=player, meta=meta)
+    engine = Engine(player=player, meta=meta, terminal=terminal, console=console)
 
     game_mode = 'default'
     # game_mode = 'consumable testing'
@@ -89,9 +89,14 @@ def load_settings(filename: str) -> Meta:
 class MainMenu(input_handlers.BaseEventHandler):
     """Handle the main menu rendering and input."""
 
-    def __init__(self):
+    def __init__(self,terminal,console):
+        self.terminal = terminal
+        self.console = console
+
         try:
             self.engine = load_game(utils.get_resource("savegame.sav"))
+            self.engine.terminal = terminal
+            self.engine.console = console
         except FileNotFoundError:
             self.engine = None
 
@@ -191,7 +196,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         return None
 
     def start_new_game(self):
-        return input_handlers.MainGameEventHandler(new_game(self.meta))
+        return input_handlers.MainGameEventHandler(new_game(self.meta,self.terminal,self.console))
 
 
 class SubMenu(input_handlers.BaseEventHandler):

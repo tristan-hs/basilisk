@@ -35,8 +35,6 @@ def main() -> None:
         utils.get_resource("tiles.png"), 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
-    handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
-
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         with tcod.context.new_terminal(
@@ -48,6 +46,7 @@ def main() -> None:
             renderer=tcod.RENDERER_SDL2
         ) as context:
             root_console = tcod.Console(screen_width, screen_height, order="F")
+            handler: input_handlers.BaseEventHandler = setup_game.MainMenu(context,root_console)
             if handler.meta.fullscreen:
                 toggle_fullscreen(context)
             try:
@@ -57,7 +56,7 @@ def main() -> None:
                     context.present(root_console)
 
                     try:
-                        for event in tcod.event.wait(None):
+                        for event in tcod.event.get():
                             context.convert_event(event)
                             handler = handler.handle_events(event)
 
@@ -79,10 +78,10 @@ def main() -> None:
 
                     except exceptions.QuitToMenu:
                         save_game(handler, utils.get_resource("savegame.sav"))
-                        handler = setup_game.MainMenu()
+                        handler = setup_game.MainMenu(context,root_console)
 
                     except exceptions.QuitWithoutSaving:
-                        handler = setup_game.MainMenu()
+                        handler = setup_game.MainMenu(context,root_console)
 
                     except Exception:  # Handle exceptions in game.
                         traceback.print_exc()  # Print error to stderr.
