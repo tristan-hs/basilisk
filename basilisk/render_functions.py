@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Tuple, TYPE_CHECKING
 
 import random
+import math
 
 from basilisk import color
 from basilisk.message_log import MessageLog
@@ -184,16 +185,19 @@ def render_names_at_mouse_location(
     
 
 class ColorScheme:
-    def __init__(self, player, base_colors=[color.dark_grey,color.grey], scheme_length=28):
+    def __init__(self, player, base_colors=[color.dark_grey,color.grey], scheme_length=28, div=2):
         colors = [color.bile] * player.BILE + [color.mind] * player.MIND + [color.tongue] * player.TONG + [color.tail] * player.TAIL 
         if len(colors) < 28:
             colors += [base_colors[0]] * (scheme_length - len(colors) - 1)
             colors += [base_colors[1]]
+
+        incr = math.floor(player.engine.frames / div)
+
         # fixed shuffle per length of list
-        random.Random(round(player.engine.turn_count/500)).shuffle(colors)
+        random.Random(round(incr/500)).shuffle(colors)
         
         # cycle through that shuffle turn by turn
-        for i in range(player.engine.turn_count % scheme_length):
+        for i in range(incr % scheme_length):
             c = colors.pop(0)
             colors.append(c)
 
@@ -213,8 +217,8 @@ class ColorScheme:
 def render_player_drawer(console: Console, location: Tuple[int,int], player, turn, word_mode) -> int:
     sx, sy = x, y = location
     items = player.inventory.items
-    cs = ColorScheme(player, [color.snake_green,color.offwhite]) if word_mode else ColorScheme(player)
-    wcs = ColorScheme(player, [color.dark_grey,color.snake_green],30) if word_mode else ColorScheme(player,scheme_length=30)
+    cs = ColorScheme(player, [color.snake_green,color.offwhite],256,-4) if word_mode else ColorScheme(player,scheme_length=256,div=-4)
+    wcs = ColorScheme(player, [color.dark_grey,color.snake_green],512,6) if word_mode else ColorScheme(player,scheme_length=512,div=6)
 
     sy -= 4
     y -= 4

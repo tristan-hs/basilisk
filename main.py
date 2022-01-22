@@ -56,7 +56,7 @@ def main() -> None:
                     context.present(root_console)
 
                     try:
-                        for event in tcod.event.wait(None):
+                        for event in tcod.event.get():
                             context.convert_event(event)
                             handler = handler.handle_events(event)
 

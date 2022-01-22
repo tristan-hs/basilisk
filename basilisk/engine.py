@@ -46,6 +46,7 @@ class Engine:
         self.confirmed_in_combat = False
         self.just_turned_back_time = False
         self.difficulty = meta.difficulty
+        self.frames = 0
 
         #RUN STATS
         self.history = []
@@ -271,6 +272,10 @@ class Engine:
         # left box: 20 w (0,41)
         # mid: 40 w (21,41)
         # right: 18 w (62,41)
+
+        self.frames += 1
+        if self.frames > 1023:
+            self.frames = 0
 
         self.game_map.render(console)
 
