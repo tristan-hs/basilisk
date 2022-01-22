@@ -65,8 +65,6 @@ def new_game(meta,terminal,console) -> Engine:
         "Salutations, ?. The dungeon awaits!", color.purple, "Basilisk", color.snake_green
     )
 
-    engine.message_log.add_message("You now have a dicti(o)nary and a com(p)endium!")
-
     if game_mode == 'god mode':
         for s in [Phasing,PetrifEyes,FreeSpit,Shielded]:
             s(99,player)
