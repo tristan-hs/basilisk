@@ -423,7 +423,7 @@ class DictionaryEventHandler(AskUserEventHandler):
             console.print(2+self.cursor,2,'_'*(26-self.cursor),fg=color.offwhite)
 
         if self.cursor > 0:
-            n = '☑' if v else 'x'
+            n = '☺' if v else 'x'
             c = color.player if v else color.red
             console.print(2+self.cursor,2,n,fg=c)
         else:
