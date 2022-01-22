@@ -43,7 +43,7 @@ $Suffocation$
  Beware of becoming completely surrounded! Even if the
  surrounding tiles comprise your own tail, this will kill you
  instantly.
-""",[(0,100,255),(0,255,0)])
+""",[(0,100,255),(200,0,200)])
 ##################################################################
 #d=36 (44)
 #colorize: (.), (~), (>)  (remove parens?)
@@ -131,12 +131,12 @@ $Health Reduction$
   
   color.player,color.player,color.player,color.player,
   color.player,color.player,color.player,color.player,
-  color.player,color.ogre,color.player,color.statue,color.player,color.statue,color.player,color.statue,color.player,color.statue,color.statue,color.ogre,
+  color.player,color.ogre,color.player,color.black,color.player,color.black,color.player,color.black,color.player,color.black,color.black,color.ogre,
   color.player,color.player,color.player,
   color.player,color.player,color.elder,
 
   color.player,color.player,color.player,color.player,color.player,color.player,color.player,
-  color.player,color.elder,color.player,color.player,color.statue,color.player,color.statue,color.player,color.statue,color.player,color.statue,color.player,color.statue,color.player,color.player,color.statue,color.player,color.player,color.statue,color.player,color.player,color.dark_red,color.player,
+  color.player,color.elder,color.player,color.player,color.black,color.player,color.black,color.player,color.black,color.player,color.black,color.player,color.black,color.player,color.player,color.black,color.player,color.player,color.black,color.player,color.player,color.dark_red,color.player,
   color.player,color.player,color.player,color.player,color.player,color.player,color.player,color.player,color.player,color.player,color.player,color.player,color.player,
   color.player,color.player,color.player,color.player
 ])

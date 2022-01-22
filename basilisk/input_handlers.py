@@ -370,6 +370,7 @@ class AskUserEventHandler(EventHandler):
         wx = x
         wy = y
         fg = color.grey
+        bg = None
 
         fgs = body[1]
         fg_index = 0
@@ -389,10 +390,13 @@ class AskUserEventHandler(EventHandler):
                 if fg == color.grey:
                     fg = fgs[fg_index]
                     fg_index += 1
+                    if fg == color.black:
+                        bg = color.grey
                 else:
                     fg = color.grey
+                    bg = None
                 continue
-            console.print(wx,wy,c,fg)
+            console.print(wx,wy,c,fg,bg)
             wx += 1
 
 
