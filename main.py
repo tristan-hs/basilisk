@@ -32,9 +32,9 @@ def main() -> None:
     screen_height = 50
 
     tileset = tcod.tileset.load_tilesheet(
-        utils.get_resource("tiles.png"), 32, 8, tcod.tileset.CHARMAP_TCOD
+        utils.get_resource("tiles.png"),16,16, tcod.tileset.CHARMAP_CP437
     )
-
+    
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         with tcod.context.new_terminal(
@@ -56,7 +56,7 @@ def main() -> None:
                     context.present(root_console)
 
                     try:
-                        for event in tcod.event.get():
+                        for event in tcod.event.wait(None):
                             context.convert_event(event)
                             handler = handler.handle_events(event)
 
