@@ -205,11 +205,11 @@ class Engine:
         self.turn_count += 1
         self.save_turn_snapshot()
 
-    def animation_beat(self):
+    def animation_beat(self,t=0.12):
         self.console.clear()
         self.render(self.console)
         self.terminal.present(self.console)
-        time.sleep(0.12)
+        time.sleep(t)
 
     @property
     def fov(self):

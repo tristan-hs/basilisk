@@ -42,11 +42,13 @@ class BaseAI(Action):
         raise NotImplementedError()
 
     def perform(self) -> None:
-        for i in self.intent:
+        t = 0.12/len(self.intent)
+        for i in self.intent[:]:
             try:
                 # animate moves
                 if self.engine.fov[self.entity.x,self.entity.y] and not isinstance(i,WaitAction):
-                    self.engine.animation_beat()
+                    self.engine.animation_beat(t)
+                    self.intent.pop(0)
                 i.perform()
                 if i.meleed:
                     break
