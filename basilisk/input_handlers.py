@@ -989,6 +989,16 @@ class HelpMenuHandler(AskUserEventHandler):
         console.print(item_x+1,2,' '*len(item[1]),fg=c1,bg=c2)
         console.print_box(1,40,70,1,"(←/→)",fg=c1,bg=c2,alignment=tcod.CENTER)
 
+        if item[1] == 'constriction':
+            self.animation(console,32,17,help_pages.constriction_anim_1_frames)
+            self.animation(console,63,17,help_pages.constriction_anim_2_frames)
+
+    def animation(self,console,x,y,frames):
+        interval = 512/len(frames)
+        frame = frames[math.floor((self.engine.frames % 512)/interval)]
+        self.print_multicolor(console,x,y,frame)
+
+
     def ev_keydown(self,event):
         if event.sym in CURSOR_X_KEYS:
             self.cursor += CURSOR_X_KEYS[event.sym]
