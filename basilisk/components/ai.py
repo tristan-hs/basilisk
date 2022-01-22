@@ -44,6 +44,9 @@ class BaseAI(Action):
     def perform(self) -> None:
         for i in self.intent:
             try:
+                # animate moves
+                if self.engine.fov[self.entity.x,self.entity.y] and not isinstance(i,WaitAction):
+                    self.engine.animation_beat()
                 i.perform()
                 if i.meleed:
                     break

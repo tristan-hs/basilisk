@@ -182,13 +182,6 @@ class Engine:
 
                 # the rest do their thing
                 try: 
-                    # animate moves
-                    if self.fov[entity.x,entity.y] and not isinstance(entity.ai.intent[0],WaitAction):
-                        self.console.clear()
-                        self.render(self.console)
-                        self.terminal.present(self.console)
-                        time.sleep(0.15)
-
                     entity.ai.perform()
                 except exceptions.Impossible:
                     pass
@@ -211,6 +204,12 @@ class Engine:
         
         self.turn_count += 1
         self.save_turn_snapshot()
+
+    def animation_beat(self):
+        self.console.clear()
+        self.render(self.console)
+        self.terminal.present(self.console)
+        time.sleep(0.12)
 
     @property
     def fov(self):
