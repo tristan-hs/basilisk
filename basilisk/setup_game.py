@@ -9,11 +9,13 @@ import traceback
 from typing import Optional
 
 import tcod
+import random
 
 from basilisk.engine import Engine
 from basilisk import color, entity_factories, exceptions, input_handlers
 from basilisk.game_map import GameWorld
 from basilisk.components.status_effect import Phasing,Shielded,PetrifEyes,FreeSpit
+from basilisk.main_menu_animations import animations as mmas, default_animation, intro_animation
 
 import utils
 
@@ -106,29 +108,29 @@ class MainMenu(input_handlers.BaseEventHandler):
         if self.engine:
             self.engine.meta = self.meta
 
+        self.frames = 0
+        self.kf_length = 8
+        self.kfs = 0
+        self.animation = intro_animation
+
     def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
-        console.draw_semigraphics(background_image, 0, 0)
-
-        console.print(
-            console.width - 16,
-            console.height - 3,
-            "by -taq",
-            fg=color.purple,
-            alignment=tcod.CENTER,
-        )
+        #console.draw_semigraphics(background_image, 0, 0)
+        self.background_animation(console)
 
         menu_width = 24
+        y = 20
         for i, text in enumerate(
             ["(c)ontinue", "(n)ew game", "(h)istory", "(o)ptions", "(q)uit"]
         ):
             if i == 0 and not self.engine:
+                y -= 2
                 continue
             if i == 2 and not len(self.meta.old_runs):
                 continue
             console.print(
-                72,
-                19 + (2*i),
+                68,
+                y + (2*i),
                 text.ljust(menu_width),
                 fg=color.white,
                 bg=color.black,
@@ -171,6 +173,29 @@ class MainMenu(input_handlers.BaseEventHandler):
             if not len(words):
                 console.print(x+3,y+7,"n/a",color.grey)
 
+    def background_animation(self,console):
+        self.frames += 1
+        if self.frames > self.kf_length:
+            self.frames = 0
+            self.kfs += 1
+            if self.kfs > 99999:
+                self.kfs = 0
+
+        if self.animation:
+            if self.kfs < len(self.animation.frames):
+                self.animation.print(console,self.kfs)
+            else:
+                self.animation = None
+                self.kfs = 0
+                default_animation.print(console,0)
+        else:
+            if self.kfs > 10 and random.random() < 0.005:
+                self.animation = random.choice(mmas)
+                self.kfs = 0
+            
+            default_animation.print(console,0)
+
+
 
     def ev_keydown(
         self, event: tcod.event.KeyDown
@@ -207,7 +232,6 @@ class SubMenu(input_handlers.BaseEventHandler):
         return None
 
     def on_render(self, console:tcod.Console) -> None:
-        console.draw_semigraphics(background_image, 0, 0)
         console.print(7,47,"(ESC) to go back")
 
 class HistoryMenu(SubMenu):
