@@ -1000,11 +1000,11 @@ class HelpMenuHandler(AskUserEventHandler):
                 if self.kfs > 9999:
                     self.kfs = 0
 
-            self.animation(console,32,18,help_pages.constriction_anim_1_frames)
-            self.animation(console,63,18,help_pages.constriction_anim_2_frames)
-            self.animation(console,32,25,help_pages.constriction_anim_3_frames)
-            self.animation(console,32,5,help_pages.constriction_anim_4_frames)
-            self.animation(console,63,5,help_pages.constriction_anim_5_frames)
+            self.animation(console,32,21,help_pages.constriction_anim_1_frames)
+            self.animation(console,63,21,help_pages.constriction_anim_2_frames)
+            self.animation(console,32,28,help_pages.constriction_anim_3_frames)
+            self.animation(console,32,8,help_pages.constriction_anim_4_frames)
+            self.animation(console,63,8,help_pages.constriction_anim_5_frames)
 
     def animation(self,console,x,y,frames):
         frame_index = self.kfs % len(frames)
