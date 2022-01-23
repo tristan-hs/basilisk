@@ -944,7 +944,6 @@ class HelpMenuHandler(AskUserEventHandler):
     def __init__(self,engine:Engine):
         super().__init__(engine)
 
-        # moving, enemies, constriction, items, stats, other
         self.rows = [
             (0,'movement',help_pages.moving),
             (1,'enemies', help_pages.enemies),
@@ -954,6 +953,10 @@ class HelpMenuHandler(AskUserEventHandler):
             (5,'other', help_pages.other)
         ]
         self.cursor = 0
+
+        self.frames = 0
+        self.kf_length = 32
+        self.kfs = 0
 
     def on_render(self,console):
         super().on_render(console)
@@ -990,12 +993,22 @@ class HelpMenuHandler(AskUserEventHandler):
         console.print_box(1,40,70,1,"(←/→)",fg=c1,bg=c2,alignment=tcod.CENTER)
 
         if item[1] == 'constriction':
-            self.animation(console,32,17,help_pages.constriction_anim_1_frames)
-            self.animation(console,63,17,help_pages.constriction_anim_2_frames)
+            self.frames += 1
+            if self.frames > self.kf_length:
+                self.kfs += 1
+                self.frames = 0
+                if self.kfs > 9999:
+                    self.kfs = 0
+
+            self.animation(console,32,18,help_pages.constriction_anim_1_frames)
+            self.animation(console,63,18,help_pages.constriction_anim_2_frames)
+            self.animation(console,32,25,help_pages.constriction_anim_3_frames)
+            self.animation(console,32,5,help_pages.constriction_anim_4_frames)
+            self.animation(console,63,5,help_pages.constriction_anim_5_frames)
 
     def animation(self,console,x,y,frames):
-        interval = 512/len(frames)
-        frame = frames[math.floor((self.engine.frames % 512)/interval)]
+        frame_index = self.kfs % len(frames)
+        frame = frames[frame_index]
         self.print_multicolor(console,x,y,frame)
 
 
