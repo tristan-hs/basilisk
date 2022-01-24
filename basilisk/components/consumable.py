@@ -318,18 +318,22 @@ class DecoyConsumable(Projectile):
 
     def activate(self, action: actions.ItemAction) -> None:
         x,y = action.target_xy
+        path = self.get_path_to(x,y)
+        t = 0.12/len(path)
 
-        if not self.engine.game_map.tile_is_walkable(x,y):
-            path = self.get_path_to(x,y)
-            tiles = []
-            for tile in path:
-                if self.engine.game_map.tile_is_walkable(*tile):
-                    tiles.append(tile)
-            if len(tiles) > 0:
-                x,y = tiles[-1]
+        tiles = []
+        for tile in path:
+            if self.engine.game_map.tile_is_walkable(*tile):
+                self.engine.animation_beat(0)
+                self.animate_projectile(t,tile,color.tail)
+                tiles.append(tile)
             else:
-                self.engine.message_log.add_message("It burrows into the ground.", color.grey)
-                return
+                break
+        if len(tiles) > 0:
+            x,y = tiles[-1]
+        else:
+            self.engine.message_log.add_message("It burrows into the ground.", color.grey)
+            return
 
         self.engine.message_log.add_message("It begins taunting your enemies!")
         d = self.engine.game_map.decoy.spawn(self.engine.game_map,x,y)
