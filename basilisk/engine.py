@@ -107,14 +107,19 @@ class Engine:
         turn = self.turn_count - turns
         if turn < 1:
             turn = 1
-        with open(utils.get_resource(f"snapshot_{turn}.sav"), "rb") as f:
-            engine = pickle.loads(lzma.decompress(f.read()))
-        assert isinstance(engine, Engine)
-        engine.game_map._next_id = self.game_map._next_id
-        engine.game_map.item_factories = self.game_map.item_factories
-        self.game_map = engine.game_map
-        self.game_map.engine = self
-        self.player = engine.player
+
+        t = 0.5/turns
+
+        for i in reversed(range(turn,self.turn_count)):
+            with open(utils.get_resource(f"snapshot_{i}.sav"), "rb") as f:
+                engine = pickle.loads(lzma.decompress(f.read()))
+            assert isinstance(engine, Engine)
+            engine.game_map._next_id = self.game_map._next_id
+            engine.game_map.item_factories = self.game_map.item_factories
+            self.game_map = engine.game_map
+            self.game_map.engine = self
+            self.player = engine.player
+            self.animation_beat(t)
 
         turner.identified = True
 
