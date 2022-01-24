@@ -265,7 +265,7 @@ class GameMap:
                 fg = color.purple
             elif not self.tiles['walkable'][item.x,item.y]:
                 fg = (50,150,255)
-            elif self.engine.player.is_shielded:
+            elif self.engine.player.is_shielded or self.engine.player.is_petrified:
                 fg = color.grey
             elif self.visible[item.x,item.y]:
                 fg = color.player
@@ -274,6 +274,7 @@ class GameMap:
 
             if item is self.engine.player and not item.is_alive:
                 fg = item.color
+
         elif not self.visible[item.x,item.y] and self.explored[item.x,item.y]:
             fg = tuple(i//2 for i in fg)
         elif not self.visible[item.x,item.y]:

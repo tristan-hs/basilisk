@@ -13,7 +13,7 @@ from basilisk import color as Color
 
 from basilisk.components.inventory import Inventory
 from basilisk.components.ai import Constricted, Statue
-from basilisk.components.status_effect import StatBoost, Petrified, PetrifEyes, Shielded, Phasing, PhasedOut, ThirdEyeBlind, Choking
+from basilisk.components.status_effect import StatBoost, Petrified, PetrifiedSnake, PetrifEyes, Shielded, Phasing, PhasedOut, ThirdEyeBlind, Choking
 from basilisk.components import consumable
 
 from basilisk.render_functions import DIRECTIONS
@@ -296,6 +296,13 @@ class Actor(Entity):
     @property
     def is_constricted(self):
         return isinstance(self.ai,Constricted)
+
+    @property
+    def is_petrified(self):
+        if self is self.engine.player:
+            return any(isinstance(s,PetrifiedSnake) for s in self.statuses)
+        else:
+            return any(isinstance(s,Petrified) for s in self.statuses)
 
     @color.setter
     def color(self, new_val):

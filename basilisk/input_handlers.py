@@ -189,6 +189,7 @@ class EventHandler(BaseEventHandler):
 
         else:
             while any(isinstance(s, PetrifiedSnake) for s in self.engine.player.statuses) and self.engine.player.is_alive:
+                self.engine.animation_beat()
                 self.engine.handle_enemy_turns()
 
             if not self.engine.just_turned_back_time:
