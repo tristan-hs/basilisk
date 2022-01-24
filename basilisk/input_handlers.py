@@ -1368,6 +1368,8 @@ class SingleRangedAttackHandler(SelectIndexHandler):
         return self.callback((x, y))
 
 class SingleProjectileAttackHandler(SelectIndexHandler):
+    thru_actors = False
+
     def __init__(
         self, engine: Engine, callback: Callable[[Tuple[int,int]], Optional[Action]], seeking="anything", walkable=True, thru_tail=True, pathfinder=None
     ):
@@ -1387,7 +1389,7 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
 
     def ends_projectile_path(self, px, py):
         return (
-            (self.engine.game_map.get_actor_at_location(px,py) and self.seeking in ["actor","anything"]) or
+            (not self.thru_actors and self.engine.game_map.get_actor_at_location(px,py) and self.seeking in ["actor","anything"]) or
             (self.seeking == "anything" and (px,py) == self.path_to_target[-1]) or
             (not self.thru_tail and self.engine.game_map.get_blocking_entity_at_location(px,py))
         )
@@ -1415,6 +1417,8 @@ class SingleProjectileAttackHandler(SelectIndexHandler):
 
 
 class SingleDrillingProjectileAttackHandler(SingleProjectileAttackHandler):
+    thru_actors = True
+
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         if not self.path_to_target:
             return None

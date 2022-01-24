@@ -272,6 +272,18 @@ class Projectile(Consumable):
 
         return new_path
 
+    def animate_projectile_path(self,t,tile,c=color.b_bile):
+        # self.engine.animation_beat(0,render=True)
+
+        def color_tile(xy):
+            x,y = xy
+            self.engine.console.tiles_rgb["bg"][x,y] = c
+            self.engine.console.tiles_rgb["fg"][x,y] = color.black
+
+        color_tile(tile)
+            
+        self.engine.animation_beat(t,render=False)
+
 
 class DamagingProjectile(Projectile):
     @property
@@ -541,18 +553,6 @@ class KnockbackProjectile(Projectile):
         self.damage = damage
         self.do_snake = False
 
-    def animate_projectile_path(self,t,tile,prev_tile):
-        # self.engine.animation_beat(0,render=True)
-
-        def color_tile(xy):
-            x,y = xy
-            self.engine.console.tiles_rgb["bg"][x,y] = color.b_bile
-            self.engine.console.tiles_rgb["fg"][x,y] = color.black
-
-        color_tile(tile)
-            
-        self.engine.animation_beat(t,render=False)
-
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         target = action.target_actor
@@ -564,8 +564,7 @@ class KnockbackProjectile(Projectile):
 
         self.engine.animation_beat(0,render=True)
         for i,tile in enumerate(projectile_path):
-            prev_tile = projectile_path[i-1] if i > 0 else None
-            self.animate_projectile_path(t,tile,prev_tile)
+            self.animate_projectile_path(t,tile)
 
         if push_path:
             pushed = False
@@ -576,8 +575,7 @@ class KnockbackProjectile(Projectile):
                 pushed = True
                 target.place(*tile)
 
-                prev_tile = push_path[i-1] if i > 0 else None
-                self.animate_projectile_path(t,tile,prev_tile)
+                self.animate_projectile_path(t,tile)
 
             if pushed:
                 self.engine.message_log.add_message(f"The {target.name} is slammed backward.")
@@ -655,9 +653,13 @@ class DrillingProjectile(Projectile):
         consumer = action.entity
         walkable = not self.parent.identified
         path = self.get_path_to(*action.target_xy,walkable=walkable)
+        t = 0.06
         gm = self.engine.game_map
 
+        self.engine.animation_beat(0)
         for tile in path:
+            self.animate_projectile_path(t,tile,color.cyan)
+
             actor = gm.get_actor_at_location(*tile)
             if actor and actor is not consumer:
                 actor.take_damage(self.modified_damage)
