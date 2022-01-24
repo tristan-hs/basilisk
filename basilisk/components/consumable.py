@@ -187,6 +187,13 @@ class Projectile(Consumable):
         consumer = action.entity
         target = action.target_actor if action.target_actor else action.target_item
 
+        projectile_path = self.get_path_to(action.target_xy[0],action.target_xy[1])
+        t = 0.12 / len(projectile_path)
+
+        for tile in projectile_path:
+            self.engine.animation_beat(0)
+            self.animate_projectile(t,tile,self.parent._color)
+
         if target and not target.is_boss:
             self.engine.message_log.add_message(
                     f"{target.label} takes {self.modified_damage} damage!", color.offwhite
@@ -194,6 +201,13 @@ class Projectile(Consumable):
             target.take_damage(self.modified_damage)
         else:
             self.engine.message_log.add_message("Nothing happens.", color.grey)
+
+    def animate_projectile(self,t,tile,c):
+        x,y = tile
+        self.engine.console.print(x,y,self.parent.char)
+        self.engine.console.tiles_rgb["fg"][x,y] = c
+        self.engine.animation_beat(t,False)
+
 
     def consume(self, force=False) -> None:
         if any(isinstance(s,FreeSpit) for s in self.engine.player.statuses) and not force:
@@ -653,12 +667,12 @@ class DrillingProjectile(Projectile):
         consumer = action.entity
         walkable = not self.parent.identified
         path = self.get_path_to(*action.target_xy,walkable=walkable)
-        t = 0.06
+        t = 0.12/len(path)
         gm = self.engine.game_map
 
         self.engine.animation_beat(0)
         for tile in path:
-            self.animate_projectile_path(t,tile,color.cyan)
+            self.animate_projectile(t,tile,color.bile)
 
             actor = gm.get_actor_at_location(*tile)
             if actor and actor is not consumer:
