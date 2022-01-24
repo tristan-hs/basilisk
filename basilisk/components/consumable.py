@@ -709,9 +709,30 @@ class DamageAllConsumable(Consumable):
         d = self.modified_damage if not self.template else f"{self.damage}+BILE"
         return [("rain acid on all nearby enemies, ",color.offwhite), (d,color.bile), (" dmg",color.offwhite)]
 
-    def activate(self, action: actions.ItemAction) -> None:
-        consumer = action.entity
+    def animate(self):
+        gm = self.engine.game_map
+        tiles = []
+        console = self.engine.console
 
+        for x in range(gm.width):
+            for y in range(gm.height):
+                if gm.visible[x,y] and gm.tile_is_walkable(x,y):
+                    tiles.append((x,y))
+
+        random.shuffle(tiles)
+
+        for x,y in tiles:
+            console.tiles_rgb["fg"][x,y] = random.choice([color.bile,color.bile,color.b_bile])
+            if random.random()<0.3:
+                self.engine.animation_beat(0.03,render=False)
+                self.engine.animation_beat(0)
+
+
+
+    def activate(self, action: actions.ItemAction) -> None:
+        self.animate()
+
+        consumer = action.entity
         actors = [a for a in self.engine.game_map.actors if self.engine.game_map.visible[a.x,a.y] and a is not self.engine.player]
 
         if len(actors) > 0:
