@@ -473,6 +473,7 @@ class SpittingConsumable(Projectile):
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         path = self.get_path_to(*action.target_xy)
+        t = 0.12/len(path)
 
         for tile in path:
             if not self.engine.game_map.tile_is_snakeable(*tile, consumer.is_phasing):
@@ -480,6 +481,7 @@ class SpittingConsumable(Projectile):
             dx = tile[0] - consumer.x
             dy = tile[1] - consumer.y
             consumer.move(dx,dy)
+            self.engine.animation_beat(t)
 
         self.engine.message_log.add_message("Scratch that. It spits you!")
 
