@@ -1436,10 +1436,15 @@ class AreaRangedAttackHandler(SelectIndexHandler):
 
         self.radius = radius
         self.callback = callback
+        self.highlight = True
 
     def on_render(self, console: tcod.Console) -> None:
         """Highlight the tile under the cursor."""
         super().on_render(console)
+
+        if not self.highlight:
+            self.highlight = True
+            return
 
         x, y = self.engine.mouse_location
         radius = self.radius
@@ -1448,13 +1453,14 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         while i <= x+radius:
             j=y-radius
             while j <= y+radius:
-                if math.sqrt((x-i)**2 + (y-j)**2) <= radius:
-                    console.tiles_rgb["bg"][i, j] = color.white
+                if math.sqrt((x-i)**2 + (y-j)**2) <= radius and self.engine.game_map.visible[i,j] and self.engine.game_map.tile_is_walkable(i,j,entities=False):
+                    console.tiles_rgb["bg"][i, j] = color.bile
                     console.tiles_rgb["fg"][i, j] = color.black
                 j+=1
             i+=1
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        self.highlight = False
         return self.callback((x, y))
 
 class PopupMessage(BaseEventHandler):

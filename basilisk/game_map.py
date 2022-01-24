@@ -124,12 +124,12 @@ class GameMap:
 
         return None
 
-    def tile_is_walkable(self, x: int, y: int, phasing: bool = False) -> bool:
+    def tile_is_walkable(self, x: int, y: int, phasing: bool = False, entities: bool = True) -> bool:
         if not self.in_bounds(x, y):
             return False
         if not self.tiles["walkable"][x, y] and not phasing:
             return False
-        if self.get_blocking_entity_at_location(x, y):
+        if self.get_blocking_entity_at_location(x, y) and entities:
             return False
         return True
 

@@ -146,7 +146,6 @@ class Engine:
         return word in open(utils.get_resource("words.txt")).read().splitlines()
 
     def handle_enemy_turns(self) -> None:
-        self.mouse_location = (0,0)
         enemies = sorted(set(self.game_map.actors) - {self.player}, key=lambda x: x.id)
 
         if not self.word_mode:
@@ -207,9 +206,11 @@ class Engine:
         self.turn_count += 1
         self.save_turn_snapshot()
 
-    def animation_beat(self,t=0.12):
-        self.console.clear()
-        self.render(self.console)
+    def animation_beat(self,t=0.12,render=True):
+        self.mouse_location = (0,0)
+        if render:
+            self.console.clear()
+            self.render(self.console)
         self.terminal.present(self.console)
         time.sleep(t)
 

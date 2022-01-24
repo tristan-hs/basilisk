@@ -1111,12 +1111,36 @@ class FireballDamageConsumable(Projectile):
             raise Impossible("You cannot target an area that you cannot see.")
         super().start_activation(action)
 
+    def animate(self,action):
+        self.engine.mouse_location = (0,0)
+        x, y = action.target_xy
+        radius = self.radius
+        console = self.engine.console
+        t = 0.12 / self.radius
+
+        self.engine.animation_beat(0)
+        for r in range(radius+1):
+            i = x-r
+            while i <= x+r:
+                j = y-r
+                while j <= y+r:
+                    if math.sqrt((x-i)**2 + (y-j)**2) <= r and self.engine.game_map.visible[i,j] and self.engine.game_map.tile_is_walkable(i,j,entities=False):
+                        c = random.choice([color.dragon,color.dragon,color.dragon,color.yellow,color.red])
+                        console.tiles_rgb["bg"][i,j] = c
+                        console.tiles_rgb["fg"][i,j] = color.black
+                    j += 1
+                i += 1
+            self.engine.animation_beat(t,render=False)
+
+
     def activate(self, action: actions.ItemAction) -> None:
+        self.animate(action)
+
         target_xy = action.target_xy
 
         targets_hit = False
         for entity in list(self.engine.game_map.entities)[:]:
-            if entity.distance(*target_xy) <= self.radius and not entity.is_boss:
+            if entity.distance(*target_xy) <= self.radius and not entity.is_boss and self.engine.game_map.tiles["walkable"][target_xy[0],target_xy[1]]:
                 self.engine.message_log.add_message(
                     f"The explosion engulfs the {entity.label}! It takes {self.modified_damage} damage!", color.offwhite,
                 )
