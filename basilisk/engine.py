@@ -87,13 +87,13 @@ class Engine:
     @property
     def in_combat(self):
         for a in self.game_map.actors:
-            if a.ai.intent and any(isinstance(i,BumpAction) for i in a.ai.intent):
+            if a.ai.intent and any(isinstance(i,BumpAction) for i in a.ai.intent) and a.name not in ["Decoy","Basilisk"]:
                 return True
         return self.can_see_enemies
 
     @property
     def can_see_enemies(self):
-        return len([a for a in self.fov_actors if not isinstance(a.ai,Statue) and a.name != "Decoy"]) > 0
+        return len([a for a in self.fov_actors if not isinstance(a.ai,Statue)]) > 0
 
     @property
     def an_enemy_is_constricted(self):
@@ -146,6 +146,7 @@ class Engine:
         return word in open(utils.get_resource("words.txt")).read().splitlines()
 
     def handle_enemy_turns(self) -> None:
+        self.mouse_location = (0,0)
         enemies = sorted(set(self.game_map.actors) - {self.player}, key=lambda x: x.id)
 
         if not self.word_mode:
