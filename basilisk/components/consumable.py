@@ -143,6 +143,27 @@ class Consumable(BaseComponent):
         else:
             st = status(self.MIND, action.target_actor)
 
+    def animate_explosion(self,origin,radius,colors):
+        self.engine.mouse_location = (0,0)
+        x, y = origin
+        console = self.engine.console
+        # t = 0.12 / self.radius
+        t = 0.06
+
+        self.engine.animation_beat(0)
+        for r in range(radius+1):
+            i = x-r
+            while i <= x+r:
+                j = y-r
+                while j <= y+r:
+                    if math.sqrt((x-i)**2 + (y-j)**2) <= r and self.engine.game_map.visible[i,j] and self.engine.game_map.tile_is_walkable(i,j,entities=False):
+                        c = random.choice(colors)
+                        console.tiles_rgb["bg"][i,j] = c
+                        console.tiles_rgb["fg"][i,j] = color.black
+                    j += 1
+                i += 1
+            self.engine.animation_beat(t,render=False)
+
 
 class Projectile(Consumable):
 
@@ -520,22 +541,45 @@ class KnockbackProjectile(Projectile):
         self.damage = damage
         self.do_snake = False
 
+    def animate_projectile_path(self,t,tile,prev_tile):
+        # self.engine.animation_beat(0,render=True)
+
+        def color_tile(xy):
+            x,y = xy
+            self.engine.console.tiles_rgb["bg"][x,y] = color.b_bile
+            self.engine.console.tiles_rgb["fg"][x,y] = color.black
+
+        color_tile(tile)
+            
+        self.engine.animation_beat(t,render=False)
+
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         target = action.target_actor
 
-        if target and not target.is_boss:
-            push_path = self.get_path_past(target.x,target.y)
+        projectile_path = self.get_path_to(action.target_xy[0],action.target_xy[1])
+        push_path = self.get_path_past(target.x,target.y) if target and not target.is_boss else []
+        #t = 0.12/(len(projectile_path) + len(push_path))
+        t = 0.06
+
+        self.engine.animation_beat(0,render=True)
+        for i,tile in enumerate(projectile_path):
+            prev_tile = projectile_path[i-1] if i > 0 else None
+            self.animate_projectile_path(t,tile,prev_tile)
+
+        if push_path:
             pushed = False
             destination = None
             for i,tile in enumerate(push_path):
                 if not self.engine.game_map.tile_is_walkable(*tile) or i+1 > self.modified_damage:
                     break
                 pushed = True
-                destination = tile
+                target.place(*tile)
+
+                prev_tile = push_path[i-1] if i > 0 else None
+                self.animate_projectile_path(t,tile,prev_tile)
 
             if pushed:
-                target.place(*destination)
                 self.engine.message_log.add_message(f"The {target.name} is slammed backward.")
 
             else:
@@ -579,6 +623,9 @@ class KnockbackConsumable(Consumable):
                 pushed = True
                 actor.place(*destination)
                 self.engine.message_log.add_message(f"The {actor.name} is slammed backward.")
+
+        explosion_radius = self.modified_damage if pushed else 1
+        self.animate_explosion(segment.xy,explosion_radius,[color.bile,color.bile,color.bile,color.b_bile])
         return pushed
 
 
@@ -1111,32 +1158,10 @@ class FireballDamageConsumable(Projectile):
             raise Impossible("You cannot target an area that you cannot see.")
         super().start_activation(action)
 
-    def animate(self,action):
-        self.engine.mouse_location = (0,0)
-        x, y = action.target_xy
-        radius = self.radius
-        console = self.engine.console
-        t = 0.12 / self.radius
-
-        self.engine.animation_beat(0)
-        for r in range(radius+1):
-            i = x-r
-            while i <= x+r:
-                j = y-r
-                while j <= y+r:
-                    if math.sqrt((x-i)**2 + (y-j)**2) <= r and self.engine.game_map.visible[i,j] and self.engine.game_map.tile_is_walkable(i,j,entities=False):
-                        c = random.choice([color.dragon,color.dragon,color.dragon,color.yellow,color.red])
-                        console.tiles_rgb["bg"][i,j] = c
-                        console.tiles_rgb["fg"][i,j] = color.black
-                    j += 1
-                i += 1
-            self.engine.animation_beat(t,render=False)
-
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.animate(action)
-
         target_xy = action.target_xy
+        self.animate_explosion(target_xy,self.radius,[color.dragon,color.dragon,color.dragon,color.yellow,color.red])
 
         targets_hit = False
         for entity in list(self.engine.game_map.entities)[:]:
