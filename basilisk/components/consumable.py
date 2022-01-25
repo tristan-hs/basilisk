@@ -202,9 +202,10 @@ class Projectile(Consumable):
         else:
             self.engine.message_log.add_message("Nothing happens.", color.grey)
 
-    def animate_projectile(self,t,tile,c):
+    def animate_projectile(self,t,tile,c,char=None):
         x,y = tile
-        self.engine.console.print(x,y,self.parent.char)
+        char = char or self.parent.char
+        self.engine.console.print(x,y,char)
         self.engine.console.tiles_rgb["fg"][x,y] = c
         self.engine.animation_beat(t,False)
 
@@ -546,17 +547,25 @@ class HookshotProjectile(Projectile):
         consumer = action.entity
         target = None
 
+        self.engine.animation_beat(0)
+        path = self.get_path_to(*action.target_xy)
+        t = 0.12/len(path)
+        for tile in path:
+            self.animate_projectile(t,tile,color.tongue,'~')
+
         if action.target_actor and action.target_actor is not consumer and not action.target_actor.is_boss:
             target = action.target_actor
             self.engine.message_log.add_message(f"It pulls the {target.label} back to you!")
             path = self.get_path_to(*action.target_xy)
             pull_to = None
-            for tile in path:
-                if not any(i.xy == tile for i in self.engine.player.inventory.items):
-                    pull_to = tile
+            for tile in reversed(path):
+                if any(i.xy == tile for i in self.engine.player.inventory.items):
                     break
-            target.place(*pull_to)
+                pull_to = tile
+            if pull_to:
+                target.place(*pull_to)
             target.constrict()
+            return
 
         if not target and action.target_item and action.target_item not in consumer.inventory.items:
             target = action.target_item
@@ -564,9 +573,9 @@ class HookshotProjectile(Projectile):
             tile = consumer.xy
             target.place(*tile)
             actions.PickupAction(consumer).perform()
+            return
 
-        if not target:
-            self.engine.message_log.add_message("It unravels on the dungeon floor.")
+        self.engine.message_log.add_message("It unravels on the dungeon floor.")
 
 
 class KnockbackProjectile(Projectile):
