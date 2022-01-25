@@ -213,7 +213,7 @@ class Entity:
     def unsnake(self, start_at: int) -> None:
         self.engine.animation_beat()
         to_unsnake = self.inventory.items[start_at:]
-        t = 0.24/len(to_unsnake)
+        t = 0.24/len(to_unsnake) if len(to_unsnake) else 0
         for item in to_unsnake:
             self.engine.message_log.add_message(f"Your ? segment falls off!", Color.offwhite, item.char, item.color)
             item.desolidify()

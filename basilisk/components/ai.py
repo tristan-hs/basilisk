@@ -42,7 +42,7 @@ class BaseAI(Action):
         raise NotImplementedError()
 
     def perform(self) -> None:
-        t = 0.12/len(self.intent)
+        t = 0.12/len(self.intent) if len(self.intent) else 0
         for i in self.intent[:]:
             try:
                 # animate moves

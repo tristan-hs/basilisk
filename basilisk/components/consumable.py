@@ -320,7 +320,7 @@ class DecoyConsumable(Projectile):
     def activate(self, action: actions.ItemAction) -> None:
         x,y = action.target_xy
         path = self.get_path_to(x,y)
-        t = 0.12/len(path)
+        t = 0.12/len(path) if len(path) else 0
 
         tiles = []
         for tile in path:
@@ -477,7 +477,7 @@ class SpittingConsumable(Projectile):
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
         path = self.get_path_to(*action.target_xy)
-        t = 0.12/len(path)
+        t = 0.12/len(path) if len(path) else 0
 
         for tile in path:
             if not self.engine.game_map.tile_is_snakeable(*tile, consumer.is_phasing):
@@ -563,7 +563,7 @@ class HookshotProjectile(Projectile):
 
         self.engine.animation_beat(0)
         path = self.get_path_to(*action.target_xy)
-        t = 0.12/len(path)
+        t = 0.12/len(path) if len(path) else 0
         for tile in path:
             self.animate_projectile(t,tile,color.tongue,'~')
 
@@ -699,7 +699,7 @@ class DrillingProjectile(Projectile):
         consumer = action.entity
         walkable = not self.parent.identified
         path = self.get_path_to(*action.target_xy,walkable=walkable)
-        t = 0.12/len(path)
+        t = 0.12/len(path) if len(path) else 0
         gm = self.engine.game_map
 
         self.engine.animation_beat(0)
