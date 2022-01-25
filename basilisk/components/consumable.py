@@ -969,21 +969,21 @@ class ReversingConsumable(Consumable):
             self.engine.message_log.add_message("You spin in place.",color.grey)
             return
 
-        x, y = tail[-1].xy
+        x,y = tail[-1].xy
 
-        self.consume()
+        consumer.move(x-consumer.x,y-consumer.y)
 
-        items = consumer.inventory.items[:]
+        for i in consumer.inventory.items:
+            if not i.blocks_movement:
+                i.place(x,y)
 
-        solid_items = [i for i in items if i.blocks_movement]
-        nonsolid_items = [i for i in items if not i.blocks_movement]
+        if self.parent.blocks_movement:
+            consumer.inventory.items.reverse()
+            self.consume()
+        else:
+            self.consume()
+            consumer.inventory.items.reverse()
 
-        solid_items.reverse()
-        nonsolid_items.reverse()
-
-        consumer.place(x,y)
-
-        consumer.inventory.items = solid_items + nonsolid_items
         self.engine.check_word_mode()
 
         self.engine.message_log.add_message("You turn tail!", color.offwhite)

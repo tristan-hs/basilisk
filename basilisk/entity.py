@@ -188,16 +188,27 @@ class Entity:
 
 
     def snake(self, footprint, start_at: int = 0) -> None:
-        for item in self.inventory.items[start_at:]:
-            if not item.blocks_movement:
-                if self.gamemap.get_blocking_entity_at_location(*item.xy):
-                    return
-                else:
-                    item.solidify()
-                    return
+        items_to_snake = self.inventory.items[start_at:]
+
+        for i,item in enumerate(items_to_snake):
             goto = footprint[0] - item.x, footprint[1] - item.y
+
+            # if doesn't block + covered + isn't followed by a blocker:
+            if (not item.blocks_movement and 
+                self.gamemap.get_blocking_entity_at_location(*item.xy) and
+                not any(j.blocks_movement for j in items_to_snake[i:])):
+                break
+
+            # if target tile is occupied:
+            if self.gamemap.get_blocking_entity_at_location(*footprint):
+                break
+
             footprint = item.xy
             item.move(*goto)
+
+            # if not covered and doesn't block:
+            if not item.blocks_movement and not self.gamemap.get_blocking_entity_at_location(*item.xy):
+                item.solidify()
 
     def unsnake(self, start_at: int) -> None:
         for item in self.inventory.items[start_at:]:
