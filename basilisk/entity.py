@@ -211,9 +211,13 @@ class Entity:
                 item.solidify()
 
     def unsnake(self, start_at: int) -> None:
-        for item in self.inventory.items[start_at:]:
+        self.engine.animation_beat()
+        to_unsnake = self.inventory.items[start_at:]
+        t = 0.24/len(to_unsnake)
+        for item in to_unsnake:
             self.engine.message_log.add_message(f"Your ? segment falls off!", Color.offwhite, item.char, item.color)
             item.desolidify()
+            self.engine.animation_beat(t)
         self.engine.check_word_mode()
 
 

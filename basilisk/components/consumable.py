@@ -917,7 +917,6 @@ class DroppingConsumable(Projectile):
         return actions.ThrowItem(consumer, self.parent)
 
     def activate(self, action: actions.ItemAction) -> None:
-        self.engine.message_log.add_message("It had become your lynchpin!")
         self.engine.message_log.add_message("You fall apart!", color.red)
         self.engine.player.unsnake(0)
 
