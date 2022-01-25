@@ -35,14 +35,8 @@ $Movement Actions$
  Move onto an item (any letter) to pick it up. This adds it to the
  end of your tail.
 
- Move next to an enemy (any number) to constrict that enemy.
+ Move next to an enemy to constrict that enemy.
 
-
-$Suffocation$
-
- Beware of becoming completely surrounded! Even if the
- surrounding tiles comprise your own tail, this will kill you
- instantly.
 """,[(0,100,255),(200,0,200)])
 ##################################################################
 #d=36 (44)
