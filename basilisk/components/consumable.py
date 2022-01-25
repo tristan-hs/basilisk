@@ -164,6 +164,49 @@ class Consumable(BaseComponent):
                 i += 1
             self.engine.animation_beat(t,render=False)
 
+    def get_path_to(self, dest_x, dest_y, walkable=True, thru_tail=True):
+        """versatile bresenham"""
+        gm = self.gamemap
+        tiles = gm.tiles['walkable'] if walkable else np.full((gm.width,gm.height),fill_value=True,order="F")
+        tiles = np.array(tiles, dtype=np.bool)
+
+        for entity in gm.entities:
+            if entity.blocks_movement:
+                if thru_tail and entity in self.engine.player.inventory.items:
+                    continue
+                tiles[entity.x,entity.y] = False
+
+        path = []
+        start = loc = [self.engine.player.x, self.engine.player.y]
+        dest = [dest_x, dest_y]
+        dist = [abs(dest[0]-loc[0]), abs(dest[1]-loc[1])]
+
+        a = 1 if dist[1] > dist[0] else 0
+        b = 1 if a == 0 else 0
+
+        D = (2 * dist[b]) - dist[a]
+
+        while loc != [dest_x, dest_y] and len(path) < 100:
+            if dest[a] > loc[a]:
+                loc[a] += 1
+            if dest[a] < loc[a]:
+                loc[a] -= 1
+
+            if D > 0:
+                if dest[b] > loc[b]:
+                    loc[b] += 1
+                if dest[b] < loc[b]:
+                    loc[b] -= 1                    
+                D = D - (2*dist[a])
+
+            D = D + (2*dist[b])
+
+            path.append((loc[0],loc[1]))
+            if not tiles[loc[0],loc[1]] and walkable:
+                break
+
+        return path
+
 
 class Projectile(Consumable):
 
@@ -216,49 +259,6 @@ class Projectile(Consumable):
             return
 
         super().consume()
-
-    def get_path_to(self, dest_x, dest_y, walkable=True, thru_tail=True):
-        """versatile bresenham"""
-        gm = self.gamemap
-        tiles = gm.tiles['walkable'] if walkable else np.full((gm.width,gm.height),fill_value=True,order="F")
-        tiles = np.array(tiles, dtype=np.bool)
-
-        for entity in gm.entities:
-            if entity.blocks_movement:
-                if thru_tail and entity in self.engine.player.inventory.items:
-                    continue
-                tiles[entity.x,entity.y] = False
-
-        path = []
-        start = loc = [self.engine.player.x, self.engine.player.y]
-        dest = [dest_x, dest_y]
-        dist = [abs(dest[0]-loc[0]), abs(dest[1]-loc[1])]
-
-        a = 1 if dist[1] > dist[0] else 0
-        b = 1 if a == 0 else 0
-
-        D = (2 * dist[b]) - dist[a]
-
-        while loc != [dest_x, dest_y] and len(path) < 100:
-            if dest[a] > loc[a]:
-                loc[a] += 1
-            if dest[a] < loc[a]:
-                loc[a] -= 1
-
-            if D > 0:
-                if dest[b] > loc[b]:
-                    loc[b] += 1
-                if dest[b] < loc[b]:
-                    loc[b] -= 1                    
-                D = D - (2*dist[a])
-
-            D = D + (2*dist[b])
-
-            path.append((loc[0],loc[1]))
-            if not tiles[loc[0],loc[1]] and walkable:
-                break
-
-        return path
 
     def get_path_past(self, dest_x, dest_y, walkable=True):
         path = self.get_path_to(dest_x,dest_y,walkable)
@@ -510,8 +510,18 @@ class VacuumConsumable(Consumable):
             return
 
         self.engine.message_log.add_message("The resulting void attracts all nearby items!")
-        for i in to_swallow:
-            i.place(*action.entity.xy)
+
+        t = 0.12/len(to_swallow)
+        while len(to_swallow):
+            to_swallow = [i for i in to_swallow if i.xy != action.entity.xy]
+            for i in to_swallow:
+                path = self.get_path_to(*i.xy)
+                if len(path) > 1:
+                    i.place(*path[-2])
+                else:
+                    i.place(*action.entity.xy)
+            self.engine.animation_beat(t)
+        
         actions.PickupAction(action.entity).perform()
 
 
@@ -530,11 +540,15 @@ class VacuumProjectile(Consumable):
 
         if len(to_destroy) < 1:
             self.engine.message_log.add_message("It whines loudly before popping out of existence.", color.grey)
+            return
 
+        t = 0.24/len(to_destroy)
         if len(to_destroy) > 0:
             self.engine.message_log.add_message("It collects all the loot it can before disappearing into the shadows.")
+            random.shuffle(to_destroy)
             for i in to_destroy:
                 i.die()
+                self.engine.animation_beat(t)
 
 
 class HookshotProjectile(Projectile):
