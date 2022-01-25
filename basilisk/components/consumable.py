@@ -432,14 +432,17 @@ class EntanglingConsumable(Projectile):
     def activate(self, action: actions.ItemAction) -> None:
         x,y = action.target_xy
 
-        for xi in range(x-self.radius,x+self.radius+1):
-            for yi in range(y-self.radius,y+self.radius+1):
-                if (
-                    math.sqrt((xi-x) ** 2 + (yi-y) ** 2) <= self.radius and 
-                    self.engine.game_map.tile_is_walkable(xi,yi) and
-                    not self.engine.game_map.tiles[xi,yi] in (tile_types.down_stairs)
-                ):
-                    self.engine.game_map.tiles[(xi,yi)] = tile_types.snake_only
+        self.engine.animation_beat(0)
+        for r in range(self.radius+1):
+            for xi in range(x-r,x+r+1):
+                for yi in range(y-r,y+r+1):
+                    if (
+                        math.sqrt((xi-x) ** 2 + (yi-y) ** 2) <= r and 
+                        self.engine.game_map.tile_is_walkable(xi,yi) and
+                        not self.engine.game_map.tiles[xi,yi] in (tile_types.down_stairs)
+                    ):
+                        self.engine.game_map.tiles[(xi,yi)] = tile_types.snake_only
+            self.engine.animation_beat(0.06)
 
         self.engine.message_log.add_message("The ground turns to snakestone -- only you can traverse it.")
 
