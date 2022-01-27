@@ -20,22 +20,6 @@ D_ARROWS = ['↑', '↓', '\\', '←', '/', '/','→','\\']
 D_KEYS = ['K','J','Y','H','B','U','L','N']
 ALPHA_CHARS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
-def render_bar(
-    console: Console, current_value: int, maximum_value: int, total_width: int
-) -> None:
-    bar_width = int(float(current_value) / maximum_value * total_width)
-
-    console.draw_rect(x=0, y=45, width=20, height=1, ch=1, bg=color.dark_red)
-
-    if bar_width > 0:
-        console.draw_rect(
-            x=0, y=45, width=bar_width, height=1, ch=1, bg=color.snake_green
-        )
-
-    console.print(
-        x=1, y=45, string=f"HP: {current_value}/{maximum_value}", fg=color.white
-    )
-
 def render_dungeon_level(
     console: Console, dungeon_level: int, location: Tuple[int, int], word_mode: bool, turn_count: int, do_turn_count: bool
 ) -> None:

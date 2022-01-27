@@ -223,7 +223,7 @@ acidic = Item(
     spitable=consumable.DamageAllConsumable(damage=3),
     rarity='r',
     stat='BILE',
-    flavor='Carved from the fangs of your predecessors, this segment still drips with their legendary venom.'
+    flavor='Carved from the fangs of your predecessors, it still drips with their legendary venom.'
 )
 
 petrified = Item(

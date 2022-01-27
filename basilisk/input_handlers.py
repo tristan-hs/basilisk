@@ -15,7 +15,7 @@ from basilisk.actions import (
     WaitAction,
     PickupAction,
 )
-from basilisk.render_functions import DIRECTIONS, D_ARROWS
+from basilisk.render_functions import DIRECTIONS, D_ARROWS, render_player_drawer
 from basilisk.components.status_effect import PetrifiedSnake
 from basilisk.tile_types import NAMES, FLAVORS
 
@@ -355,7 +355,7 @@ class AskUserEventHandler(EventHandler):
         """
         return MainGameEventHandler(self.engine)
 
-    def print_multicolor_box(self, console, x, y, width, height, parts):
+    def print_multicolor_box(self, console, x, y, width, height, parts, override_color=None):
         """For highlighting stat-affected numbers"""
         wx = x
         wy = y
@@ -364,7 +364,8 @@ class AskUserEventHandler(EventHandler):
                 if wx + len(word) > x+width:
                     wx = x
                     wy += 1
-                console.print(wx,wy,word,part[1])
+                c = part[1] if part[1] != color.offwhite or not override_color else override_color
+                console.print(wx,wy,word,c)
                 wx += len(word)+1
 
     def print_multicolor(self,console,x,y,body):
@@ -750,20 +751,20 @@ class InventoryEventHandler(AskUserEventHandler):
     """
 
     TITLE = "<missing title>"
-    tooltip = "(d)igest/(s)pit"
+    tooltip = None
+    connect_to_player_panel = True
+    cursor_keys = CURSOR_Y_KEYS
 
     def __init__(self, engine: Engine, i_filter=lambda x: True):
         super().__init__(engine)
+        self.show_spit = self.show_digest = self.show_passive = True
+
         self.items = [i for i in engine.player.inventory.items if i_filter(i)]
         self.inventory_length = len(self.items)
         self.cursor = 0
         self.frame_width = max(len(i) for i in (self.TITLE, range(31), self.tooltip) if i is not None)+4
-        if engine.player.x <= 30:
-            self.frame_x = 80-self.frame_width-1
-        else:
-            self.frame_x = 1
-        self.frame_y = 1
-        self.show_spit = self.show_digest = self.show_passive = True
+        self.last_y = 36-self.frame_height
+        self.frame_x = 71-self.frame_width if engine.player.x < 71-self.frame_width or engine.player.y < self.last_y else 0
 
     @property
     def highlighted_item(self) -> Optional[Item]:
@@ -771,81 +772,137 @@ class InventoryEventHandler(AskUserEventHandler):
             return self.items[self.cursor]
         return None
 
-    def get_frame_height(self, console: tcod.Console) -> int:
-        inner = 3
-        if self.highlighted_item:
-            if self.highlighted_item.identified:
-                if self.show_digest:
-                    self.digest_height = console.get_height_rect(
-                        self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.highlighted_item.edible.description
-                    )
-                    inner += self.digest_height + 1
-
-                if self.show_spit:
-                    self.spit_height = console.get_height_rect(
-                        self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.highlighted_item.spitable.description
-                    )
-                    inner += self.spit_height + 1
-
-                if self.show_passive and self.highlighted_item.stat:
-                    self.passive_height = console.get_height_rect(
-                        self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,f"+1 to AAAA while in WORD MODE"
-                    )
-                    inner += self.passive_height + 1
-
-            if self.highlighted_item.flavor:
-                self.flavor_height = console.get_height_rect(
-                    self.frame_x+1,self.frame_y+1,self.frame_width-2,47-inner,self.highlighted_item.flavor
-                )
-                inner += self.flavor_height + 1
-
-        return inner
-
     def highlight_item(self, console: tcod.Console):
         x, y = self.highlighted_item.xy
         console.tiles_rgb["bg"][x, y] = color.white
         console.tiles_rgb["fg"][x, y] = color.black
 
+    @property
+    def frame_height(self):
+        if not self.highlighted_item:
+            return 5
+
+        h = 19
+
+        if not self.show_digest:
+            h -= 4
+
+        if not self.show_spit:
+            h -= 4
+
+        if not self.show_passive:
+            h -= 4
+
+        return h
+
+    @property
+    def frame_y(self):
+        return self.last_y
+
+
+    def render_title(self,console):
+        y = self.frame_y+2 if self.connect_to_player_panel else self.frame_y-1
+        console.print_box(self.frame_x,y,22+len(self.TITLE),1,self.TITLE,fg=color.grey,bg=color.black,alignment=tcod.RIGHT)
+
+
     def render_item_panel(self, console: tcod.Console):
-        # print main popup
-        console.draw_frame(
-            x=self.frame_x,
-            y=self.frame_y,
-            width=self.frame_width,
-            height=self.frame_height,
-            title=self.TITLE,
-            clear=True,
-            fg=(50, 150, 50),
-            bg=(0, 0, 0),
-        )
+        x = self.frame_x
+        y = self.frame_y
 
-        y = self.frame_y+1
-        x = self.frame_x+1
+        c1 = color.offwhite
+        h = self.frame_height
+        c2 = color.grey
 
-        if self.highlighted_item:
-            console.print(x,y, self.highlighted_item.label, self.highlighted_item.color)
-            y += 2
+        i = self.highlighted_item
+        c3 = i.color if i else color.grey
 
-            if self.highlighted_item.identified:
-                if self.show_digest:
-                    console.print(x,y,"Digest:",color.offwhite)
-                    self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.edible.description_parts)
-                    y += self.digest_height+1
-                
-                if self.show_spit:
-                    console.print(x,y,"Spit:",color.offwhite)
-                    self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.highlighted_item.spitable.description_parts)
-                    y += self.spit_height+1
+        console.draw_frame(x,y+3,36,h,fg=c2,bg=color.black)
+        self.render_title(console)
 
-                if self.show_passive and self.highlighted_item.stat:
-                    console.print(x,y,"Passive:",color.offwhite)
-                    console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,f"+1 to {self.highlighted_item.stat} while in WORD MODE",color.offwhite)
-                    y += self.passive_height+1
-            
-            if self.highlighted_item.flavor:
-                console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.highlighted_item.flavor,color.grey)
+        x += 2
+        y += 2
+
+        if i:
+            l = i.label if i.label != i.char else '???'
+            tab_width = len(l) + 12
+
+            console.draw_frame(x-2,y-1,tab_width,3,fg=c2,bg=color.black)
+            console.print(x-2,y+1,'│'+' '*(tab_width-2)+'└',fg=c2,bg=color.black)
+
+            console.print(x,y, f"▒{i.char}▒", fg=color.black,bg=i.color)
+            console.print(x+8,y,l,fg=i.color,bg=color.black)
+            y += 3
+
+            if self.show_digest:
+                console.print(x,y,"Digest",c1)
+                digest = i.edible.description_parts if i.identified else [('???',c2)]
+                self.print_multicolor_box(console, x+8,y,23,3,digest, c2)
+                y += 4
+
+            if self.show_spit:
+                console.print(x,y,"Spit",c1)
+                spit = i.spitable.description_parts if i.identified else [('???',c2)]
+                self.print_multicolor_box(console, x+8,y,23,3,spit, c2)
+                y += 4
+
+            if self.show_passive:
+                if i.stat and i.identified:
+                    passive = [("+1 to ",c2),(i.stat,color.stats[i.stat]),(" while in WORD MODE",c2)]
+                elif not i.identified:
+                    passive = [('???',c2)]
+                else:
+                    passive = [('n/a',c2)]
+
+                console.print(x,y,"Passive",c1)
+                self.print_multicolor_box(console, x+8,y,23,3,passive)
+                y += 4
+
+            if i.flavor:
+                console.print_box(x,y,32,3,i.flavor,color.dark_grey)
+
         else:
-            console.print(self.frame_x+1,self.frame_y+1,"(None)", color.grey)
+            console.print(x,y+3,"empty", color.grey)
+            self.connect_to_player_panel = False
+
+
+    @property
+    def highlighted_item_height(self):
+        return 35 - len(self.engine.player.inventory.items) + self.engine.player.inventory.items.index(self.highlighted_item)
+
+
+    def render_player_panel_connection(self,console):
+        x = 73
+        y = self.highlighted_item_height-2
+        #c = self.highlighted_item.color
+        c = color.grey
+        c3 = color.dark_grey
+
+        wire_length = x - (self.frame_x+self.frame_width) - 1
+
+        console.draw_frame(x,y,3,5,fg=c,bg=color.black)
+        console.print_box(x+1,y+1,1,3,"↑\n\n↓",fg=color.offwhite,bg=color.black)
+
+        bottom = 39
+        console.print(x-1-wire_length,self.frame_y+self.frame_height+2,'╣',fg=c3,bg=color.black)
+
+        for i in range(self.frame_y+self.frame_height+3,bottom):
+            console.print(x-1-wire_length,i,'║',fg=c3)
+
+        console.print(x-1-wire_length,bottom,'╚',fg=c3)
+        for i in range(wire_length+1):
+            console.print(x-i,bottom,'═',fg=c3)
+
+        console.print(x,bottom,'╝',fg=c3)
+        for i in range(y+5,bottom):
+            console.print(x,i,'║',fg=c3)
+        console.print(x,y+4,'╠',fg=c3,bg=color.black)
+
+        c2 = self.highlighted_item.color
+        console.print(x+3,y+2,'▒▒▒',bg=c2)
+        render_player_drawer(console,(77,9),self.engine.player,self.engine.turn_count,self.engine.word_mode)
+        for i in [3,4,5]:
+            console.tiles_rgb[x+i,y+2]['fg'] = color.black
+
 
     def render_items_drawer(self, console: tcod.Console):
         w = self.frame_width-2 if self.frame_width % 2 != 0 else self.frame_width - 3
@@ -855,10 +912,9 @@ class InventoryEventHandler(AskUserEventHandler):
             width=w,
             height=3,
             clear=True,
-            fg=(100,100,100),
+            fg=color.grey,
             bg=(0,0,0)
         )
-        console.print_box(self.frame_x+1,self.frame_y+self.frame_height+1,w,1,'(←/→)',fg=(100,100,100),bg=(0,0,0),alignment=tcod.CENTER)
 
         space = self.frame_width-6 if self.frame_width % 2 == 0 else self.frame_width-5
         start_at = min(self.cursor - (space/2), len(self.items)-space-1)
@@ -878,11 +934,17 @@ class InventoryEventHandler(AskUserEventHandler):
         w = self.frame_width if self.frame_width % 2 == 0 else self.frame_width - 1
         ttw = len(self.tooltip) if len(self.tooltip) % 2 == 0 else len(self.tooltip) - 1
         ttx = int(self.frame_x + (w/2) - (ttw/2))
-        console.print(ttx, self.frame_y+self.frame_height-1, self.tooltip)
+        y = self.frame_y+self.frame_height-1 if not self.connect_to_player_panel else self.frame_y+self.frame_height+2
+        if self.TITLE in ["REARRANGE","PICKUP"]:
+            y += 3
+        console.draw_frame(ttx-1,y-1,len(self.tooltip)+2,3,fg=color.grey,bg=color.black)
+        console.print(ttx, y, self.tooltip, color.offwhite)
+        console.print(ttx-1,y,'┤',fg=color.grey,bg=color.black)
+        console.print(ttx-1+len(self.tooltip)+1,y,'├',fg=color.grey,bg=color.black)
+        if len(self.tooltip) == 3:
+            console.print(ttx+1,y,'/',color.grey)
 
     def render_menu(self, console: tcod.Console):
-        self.frame_height = self.get_frame_height(console)
-
         if self.highlighted_item:
             self.render_items_drawer(console)
             self.highlight_item(console)
@@ -892,6 +954,8 @@ class InventoryEventHandler(AskUserEventHandler):
         if self.tooltip:
             self.render_tooltip(console)
 
+        if self.connect_to_player_panel:
+            self.render_player_panel_connection(console)
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -902,9 +966,11 @@ class InventoryEventHandler(AskUserEventHandler):
         if len(self.items) < 1:
             return super().ev_keydown(event)
 
+        keys = self.cursor_keys
+
         # Scroll through inventory
-        if event.sym in CURSOR_X_KEYS:
-            adjust = CURSOR_X_KEYS[event.sym]
+        if event.sym in keys:
+            adjust = keys[event.sym]
             if adjust < 0 and self.cursor == 0:
                 # Only move from the top to the bottom when you're on the edge.
                 self.cursor = max(self.inventory_length - 1, 0)
@@ -1133,7 +1199,8 @@ class CompendiumHandler(AskUserEventHandler):
 
 
 class InventorySelectHandler(InventoryEventHandler):
-    TITLE = "Select a segment"
+    TITLE = "INVENTORY"
+    tooltip = "d/s"
 
     def on_item_used(self, item: Item, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         if event.sym == tcod.event.K_s:
@@ -1146,8 +1213,8 @@ class InventorySelectHandler(InventoryEventHandler):
 class InventorySpitHandler(InventoryEventHandler):
     """Handle using an inventory item."""
 
-    TITLE = "Select a segment to spit"
-    tooltip = None
+    TITLE = "SPIT"
+    tooltip = "enter"
 
     def __init__(self,engine):
         super().__init__(engine)
@@ -1159,8 +1226,8 @@ class InventorySpitHandler(InventoryEventHandler):
 
 
 class InventoryDigestHandler(InventoryEventHandler):
-    TITLE = "Select a segment to digest"
-    tooltip = None
+    TITLE = "DIGEST"
+    tooltip = "enter"
 
     def __init__(self,engine):
         super().__init__(engine)
@@ -1171,8 +1238,8 @@ class InventoryDigestHandler(InventoryEventHandler):
 
 
 class InventoryIdentifyHandler(InventoryEventHandler):
-    TITLE = "Select a segment to identify"
-    tooltip = None
+    TITLE = "IDENTIFY"
+    tooltip = "enter"
 
     def __init__(self,engine: Engine, identifier: Item):
         super().__init__(engine, lambda x:x.identified == False and x.char != identifier.char)
@@ -1186,8 +1253,10 @@ class InventoryIdentifyHandler(InventoryEventHandler):
             return super().on_exit()
 
 class InventoryRearrangeHandler(InventoryEventHandler):
-    TITLE = "Rearrange yourself"
-    tooltip = None
+    TITLE = "REARRANGE"
+    tooltip = "← enter →"
+    cursor_keys = CURSOR_X_KEYS
+    connect_to_player_panel = False
 
     def __init__(self, engine: Engine, rearranger: Item):
         super().__init__(engine, lambda x:x is not rearranger)
@@ -1199,11 +1268,21 @@ class InventoryRearrangeHandler(InventoryEventHandler):
         if self.rearranger.identified:
             return super().on_exit()
 
-    def render_menu(self, console: tcod.Console):
-        self.frame_height = 3
+    @property
+    def frame_height(self):
+        return 3
 
+    def render_menu(self, console: tcod.Console):
         self.render_items_drawer(console)
         self.render_input_panel(console)
+        self.render_tooltip(console)
+        self.render_title(console)
+
+    def render_tooltip(self,console):
+        super().render_tooltip(console)
+        console.print(self.frame_x+11,self.frame_y+4,"┐\n└",fg=color.grey)
+        console.print(self.frame_x+23,self.frame_y+4,"┌\n┘",fg=color.grey)
+
 
     def render_input_panel(self, console: tcod.Console):
         console.draw_frame(
@@ -1212,8 +1291,8 @@ class InventoryRearrangeHandler(InventoryEventHandler):
             width=self.frame_width,
             height=self.frame_height,
             clear=True,
-            fg=(50,150,50),
-            bg=(0,0,0)
+            fg=color.grey,
+            bg=color.black
         )
 
         chars = ''.join([i.char for i in self.selected_items])+'_'*len(self.items)
@@ -1242,7 +1321,7 @@ class InventoryRearrangeHandler(InventoryEventHandler):
 
 
 class OrderPickupHandler(InventoryRearrangeHandler):
-    TITLE="Choose pickup order"
+    TITLE="PICKUP"
 
     def __init__(self,engine):
         super().__init__(engine,None)
