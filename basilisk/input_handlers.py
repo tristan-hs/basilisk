@@ -779,7 +779,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
     @property
     def frame_height(self):
-        if not self.highlighted_item:
+        if not self.highlighted_item or self.highlighted_item is self.engine.player:
             return 5
 
         h = 19
@@ -805,7 +805,7 @@ class InventoryEventHandler(AskUserEventHandler):
         console.print_box(self.frame_x,y,22+len(self.TITLE),1,self.TITLE,fg=color.grey,bg=color.black,alignment=tcod.RIGHT)
 
 
-    def render_item_panel(self, console: tcod.Console):
+    def render_item_panel(self, console: tcod.Console, just_the_frame = False):
         x = self.frame_x
         y = self.frame_y
 
@@ -814,7 +814,7 @@ class InventoryEventHandler(AskUserEventHandler):
         c2 = color.grey
 
         i = self.highlighted_item
-        c3 = i.color if i else color.grey
+        c3 = i.color if i and hasattr(i,'color') else color.grey
 
         console.draw_frame(x,y+3,36,h,fg=c2,bg=color.black)
         self.render_title(console)
@@ -823,11 +823,14 @@ class InventoryEventHandler(AskUserEventHandler):
         y += 2
 
         if i:
-            l = i.label if i.label != i.char else '???'
+            l = i.label if hasattr(i,'label') and i.label != i.char else '???'
             tab_width = len(l) + 12
 
             console.draw_frame(x-2,y-1,tab_width,3,fg=c2,bg=color.black)
             console.print(x-2,y+1,'│'+' '*(tab_width-2)+'└',fg=c2,bg=color.black)
+
+            if just_the_frame:
+                return
 
             console.print(x,y, f"▒{i.char}▒", fg=color.black,bg=i.color)
             console.print(x+8,y,l,fg=i.color,bg=color.black)
@@ -1197,7 +1200,6 @@ class CompendiumHandler(AskUserEventHandler):
         return super().ev_keydown(event)
 
 
-
 class InventorySelectHandler(InventoryEventHandler):
     TITLE = "INVENTORY"
     tooltip = "d/s"
@@ -1251,6 +1253,7 @@ class InventoryIdentifyHandler(InventoryEventHandler):
     def on_exit(self):
         if self.identifier.identified:
             return super().on_exit()
+
 
 class InventoryRearrangeHandler(InventoryEventHandler):
     TITLE = "REARRANGE"
@@ -1433,6 +1436,7 @@ class LookHandler(SelectIndexHandler):
 
         return super().ev_keydown(event)
 
+
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
 
@@ -1446,6 +1450,7 @@ class SingleRangedAttackHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))
+
 
 class SingleProjectileAttackHandler(SelectIndexHandler):
     thru_actors = False
@@ -1506,7 +1511,6 @@ class SingleDrillingProjectileAttackHandler(SingleProjectileAttackHandler):
         return self.callback(self.path_to_target[i])
 
 
-
 class AreaRangedAttackHandler(SelectIndexHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""
 
@@ -1547,6 +1551,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         self.highlight = False
         return self.callback((x, y))
 
+
 class PopupMessage(BaseEventHandler):
     """Display a popup text window."""
 
@@ -1574,6 +1579,7 @@ class PopupMessage(BaseEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
         """Any key returns to the parent handler."""
         return self.parent
+
 
 class PlayMenuHandler(AskUserEventHandler):
     """ Maybe left-align then pop-out new options as you go? 
@@ -1671,13 +1677,20 @@ class PlayMenuHandler(AskUserEventHandler):
         self.engine.meta.tutorials = not self.engine.meta.tutorials
 
 
-class InspectHandler(AskUserEventHandler):
+class ThingToInspect():
+    def __init__(self,color,label,char):
+        self.color = color
+        self.label = 'a'*(len(label)-4)
+        self.char = char
+
+class InspectHandler(InventoryEventHandler):
     """For inspecting things"""
+    TITLE = "INSPECT"
 
     def __init__(self, engine: Engine, key, parent_handler, mode="nearby", mouse_location=(0,0)):
-        super().__init__(engine)
-        if mode == 'mouse':
-            engine.mouse_location = mouse_location
+
+        self.xy = engine.mouse_location = mouse_location
+        self.mode = mode
 
         self.is_tile = False
         key = ALPHA_KEYS[key]
@@ -1687,91 +1700,72 @@ class InspectHandler(AskUserEventHandler):
             self.thing = thing = engine.mouse_things[key]
             if key == len(engine.mouse_things)-1 and (engine.game_map.visible[x,y] or engine.game_map.explored[x,y] or engine.game_map.mapped[x,y]):
                 self.is_tile = True
+                self.tile = engine.game_map.tiles["light"][x,y]
         elif key >= len(engine.fov_actors):
             dsx,dsy = engine.game_map.downstairs_location
             self.thing = thing = engine.game_map.tiles[dsx,dsy]
             self.is_tile = True
+            self.tile = engine.game_map.tiles["light"][dsx,dsy]
         else:
             self.thing = thing = engine.fov_actors[key]
 
         if self.is_tile:
             self.title = NAMES[thing[5]]
-            self.frame_color = color.grey
-            self.flavor = FLAVORS[thing[6]] 
+            self.flavor = FLAVORS[thing[6]]
 
         else:
             self.title = thing.label if hasattr(thing,'ai') or thing.identified else '???'
-            self.frame_color = thing._color if hasattr(thing,'ai') else thing.color
             self.flavor = thing.flavor
-
-        self.frame_width = max(len(i) for i in (self.title, range(31)) if i is not None)+4
-        if engine.player.x <= 30:
-            self.frame_x = 80-self.frame_width-1
-        else:
-            self.frame_x = 1
-        self.frame_y = 1
 
         self.parent = parent_handler
 
-    def get_frame_height(self, console: tcod.Console) -> int:
+        super().__init__(engine)
+
+    @property
+    def highlighted_item(self):
+        if self.is_tile:
+            return ThingToInspect(color.grey,self.title,chr(self.tile[0]))
+        elif hasattr(self.thing,'ai'):
+            return ThingToInspect(self.thing.color,self.thing.label,self.thing.char)
+        else:
+            return self.thing
+
+    @property
+    def frame_y(self):
+        return 1
+
+    @property
+    def frame_height(self):
         if self.thing is self.engine.player:
-            return 3
-
-        inner = console.get_height_rect(
-            self.frame_x+1,self.frame_y+1,self.frame_width-2,47,self.flavor
-        )+3 if self.flavor else 2
-
-        flavor = inner
-
-        if hasattr(self.thing, 'ai'):
-            inner += 1
-            if self.thing.name != "Decoy":
-                inner += 3
-            inner += len(self.thing.statuses)
-
-        elif not self.is_tile and self.thing.identified:
-            self.digest_height = console.get_height_rect(
-                self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.thing.edible.description
-            )
-            inner += self.digest_height
-
-            self.spit_height = console.get_height_rect(
-                self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,self.thing.spitable.description
-            )
-            inner += self.spit_height
-            inner += 1
-
-            if self.thing.stat:
-                self.passive_height = console.get_height_rect(
-                    self.frame_x+10,self.frame_y+1,self.frame_width-11,47-inner,f"Passive: +1 to AAAA while in WORD MODE"
-                )
-                inner += self.passive_height
-                inner += 1
-
-        return inner if inner != flavor else inner - 1
+            return 5
+        elif self.is_tile:
+            return 6
+        elif hasattr(self.thing,'ai'):
+            return 14 + len(self.thing.statuses)
+        else:
+            return super().frame_height
 
     def render_thing_panel(self, console: tcod.Console):
-        # print main popup
-        console.draw_frame(
-            x=self.frame_x,
-            y=self.frame_y,
-            width=self.frame_width,
-            height=self.frame_height,
-            title=self.title,
-            clear=True,
-            fg=self.frame_color,
-            bg=(0, 0, 0),
-        )
+        if not hasattr(self.thing,'ai') and not self.is_tile:
+            return super().render_item_panel(console)
+        else:
+            super().render_item_panel(console,True)
 
-        y = self.frame_y + 1
-        x = self.frame_x + 1
+        y = self.frame_y + 2
+        x = self.frame_x + 2
 
 
         if self.thing is self.engine.player:
-            console.print(x,y,"It's you!",fg=color.offwhite)
+            console.print(x,y,"@",fg=self.engine.player.color)
+            console.print(x+4,y,"Basilisk",fg=self.engine.player.color)
+            y += 3
+            console.print(x,y,"It's you!",fg=color.grey)
             return
 
         if hasattr(self.thing, 'ai'):
+            self.engine.game_map.print_actor_tile(self.thing,(x,y),console)
+            console.print(x+4,y,self.thing.name,fg=self.thing._color)
+            y += 3
 
             if self.thing.name != "Decoy":
                 #print health bar
@@ -1792,7 +1786,7 @@ class InspectHandler(AskUserEventHandler):
                     console.print(x+4+i,y,D_ARROWS[6],fg=self.thing._color)
                 y += 2
                 #print ai info
-            console.print(x,y,self.thing.ai.description,fg=color.offwhite)
+            console.print(x,y,self.thing.ai.description,fg=self.thing.ai.color)
             y += 1
             for status in self.thing.statuses:
                 dur = str(status.duration)
@@ -1801,40 +1795,27 @@ class InspectHandler(AskUserEventHandler):
                 y += 1
             y += 1
 
-        elif not self.is_tile and self.thing.identified:
-            #print spit
-            console.print(x,y,"Digest:",color.offwhite)
-            self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.thing.edible.description_parts)
-            y += self.digest_height+1
-            #print digest
-            console.print(x,y,"Spit:",color.offwhite)
-            self.print_multicolor_box(console, x+9,y,self.frame_width-11,self.frame_height-2,self.thing.spitable.description_parts)
-            y += self.spit_height+1
-            #print passive
-            if self.thing.stat:
-                console.print(x,y,"Passive:",color.offwhite)
-                console.print_box(x+9,y,self.frame_width-11,self.frame_height-2,f"+1 to {self.thing.stat} while in WORD MODE",color.offwhite)
-                y += self.passive_height+1
+        if self.is_tile:
+            tile = self.tile
+            console.print(x,y,chr(tile[0]),tuple(tile[1]),tuple(tile[2]))
+            console.print(x+4,y,self.title)
+            y += 3
         
         if self.flavor:
-            console.print_box(x,y,self.frame_width-2,self.frame_height-2,self.flavor,color.grey)
+            console.print_box(x,y,self.frame_width-4,self.frame_height-2,self.flavor,color.dark_grey)
 
 
     def render_menu(self, console: tcod.Console):
-        self.frame_height = self.get_frame_height(console)
         self.render_thing_panel(console)
 
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        self.render_menu(console)
-
-
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
-        return super().ev_keydown(event)
-
-    def on_exit(self):
+        self.engine.mouse_location = self.xy
         return self.parent
+
+    # via mouse
+    def on_exit(self):
+        return MainGameEventHandler(self.engine)
 
 
 
