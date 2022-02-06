@@ -61,7 +61,7 @@ def render_dungeon_level(
         fg=c,
         bg=(0,0,0)
     )
-    console.print(x=x-1,y=y,string='╚╦',fg=color.snake_green if word_mode else color.dark_grey)
+    console.print(x=x-1,y=y,string='╚╦',fg=color.dark_grey)
     console.print(x=x+1, y=y+1, string=f"D{dungeon_level}", fg=c)
 
 def render_instructions(console: Console, location: Tuple[int,int]) -> None:

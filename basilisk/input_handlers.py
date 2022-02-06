@@ -760,6 +760,8 @@ class InventoryEventHandler(AskUserEventHandler):
         self.show_spit = self.show_digest = self.show_passive = True
 
         self.items = [i for i in engine.player.inventory.items if i_filter(i)]
+        if not self.items:
+            self.tooltip = None
         self.inventory_length = len(self.items)
         self.cursor = 0
         self.frame_width = max(len(i) for i in (self.TITLE, range(31), self.tooltip) if i is not None)+4
@@ -802,6 +804,8 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def render_title(self,console):
         y = self.frame_y+2 if self.connect_to_player_panel else self.frame_y-1
+        if not self.items:
+            y += 3
         console.print_box(self.frame_x,y,22+len(self.TITLE),1,self.TITLE,fg=color.grey,bg=color.black,alignment=tcod.RIGHT)
 
 
