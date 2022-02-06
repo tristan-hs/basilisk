@@ -103,7 +103,7 @@ class HostileEnemy(BaseAI):
 
     @property
     def color(self):
-        return color.intent_bg if self.last_target else color.yellow
+        return color.intent_bg if self.last_target else color.grey
 
     @property
     def description(self):
