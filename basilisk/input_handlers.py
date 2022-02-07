@@ -506,14 +506,23 @@ class TutorialConfirm(EventHandler):
     def on_render(self,console):
         super().on_render(console)
 
-        width = 50
+        width = 52
         height = console.get_height_rect(
-            0,0,width-2,40,self.prompt
-        )
+            0,0,width-4,40,self.prompt
+        )+2
 
-        console.draw_frame(0,38-height,width,height+2,fg=color.offwhite,bg=color.black)
-        console.print_box(1,39-height,width-2,height,self.prompt,fg=color.offwhite,bg=color.black)
-        console.print_box(0,39,width,1, "(space)", fg=color.offwhite,bg=color.black,alignment=tcod.CENTER)
+        x = 0
+        y = 35
+
+        console.print(2,y-height-1,"TUTORIAL",fg=color.grey)
+        console.draw_frame(0,y-height,width,height+3,fg=color.grey,bg=color.black)
+        console.print_box(2,y-height+2,width-4,height-2,self.prompt,fg=color.grey,bg=color.black)
+
+        console.draw_frame(23,y+1,7,3,fg=color.grey,bg=color.black)
+        console.print(24,y+2,"space",fg=color.offwhite)
+        console.print(23,y+2,'┤',fg=color.grey,bg=color.black)
+        console.print(29,y+2,'├',fg=color.grey,bg=color.black)
+
 
     def ev_keydown(self,event):
         if event.sym == tcod.event.K_SPACE:
@@ -524,9 +533,9 @@ class TutorialConfirm(EventHandler):
 class ConfirmCombatHandler(EventHandler):
     def on_render(self,console):
         super().on_render(console)
-        console.draw_frame(0,37,16,3,fg=color.offwhite, bg=color.black)
-        console.print_box(1,38,79,1, "ENEMIES NEARBY", fg=color.offwhite, bg=color.black)
-        console.print_box(0,39,16,1, "(space)", fg=color.offwhite, bg=color.black,alignment=tcod.CENTER)
+        console.draw_frame(2,36,16,3,fg=color.offwhite, bg=color.black)
+        console.print_box(3,37,79,1, "ENEMIES NEARBY", fg=color.offwhite, bg=color.black)
+        console.print_box(2,38,16,1, "(space)", fg=color.offwhite, bg=color.black,alignment=tcod.CENTER)
 
     def ev_keydown(self,event):
         if event.sym == tcod.event.K_SPACE:
@@ -1152,7 +1161,7 @@ class CompendiumHandler(AskUserEventHandler):
         c2 = color.black
 
         w = max(len(i[2]) for i in self.rows)+6
-        h = len(self.rows)+3
+        h = len(self.rows)+4
 
         item = [i for i in self.rows if i[0] == self.cursor][0]
         x = w
@@ -1195,13 +1204,13 @@ class CompendiumHandler(AskUserEventHandler):
 
         for i,r in enumerate(self.rows):
             if not self.cursor == r[0]:
-                console.print(3,2+i,r[1],fg=r[3],bg=c2)
+                console.print(3,3+i,r[1],fg=r[3],bg=c2)
             else:
-                console.print(2,2+i,f"▒{r[1]}▒",bg=r[3],fg=color.black)
+                console.print(2,3+i,f"▒{r[1]}▒",bg=r[3],fg=color.black)
             fg = r[3] if self.cursor == r[0] else color.grey
             if self.cursor == r[0] and fg == color.grey:
                 fg = color.offwhite
-            console.print(6,2+i,r[2],fg=fg)
+            console.print(6,3+i,r[2],fg=fg)
 
     def ev_keydown(self,event):
         if event.sym in CURSOR_Y_KEYS:
