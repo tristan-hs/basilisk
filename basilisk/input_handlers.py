@@ -420,20 +420,18 @@ class DictionaryEventHandler(AskUserEventHandler):
     def on_render(self,console):
         super().on_render(console)
         v = self.valid_word
-        # dictionary on top
-        console.draw_frame(1,1,29,3,fg=color.offwhite)
-        console.print_box(1,1,29,1,"Dictionary",fg=color.black,bg=color.offwhite,alignment=tcod.CENTER)
-
-        console.print(2,2,self.input,fg=color.offwhite)
+        console.draw_frame(1,2,30,3,fg=color.grey)
+        console.print(3,1,"DICTIONARY",fg=color.grey)
+        console.print(3,3,self.input,fg=color.offwhite)
         if not v:
-            console.print(2+self.cursor,2,'_'*(26-self.cursor),fg=color.offwhite)
+            console.print(3+self.cursor,3,'_'*(26-self.cursor),fg=color.grey)
 
         if self.cursor > 0:
             n = '☺' if v else 'x'
             c = color.player if v else color.red
-            console.print(2+self.cursor,2,n,fg=c)
+            console.print(3+self.cursor,3,n,fg=c)
         else:
-            console.print(2,2,'_',fg=color.black,bg=color.offwhite)
+            console.print(3,3,'_',fg=color.black,bg=color.offwhite)
 
     def ev_textinput(self,event):
         # type to look stuff up
