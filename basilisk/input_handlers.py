@@ -1071,6 +1071,9 @@ class HelpMenuHandler(AskUserEventHandler):
             console.print(x+1,1,r[1],fg=fg,bg=c2)
             x += tab_width
 
+        x += 2
+        console.print(x,1,"INFO",fg=color.offwhite)
+
         console.draw_frame(1,2,70,39,fg=c1,bg=c2)
 
         self.print_multicolor(console,3,3,item[2])
@@ -1080,7 +1083,13 @@ class HelpMenuHandler(AskUserEventHandler):
         console.print(item_x,2,lchar,fg=c1,bg=c2)
         console.print(item_x+item_w-1,2,rchar,fg=c1,bg=c2)
         console.print(item_x+1,2,' '*len(item[1]),fg=c1,bg=c2)
-        console.print_box(1,40,70,1,"(←/→)",fg=c1,bg=c2,alignment=tcod.CENTER)
+
+        console.draw_frame(36,39,5,3,fg=color.offwhite,bg=color.black)
+        console.print(37,40, "← →", color.offwhite)
+        console.print(38,40,"/",color.grey)
+        console.print(36,40,'┤',fg=color.offwhite,bg=color.black)
+        console.print(40,40,'├',fg=color.offwhite,bg=color.black)
+
 
         if item[1] == 'constriction':
             self.frames += 1
