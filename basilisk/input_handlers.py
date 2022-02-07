@@ -1153,18 +1153,18 @@ class CompendiumHandler(AskUserEventHandler):
         c1 = color.offwhite
         c2 = color.black
 
-        w = max(len(i[2]) for i in self.rows)+4
-        h = len(self.rows)+2
+        w = max(len(i[2]) for i in self.rows)+6
+        h = len(self.rows)+3
 
         item = [i for i in self.rows if i[0] == self.cursor][0]
         x = w
         i = self.rows.index(item)
-        y = min(max(2,i), 13)
-        console.draw_frame(x,y,36,19,fg=c1,bg=c2)
-        console.print_box(x,y,36,1,item[2],alignment=tcod.CENTER,fg=c2,bg=c1)
-        console.print(x+1,y+2,"Digest:",fg=c1)
-        console.print(x+1,y+6,"Spit:",fg=c1)
-        console.print(x+1,y+10,"Passive:",fg=c1)
+        y = min(max(3,i), 14)
+        console.print(x+1,y-1,"COMPENDIUM",fg=color.grey,bg=color.black)
+        console.draw_frame(x,y,36,19,fg=color.grey,bg=c2)
+        console.print(x+1,y+2,"Digest",fg=c1)
+        console.print(x+1,y+6,"Spit",fg=c1)
+        console.print(x+1,y+10,"Passive",fg=c1)
 
         if item[2] == '???':
             digest,spit,passive = ([('???',color.grey)],[('???',color.grey)],[('???',color.grey)])
@@ -1176,21 +1176,34 @@ class CompendiumHandler(AskUserEventHandler):
                 passive = [('n/a',color.grey)]
 
 
-        self.print_multicolor_box(console,x+11,y+2,22,3,digest)
-        self.print_multicolor_box(console,x+11,y+6,22,3,spit)
-        self.print_multicolor_box(console,x+11,y+10,22,3,passive)
+        self.print_multicolor_box(console,x+9,y+2,24,3,digest,color.grey)
+        self.print_multicolor_box(console,x+9,y+6,24,3,spit,color.grey)
+        self.print_multicolor_box(console,x+9,y+10,24,3,passive,color.grey)
 
         if item[1] != "y":
-            console.print_box(x+1,y+14,33,3,item[4]._flavor,fg=color.grey)
+            console.print_box(x+1,y+14,33,3,item[4]._flavor,fg=color.dark_grey)
         else:
-            console.print_box(x+1,y+14,33,3,"Careful -- sometimes y is a vowel, but each game it can also duplicate one other consonant.",fg=color.grey)
+            console.print_box(x+1,y+14,33,3,"Careful -- sometimes y is a vowel, but each game it can also duplicate one other consonant.",fg=color.dark_grey)
 
-        console.draw_frame(1,1,w,h,fg=c1,bg=c2)
-        console.print_box(1,h,w,1,"(↑/↓)",fg=c1,bg=c2,alignment=tcod.CENTER)
+        console.draw_frame(1,1,w,h,fg=color.grey,bg=c2)
+
+        tt = "↑↓"
+        ttw = len(tt) if len(tt) % 2 == 0 else len(tt) - 1
+        ttx = int(1 + (w/2) - (ttw/2))
+        console.draw_frame(ttx-1,h-1,len(tt)+2,3,fg=color.grey,bg=color.black)
+        console.print(ttx, h, tt, color.offwhite)
+        console.print(ttx-1,h,'┤',fg=color.grey,bg=color.black)
+        console.print(ttx-1+len(tt)+1,h,'├',fg=color.grey,bg=color.black)
+
         for i,r in enumerate(self.rows):
-            console.print(2,2+i,r[1],fg=r[3],bg=c2)
-            fg,bg = (c1,c2) if not self.cursor == r[0] else (c2,c1)
-            console.print(4,2+i,r[2],fg=fg,bg=bg)
+            if not self.cursor == r[0]:
+                console.print(3,2+i,r[1],fg=r[3],bg=c2)
+            else:
+                console.print(2,2+i,f"▒{r[1]}▒",bg=r[3],fg=color.black)
+            fg = r[3] if self.cursor == r[0] else color.grey
+            if self.cursor == r[0] and fg == color.grey:
+                fg = color.offwhite
+            console.print(6,2+i,r[2],fg=fg)
 
     def ev_keydown(self,event):
         if event.sym in CURSOR_Y_KEYS:
