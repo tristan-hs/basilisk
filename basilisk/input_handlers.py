@@ -463,14 +463,21 @@ class Confirm(EventHandler):
 
     def on_render(self,console):
         self.parent.on_render(console)
+        c1 = color.offwhite
 
-        x, y = (7,7) if not self.engine else (1,37)
-        h = 5 if not self.engine else 3
-        w = 40 if not self.engine else len(self.prompt)+2
+        x, y = (7,7) if not self.engine else (1,30)
+        h = 8 if not self.engine else 6
+        w = 40 if not self.engine else len(self.prompt)+4
 
-        console.draw_frame(x,y,w,h, fg=color.white, bg=color.black)
-        console.print_box(x+1,y+1,w-2,3,self.prompt, fg=color.offwhite, bg=color.black)
-        console.print_box(x,y+h-1,w,1,"(y/n)",alignment=tcod.CENTER, fg=color.white)
+        console.draw_frame(x,y,w,h, fg=c1, bg=color.black)
+        console.print_box(x+2,y+2,w-3,3,self.prompt, fg=color.grey, bg=color.black)
+
+        ttx = int(x + w//2 - 2)
+        console.draw_frame(ttx,y+h-2,5,3,fg=c1,bg=color.black)
+        console.print(ttx+1,y+h-1,"y n",fg=color.offwhite)
+        console.print(ttx+2,y+h-1,"/",fg=color.grey)
+        console.print(ttx,y+h-1,'┤',fg=c1,bg=color.black)
+        console.print(ttx+4,y+h-1,'├',fg=c1,bg=color.black)
 
     def ev_keydown(self,event):
         if event.sym == tcod.event.K_n:
@@ -514,14 +521,16 @@ class TutorialConfirm(EventHandler):
         x = 0
         y = 35
 
-        console.print(2,y-height-1,"TUTORIAL",fg=color.grey)
-        console.draw_frame(0,y-height,width,height+3,fg=color.grey,bg=color.black)
+        c1 = color.offwhite
+
+        console.print(2,y-height-1,"TUTORIAL",fg=c1,bg=color.black)
+        console.draw_frame(0,y-height,width,height+3,fg=c1,bg=color.black)
         console.print_box(2,y-height+2,width-4,height-2,self.prompt,fg=color.grey,bg=color.black)
 
-        console.draw_frame(23,y+1,7,3,fg=color.grey,bg=color.black)
+        console.draw_frame(23,y+1,7,3,fg=c1,bg=color.black)
         console.print(24,y+2,"space",fg=color.offwhite)
-        console.print(23,y+2,'┤',fg=color.grey,bg=color.black)
-        console.print(29,y+2,'├',fg=color.grey,bg=color.black)
+        console.print(23,y+2,'┤',fg=c1,bg=color.black)
+        console.print(29,y+2,'├',fg=c1,bg=color.black)
 
 
     def ev_keydown(self,event):
