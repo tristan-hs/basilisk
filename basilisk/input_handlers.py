@@ -778,6 +778,7 @@ class InventoryEventHandler(AskUserEventHandler):
         self.items = [i for i in engine.player.inventory.items if i_filter(i)]
         if not self.items:
             self.tooltip = None
+            self.connect_to_player_panel = False
         self.inventory_length = len(self.items)
         self.cursor = 0
         self.frame_width = max(len(i) for i in (self.TITLE, range(31), self.tooltip) if i is not None)+4
@@ -885,7 +886,6 @@ class InventoryEventHandler(AskUserEventHandler):
 
         else:
             console.print(x,y+3,"empty", color.grey)
-            self.connect_to_player_panel = False
 
 
     @property
