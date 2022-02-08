@@ -211,7 +211,7 @@ class Engine:
         if render:
             self.console.clear()
             self.render(self.console)
-        self.terminal.present(self.console)
+        self.terminal.present(self.console,integer_scaling=True)
         time.sleep(t)
 
     @property

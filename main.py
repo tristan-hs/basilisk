@@ -53,7 +53,7 @@ def main() -> None:
                 while True:
                     root_console.clear()
                     handler.on_render(console=root_console)
-                    context.present(root_console)
+                    context.present(root_console, integer_scaling=True)
 
                     try:
                         for event in tcod.event.get():
@@ -65,7 +65,7 @@ def main() -> None:
                         while init_handler == handler:
                             root_console.clear()
                             handler.on_render(console=root_console)
-                            context.present(root_console)
+                            context.present(root_console, integer_scaling=True)
 
                             for event in tcod.event.get():
                                 context.convert_event(event)
