@@ -423,11 +423,11 @@ $Identification$
 $Items and WORD MODE$
 
  If your tail in order spells out a word in our dictionary, you're
- in WORD MODE. While you're in WORD MODE, your identified non-
+ in ^WORD MODE^. While you're in ^WORD MODE^, your identified non-
  vowel items boost your stats.
 
  Press $o$ then type a word to see if it's in our dictionary.
-""",[color.vowel] + random_item_colors)
+""",[color.vowel] + random_item_colors + [color.snake_green,color.snake_green])
 ##################################################################
 #d=36 (173)
 
@@ -512,3 +512,156 @@ $Why Am I Here?$
 ##################################################################
 #d=36 (256)
 #colorize: serpent, One Below, blue, Basilisk
+
+tutorial_messages = {
+
+  'new game':
+################################################
+("""
+$Welcome to Basilisk!$
+
+That ^@^ is you. Move with the num pad or the 
+vim keys (shown in the bottom left).
+
+Hit $?$ for more information.
+
+You can disable these tips from the in-game menu
+($ESC$).
+""",[color.player]),
+
+  'pick up': 
+################################################
+("""
+$You've picked up an item!$
+
+It's been added to the end of your tail. See how
+it follows you around the dungeon.
+
+Your tail is shown in order in the panel on the
+right.
+
+Press $i$ and scroll up and down for more infor-
+mation on the items in your tail.
+
+From inside or outside that menu, press $d$ or $s$ 
+to digest or spit an item.
+""",[]),
+
+  'word mode 2':
+################################################
+("""
+^You're back in WORD MODE!^
+
+This happens when your tail spells out a word. 
+
+Press $o$ at any time to look up a word.
+
+While in ^WORD MODE^, you can see where your
+enemies intend to move (^→^) and your identified
+consonants boost your stats.
+
+Press $?$ for more information on word mode,
+stats, and enemy behavior.
+""",[color.snake_green,color.snake_green,color.red]),
+  
+  'enemy':
+################################################
+("""
+$You spotted an enemy!$
+
+Once it can see a clear path to you, it will
+chase you down.
+
+Fortunately, you can constrict and paralyze it
+by moving your head into an adjacent tile.
+""",[]),
+    
+  'constrict':
+################################################
+("""
+$You're constricting an enemy!$
+
+While constricted, it can't move or act.
+
+The more completely you encircle it, the lower
+its health will go. But if you release it before
+killing it, it will recover.
+
+It will only die if its health is brought $below$
+zero.
+
+Press $?$ for more information on constriction.
+""",[]),
+
+  'consonant': 
+################################################
+("""
+$You've picked up a consonant!$
+
+You can $d$igest it or $s$pit it to find out what
+this letter does. Do so at your own risk.
+
+Your com$p$endium will track which items you've
+identified this run and which items you've en-
+countered across all your runs.
+
+Press $?$ for more information on items.
+""",[]),
+  
+  'stairs': 
+################################################
+("""
+$You've found stairs!$
+
+With your head on that tile, press $>$ to descend
+to the next level.
+""",[]),
+
+  'snakestone':
+################################################
+("""
+$You've just entered snakestone!$
+
+Enemies can't attack you while you're in it or
+follow you through it. Use it wisely.
+""",[]),
+
+  'new game 2':
+################################################
+("""
+$Welcome back to the dungeon!$
+
+Yes, back to the very beginning.
+
+You'll notice that your com$p$endium still knows
+about the consonants you found in your past
+lives. It just doesn't know what they look like
+in this one yet.
+""",[]),
+
+    'stat boost':
+################################################
+("""
+$One of your stats is buffed!$
+
+In the bottom right panel, each colored-in 
+letter represents 1 point in its stat.
+
+If the buff is temporary, you'll see the number 
+of turns remaining to the right of the stat.
+
+Press $?$ for more info on stats and status
+effects.
+""",[]),
+    
+  '100 turns':
+################################################
+("""
+Have you tried using your $mouse$ or the
+e$x$amination cursor to look around?
+
+You can $click$ or press an index key (shown in 
+the bottom left) for more information on what-
+ever's in the highlighted tile.
+""",[])
+}

@@ -209,6 +209,39 @@ class EventHandler(BaseEventHandler):
     def on_render(self, console: tcod.Console) -> None:
         self.engine.render(console)
 
+    def print_multicolor(self,console,x,y,body):
+        wx = x
+        wy = y
+        fg = color.grey
+        bg = None
+
+        fgs = body[1]
+        fg_index = 0
+
+        for c in body[0]:
+            if c == "\n":
+                wy += 1
+                wx = x
+                continue
+            if c == "$":
+                if fg == color.grey:
+                    fg = color.offwhite
+                else:
+                    fg = color.grey
+                continue
+            if c == "^":
+                if fg == color.grey:
+                    fg = fgs[fg_index]
+                    fg_index += 1
+                    if fg == color.black:
+                        bg = color.grey
+                else:
+                    fg = color.grey
+                    bg = None
+                continue
+            console.print(wx,wy,c,fg,bg)
+            wx += 1
+
 
 class MainGameEventHandler(EventHandler):
     def handle_events(self, event):
@@ -368,39 +401,6 @@ class AskUserEventHandler(EventHandler):
                 console.print(wx,wy,word,c)
                 wx += len(word)+1
 
-    def print_multicolor(self,console,x,y,body):
-        wx = x
-        wy = y
-        fg = color.grey
-        bg = None
-
-        fgs = body[1]
-        fg_index = 0
-
-        for c in body[0]:
-            if c == "\n":
-                wy += 1
-                wx = x
-                continue
-            if c == "$":
-                if fg == color.grey:
-                    fg = color.offwhite
-                else:
-                    fg = color.grey
-                continue
-            if c == "^":
-                if fg == color.grey:
-                    fg = fgs[fg_index]
-                    fg_index += 1
-                    if fg == color.black:
-                        bg = color.grey
-                else:
-                    fg = color.grey
-                    bg = None
-                continue
-            console.print(wx,wy,c,fg,bg)
-            wx += 1
-
 
 class DictionaryEventHandler(AskUserEventHandler):
     def __init__(self,engine):
@@ -496,27 +496,15 @@ class TutorialConfirm(EventHandler):
     def __init__(self,engine,prompt):
         super().__init__(engine)
         engine.meta.log_tutorial_event(prompt)
-        self.prompt = {
-            'new game': "Welcome to Basilisk!\n\nMovement controls are shown in the bottom left. You can also move with the numpad and wait with (.) or (5). Try moving over a vowel to pick it up.\n\n(If you wish to disable these tips, access the menu with ESC)",
-            'pick up': "You got your first item and added it to your tail!\n\nWhen you move, it will follow you around the dungeon. You can also see it in the panel on the right or in your inventory when you press i.\n\nNow that you've picked it up, you can't drop it, but you can digest or spit it by pressing d or s. It will also break when damaged.",
-            'word mode 2': "You're back in WORD MODE!\n\nWhen you're in WORD MODE you can see what your enemies will do before they act, and any identified consonants in your inventory will boost one of your 4 stats.\n\nWhen you aren't in WORD MODE you only see enemies' field of movement, and they'll decide what to do after you act.\n\nIf you want to know whether a word is in our dictionary, press o and type it in!\n\nPress ? at any time to review this and for more information.",
-            'enemy': "You spotted an enemy!\n\nOnce it can see a clear path to you, it will chase you relentlessly, making a bee-line for the closest piece of you. It will prefer your head over your tail, so be careful! It only takes one hit to the head to kill you.\n\nBut worry not, mighty Basilisk. Simply move your head into an adjacent tile to constrict and paralyze the enemy!",
-            'constrict': "Yes, constrict your prey!\n\nAs long as some part of you touches the enemy, it can't act and its health is reduced! This health reduction is always equal to the number of tiles around it that you occupy plus your TAIL stat.\n\nSo if you release your prey, its health comes right back. But the more completely you encircle it, the more deadly your constriction becomes.\n\nTake its health below zero to kill it!",
-            'consonant': "Oh, look! You've picked up a consonant!\n\nIf you check your inventory (i) you'll notice that this item is unidentified, but you can learn what it does by digesting it (d) or spitting it (s).\n\nYou can always check your compendium (p) for more info. It tracks all the items you've identified since you entered this dungeon.",
-            'stairs': "Stairs ahoy!\n\nRest your head on that tile and press > to descend to the next level. Don't worry about leaving your tail vulnerable; these stairs are swift.",
-            'snakestone': "You've just entered a patch of snakestone!\n\nEnemies can't attack what's in it or follow you through it. Use it wisely.",
-            'new game 2': "Welcome back to the dungeon!\n\nYes, back to the very beginning.\n\nYou'll notice, however, that your compendium (p) still knows about the consonants you found in your past lives. It just doesn't know what they look like yet.",
-            'stat boost': "Woah, lookin good! One of your stats is buffed.\n\nCheck the panel in the bottom right: each colored-in letter represents +1 to the relevant stat. A number next to a stat is how many turns you have left on your buff.\n\nFind more info in the help (?) menu.",
-            '100 turns': "Hey, have you tried using your mouse or the examination cursor (x) to look around?\n\nIf you click a tile or press the relevant index key (see the bottom left panel) while a tile is highlighted, you can learn more about your surroundings."
-        }[prompt]
+        self.prompt = help_pages.tutorial_messages[prompt]
 
     def on_render(self,console):
         super().on_render(console)
 
         width = 52
         height = console.get_height_rect(
-            0,0,width-4,40,self.prompt
-        )+2
+            0,0,width-4,40,self.prompt[0]
+        ) - 1
 
         x = 0
         y = 35
@@ -525,7 +513,7 @@ class TutorialConfirm(EventHandler):
 
         console.print(2,y-height-1,"TUTORIAL",fg=c1,bg=color.black)
         console.draw_frame(0,y-height,width,height+3,fg=c1,bg=color.black)
-        console.print_box(2,y-height+2,width-4,height-2,self.prompt,fg=color.grey,bg=color.black)
+        self.print_multicolor(console,2,y-height+1,self.prompt)
 
         console.draw_frame(23,y+1,7,3,fg=c1,bg=color.black)
         console.print(24,y+2,"space",fg=color.offwhite)
