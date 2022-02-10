@@ -235,23 +235,25 @@ class SubMenu(input_handlers.BaseEventHandler):
         console.print(7,47,"(ESC) to go back")
 
 class HistoryMenu(SubMenu):
-    # (type of record, record, turn count)
-            # types of record:
-                # pickup item
-                # spit item
-                # digest item
-                # break segment
-                # identify item
-
-                # kill enemy
-                # descend stairs
-                # form word
-                # win
-                # lose
     def __init__(self, parent):
         super().__init__(parent)
+        self.difficulties = ["ALL","EASY","NORMAL"]
+        self.difficulty_index = 0
+        self.calculate_stats()
 
-        history = self.parent.meta.old_runs
+    def calculate_stats(self):
+        # get history of the relevant difficulty; put old data in "easy"
+        difficulty = self.difficulties[self.difficulty_index].lower()
+        history = [run for run in self.parent.meta.old_runs if 
+            run[0][1] == difficulty or
+            difficulty == "all" or
+            (difficulty == "easy" and run[0][0] != "start")
+        ]
+
+        if not len(history):
+            self.stats = None
+            return
+
         shistory = [event for run in history for event in run]
         last_run = history[-1]
 
@@ -307,13 +309,21 @@ class HistoryMenu(SubMenu):
 
         self.stats = stats
 
-
     def on_render(self, console:tcod.Console) -> None:
         super().on_render(console)
         c2 = color.grey
         c3 = color.offwhite
 
         console.print(7,7,"HISTORY")
+
+        console.print(23,7,"←",fg=c3)
+        d_len = max([len(d) for d in self.difficulties])+2
+        console.print_box(25,7,d_len,1,f"({self.difficulties[self.difficulty_index]})",fg=c3,alignment=tcod.CENTER)
+        console.print(25+d_len+1,7,"→",fg=c3)
+
+        if not self.stats:
+            console.print(8,10,"N/A",c2)
+            return
 
         console.print(8,10,"Last run")
         s = self.stats['Last run']
@@ -362,6 +372,18 @@ class HistoryMenu(SubMenu):
             console.print(indent,y,i,c)
             y += 1
         return y
+
+    def ev_keydown(self,event):
+        if event.sym in input_handlers.CURSOR_X_KEYS:
+            self.difficulty_index += input_handlers.CURSOR_X_KEYS[event.sym]
+            if self.difficulty_index >= len(self.difficulties):
+                self.difficulty_index = 0
+            if self.difficulty_index < 0:
+                self.difficulty_index = len(self.difficulties)-1
+            self.calculate_stats()
+            return
+
+        return super().ev_keydown(event)
 
     
 class OptionsMenu(SubMenu):
@@ -414,15 +436,15 @@ class OptionsMenu(SubMenu):
 
 
 class Meta():
-    _fullscreen = True
-    _do_combat_confirm = True
-    _tutorials = True
-    _difficulty = "easy"
-    _c_controls = True
-    old_runs = []
-    tutorial_events = []
-
     def __init__(self, old_meta=None):
+        self._fullscreen = True
+        self._do_combat_confirm = True
+        self._tutorials = True
+        self._difficulty = "easy"
+        self._c_controls = True
+        self.old_runs = []
+        self.tutorial_events = []
+
         def override(name):
             if hasattr(old_meta,name):
                 setattr(self,name,getattr(old_meta,name))

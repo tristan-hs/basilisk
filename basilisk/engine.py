@@ -46,20 +46,7 @@ class Engine:
         self.just_turned_back_time = False
         self.difficulty = meta.difficulty
         self.frames = 0
-
-        #RUN STATS
-        self.history = []
-            # (type of record, record, turn count)
-            # types of record:
-                # pickup item
-                # spit item
-                # digest item
-                # break segment
-
-                # kill enemy
-                # descend stairs
-                # form word
-                # win
+        self.history = [("start",self.difficulty,0)]
 
     def log_run(self):
         self.meta.log_run(self.history)
