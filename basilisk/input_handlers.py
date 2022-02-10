@@ -1301,6 +1301,15 @@ class InventoryRearrangeHandler(InventoryEventHandler):
         if self.rearranger.identified:
             return super().on_exit()
 
+    def ev_quit(self,event):
+        if not self.rearranger or not self.rearranger.identified:
+            print("interrupting quit process")
+            self.selected_items += self.items
+            self.on_final_item_selected().perform()
+            print([i.char for i in self.engine.player.inventory.items])
+        return super().ev_quit(event)
+
+
     @property
     def frame_height(self):
         return 3
