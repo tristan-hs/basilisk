@@ -414,12 +414,11 @@ class OptionsMenu(SubMenu):
 
 
 class Meta():
-    version = "0.2"
-
     _fullscreen = True
     _do_combat_confirm = True
     _tutorials = True
     _difficulty = "easy"
+    _c_controls = True
     old_runs = []
     tutorial_events = []
 
@@ -429,7 +428,7 @@ class Meta():
                 setattr(self,name,getattr(old_meta,name))
 
         if old_meta:
-            for i in ['_fullscreen','_do_combat_confirm','_tutorials','_difficulty','old_runs','tutorial_events']:
+            for i in ['_fullscreen','_do_combat_confirm','_tutorials','_difficulty','old_runs','tutorial_events','_c_controls']:
                 override(i)
 
         self.save()
@@ -468,6 +467,15 @@ class Meta():
     @difficulty.setter
     def difficulty(self, new_val):
         self._difficulty = new_val
+        self.save()
+
+    @property
+    def c_controls(self):
+        return self._c_controls
+
+    @c_controls.setter
+    def c_controls(self,new_val):
+        self._c_controls = new_val
         self.save()
 
     def log_tutorial_event(self,event):

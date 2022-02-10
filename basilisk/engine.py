@@ -37,7 +37,6 @@ class Engine:
         self.player = player
         self.word_mode = False
         self.turn_count = 0
-        self.show_instructions = True if len(meta.old_runs) < 10 else False
         self.boss_killed = False
         self.time_turned = False
         self.meta = meta
@@ -64,6 +63,16 @@ class Engine:
 
     def log_run(self):
         self.meta.log_run(self.history)
+
+    @property
+    def show_instructions(self):
+        if not hasattr(self,"_show_instructions"):
+            self._show_instructions = self.meta.c_controls
+        return self._show_instructions
+
+    @show_instructions.setter
+    def show_instructions(self,new_val):
+        self._show_instructions = self.meta.c_controls = new_val
 
     # field of view
     @property
