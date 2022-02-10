@@ -53,7 +53,7 @@ def main() -> None:
                 while True:
                     root_console.clear()
                     handler.on_render(console=root_console)
-                    context.present(root_console, integer_scaling=True)
+                    context.present(root_console, integer_scaling=True, clear_color=(10,10,10))
 
                     try:
                         for event in tcod.event.get():
