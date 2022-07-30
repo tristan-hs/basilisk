@@ -11,7 +11,7 @@ defaults:
 
 env:
   python-version: "3.9.2"
-  pyinstaller-version: "4.2"
+  pyinstaller-version: "3.6"
   project-name: Basilisk
 
 jobs:
